@@ -1,0 +1,113 @@
+# --- CONFIG PV/PVC ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: syncthing-config-pv
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /mnt/media/k3stor/syncthing_config
+    server: truenas1.torquasmvo.internal
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: syncthing-config-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+  volumeName: syncthing-config-pv
+  storageClassName: ""
+  volumeMode: Filesystem
+
+# (PV/PVC blocks for citra, desmume, sync_saves, and christian_saves remain the same)
+
+# --- DEPLOYMENT ---
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: syncthing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: syncthing
+  template:
+    metadata:
+      labels:
+        app: syncthing
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: syncthing
+          image: lscr.io/linuxserver/syncthing
+          ports:
+            - containerPort: 8384
+            - containerPort: 22000
+              protocol: TCP
+            - containerPort: 22000
+              protocol: UDP
+            - containerPort: 21027
+              protocol: UDP
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "America/New_York"
+            - name: UMASK_SET
+              value: "000"
+          volumeMounts:
+            - name: syncthing-config
+              mountPath: /config
+            - name: syncthing-citra
+              mountPath: /citra
+            - name: syncthing-desmume
+              mountPath: /desmume
+            - name: syncthing-sync-root
+              mountPath: /sync_saves
+            - name: syncthing-christian
+              mountPath: /christian_saves
+      volumes:
+        - name: syncthing-config
+          persistentVolumeClaim:
+            claimName: syncthing-config-pvc
+        - name: syncthing-citra
+          persistentVolumeClaim:
+            claimName: syncthing-citra-pvc
+        - name: syncthing-desmume
+          persistentVolumeClaim:
+            claimName: syncthing-desmume-pvc
+        - name: syncthing-sync-root
+          persistentVolumeClaim:
+            claimName: syncthing-sync-root-pvc
+        - name: syncthing-christian
+          persistentVolumeClaim:
+            claimName: syncthing-christian-pvc
+
+# --- SERVICE (optional) ---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: syncthing-ui
+spec:
+  type: ClusterIP
+  selector:
+    app: syncthing
+  ports:
+    - name: gui
+      port: 8384
+      targetPort: 8384
+      protocol: TCP
