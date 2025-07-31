@@ -1,0 +1,102 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: jdownloader-output-pv
+spec:
+  capacity:
+    storage: 100Gi # Adjust based on your expected storage needs
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: "" # Use "" for static provisioning without a StorageClass
+  nfs:
+    server: truenas1.torquasmvo.internal
+    path: /mnt/media/downloaders/jdownloader
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: jdownloader-config-pv
+spec:
+  capacity:
+    storage: 5Gi # Adjust based on your expected storage needs
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: "" # Use "" for static provisioning without a StorageClass
+  nfs:
+    server: truenas1.torquasmvo.internal
+    path: /mnt/media/k3stor/jdownloader
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jdownloader-output-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi # This should match or be less than the PV capacity
+  storageClassName: "" # Important: This must match the PV's storageClassName
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jdownloader-config-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi # This should match or be less than the PV capacity
+  storageClassName: "" # Important: This must match the PV's storageClassName
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jdownloader-deployment
+  labels:
+    app: jdownloader
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jdownloader
+  template:
+    metadata:
+      labels:
+        app: jdownloader
+    spec:
+      containers:
+        - name: jdownloader
+          image: jlesage/jdownloader-2
+          ports:
+            - containerPort: 5800
+          volumeMounts:
+            - name: jdownloader-config-storage
+              mountPath: /config
+            - name: jdownloader-output-storage
+              mountPath: /output
+      volumes:
+        - name: jdownloader-config-storage
+          persistentVolumeClaim:
+            claimName: jdownloader-config-pvc
+        - name: jdownloader-output-storage
+          persistentVolumeClaim:
+            claimName: jdownloader-output-pvc
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jdownloader-service
+spec:
+  selector:
+    app: jdownloader # This must match the 'app' label in your Deployment's Pod template
+  ports:
+    - protocol: TCP
+      port: 5800      # The port on the Service (internal to the cluster)
+      targetPort: 5800 # The port your container (JDownloader) is listening on
+      nodePort: 30007 # The port on the Node that Traefik will access. Choose an available port between 30000-32767.
+  type: NodePort # This type exposes the service on a port on each Node's IP

@@ -1,0 +1,283 @@
+# ---
+# This manifest defines a Kubernetes setup for a Plex Media Server.
+# It includes PersistentVolumes (PVs) and PersistentVolumeClaims (PVCs) for
+# robust, direct access to existing NFS shares on your TrueNAS server,
+# and a Deployment to manage the Plex container.
+# ---
+
+# --- PersistentVolume for Movies ---
+# A PersistentVolume (PV) is a piece of storage in the cluster that has
+# been provisioned by an administrator or dynamically provisioned by a StorageClass.
+# In this case, we're explicitly defining a PV to point to an existing NFS share.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: plex-movies-pv # Unique name for this PersistentVolume
+spec:
+  # The storage capacity that this PV makes available.
+  # This should be a realistic (or slightly over) estimate of your NFS share's size.
+  # Kubernetes uses this for binding decisions.
+  capacity:
+    storage: 10Ti # IMPORTANT: Adjust this to your actual storage size for movies, e.g., 20Ti, 500Gi
+  # Access modes define how the volume can be mounted.
+  # ReadWriteMany (RWX) is typical for NFS, allowing multiple pods/nodes to read/write.
+  accessModes:
+    - ReadWriteMany
+  # This policy defines what happens to the volume after the PVC that claims it is deleted.
+  # 'Retain' means the underlying NFS data (and the PV object) is preserved,
+  # preventing accidental data loss. You'd manually clean up if needed.
+  persistentVolumeReclaimPolicy: Retain
+  # Specifies the NFS server details for this volume.
+  nfs:
+    path: /mnt/media/movies # The exact path to the exported share on your TrueNAS server
+    server: truenas1.torquasmvo.internal # The hostname or IP address of your TrueNAS server
+  # NFS Mount Options for improved performance and behavior.
+  # 'noatime' is particularly useful for media servers as it prevents the OS from
+  # writing access times every time a file is read, reducing I/O overhead.
+  # 'nfsvers=4.1' specifies NFS protocol version 4.1, often more efficient.
+  mountOptions:
+    - nfsvers=4.1
+    - noatime
+---
+# --- PersistentVolumeClaim for Movies ---
+# A PersistentVolumeClaim (PVC) is a request for storage by a user.
+# It "claims" a PersistentVolume that meets its criteria (access modes, size).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: plex-movies-pvc # Unique name for this PersistentVolumeClaim
+spec:
+  # Defines the access modes requested by the PVC.
+  # Must match an access mode supported by the PV it wants to bind to.
+  accessModes:
+    - ReadWriteMany
+  # The storage size requested by the application.
+  # Kubernetes will try to find a PV with at least this much capacity.
+  # This should match or be less than the corresponding PV's capacity.
+  resources:
+    requests:
+      storage: 10Ti # IMPORTANT: Match or be less than plex-movies-pv capacity
+  # Crucial for binding to manually defined PVs without a StorageClass.
+  # An empty string explicitly tells Kubernetes NOT to use a StorageClass
+  # (including the default one) for dynamic provisioning, but to bind to a static PV.
+  storageClassName: ""
+---
+# --- PersistentVolume for TV Shows ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: plex-tv-pv # Unique name for this PersistentVolume
+spec:
+  capacity:
+    storage: 10Ti # IMPORTANT: Adjust to your actual storage size for TV shows
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    path: /mnt/media/tv # Exact path to the TV shows share on TrueNAS
+    server: truenas1.torquasmvo.internal
+  mountOptions:
+    - nfsvers=4.1
+    - noatime
+---
+# --- PersistentVolumeClaim for TV Shows ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: plex-tv-pvc # Unique name for this PersistentVolumeClaim
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Ti # IMPORTANT: Match or be less than plex-tv-pv capacity
+  storageClassName: "" # Explicitly bind to static PV
+---
+# --- PersistentVolume for ZFS Transcode Scratch Space ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: plex-zfstranscode-pv # Unique name for this PersistentVolume
+spec:
+  capacity:
+    storage: 500Gi # IMPORTANT: Adjust to your actual storage size for transcode scratch
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    path: /mnt/media/plex_transcode # Exact path for Plex transcode scratch space
+    server: truenas1.torquasmvo.internal
+  mountOptions:
+    - nfsvers=4.1
+    - noatime
+---
+# --- PersistentVolumeClaim for ZFS Transcode Scratch Space ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: plex-zfstranscode-pvc # Unique name for this PersistentVolumeClaim
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 500Gi # IMPORTANT: Match or be less than plex-zfstranscode-pv capacity
+  storageClassName: "" # Explicitly bind to static PV
+---
+# --- PersistentVolume for Lily's GCS Cheers (assuming this is a media share) ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: plex-lily-pv # Unique name for this PersistentVolume
+spec:
+  capacity:
+    storage: 5Ti # IMPORTANT: Adjust to your actual storage size for lily's share
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    path: /mnt/media/nas/lily_gcs_cheers # Exact path for Lily's GCS Cheers share
+    server: truenas1.torquasmvo.internal
+  mountOptions:
+    - nfsvers=4.1
+    - noatime
+---
+# --- PersistentVolumeClaim for Lily's GCS Cheers ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: plex-lily-pvc # Unique name for this PersistentVolumeClaim
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Ti # IMPORTANT: Match or be less than plex-lily-pv capacity
+  storageClassName: "" # Explicitly bind to static PV
+---
+# --- PersistentVolume for Abbie's Pictures ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: plex-abbie-pv # Unique name for this PersistentVolume
+spec:
+  capacity:
+    storage: 2Ti # IMPORTANT: Adjust to your actual storage size for Abbie's pictures
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    path: /mnt/media/pictures/Abbie # Exact path for Abbie's pictures share
+    server: truenas1.torquasmvo.internal
+  mountOptions:
+    - nfsvers=4.1
+    - noatime
+---
+# --- PersistentVolumeClaim for Abbie's Pictures ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: plex-abbie-pvc # Unique name for this PersistentVolumeClaim
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Ti # IMPORTANT: Match or be less than plex-abbie-pv capacity
+  storageClassName: "" # Explicitly bind to static PV
+---
+# --- Deployment for Plex Media Server ---
+# A Deployment manages a set of identical Pods, ensuring a desired number
+# of replicas are running and handling updates/rollbacks.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plex # Name of this Deployment
+  labels:
+    app: plex # Labels to identify this Deployment and its Pods
+spec:
+  replicas: 1 # We want one instance (Pod) of Plex running
+  selector:
+    matchLabels:
+      app: plex # This Deployment will manage Pods with the label app: plex
+  template:
+    metadata:
+      labels:
+        app: plex # Labels applied to the Pods created by this Deployment
+    spec:
+      # hostNetwork: true allows the Pod to use the host's network namespace directly.
+      # While generally not recommended for Kubernetes isolation, you've chosen this
+      # for direct host access similar to Docker Compose, and it works with external DNS.
+      hostNetwork: true
+      # Specifies a custom runtime for the container, likely for NVIDIA GPU passthrough.
+      runtimeClassName: nvidia
+      # Ensures this Pod only runs on the node named 'cyborg'.
+      # Useful in single-node or specialized hardware setups.
+      nodeSelector:
+        kubernetes.io/hostname: cyborg
+      containers:
+        - name: plex # Name of the container within the Pod
+          image: lscr.io/linuxserver/plex:latest # Docker image for Plex
+          imagePullPolicy: Always # Always pull the latest image on deploy/restart
+          env: # Environment variables passed to the Plex container
+            - name: TZ # Timezone setting for Plex
+              value: "America/New_York"
+            - name: PUID # User ID for Plex process inside the container
+              value: "1000"
+            - name: PGID # Group ID for Plex process inside the container
+              value: "1000"
+            - name: VERSION # Plex version, 'latest' for automatic updates
+              value: "latest"
+            - name: UMASK # File creation mask for permissions
+              value: "022"
+            - name: NVIDIA_VISIBLE_DEVICES # Exposes all detected NVIDIA GPUs to the container
+              value: "all"
+          volumeMounts: # Defines where volumes are mounted inside the container
+            - name: config # Mounts the Plex configuration directory
+              mountPath: /config
+            - name: movies # Mounts the movies library, now via PVC
+              mountPath: /data/movies
+            - name: tv # Mounts the TV shows library, now via PVC
+              mountPath: /data/tv
+            - name: ramtranscode # Mounts /dev/shm for RAM-based transcoding cache
+              mountPath: /dev/shm
+            - name: zfstranscode # Mounts the ZFS transcode scratch directory, now via PVC
+              mountPath: /scratch
+            - name: lily # Mounts Lily's media share, now via PVC
+              mountPath: /lily_gcs_cheers
+            - name: abbie # Mounts Abbie's pictures share, now via PVC
+              mountPath: /abbie
+            - name: dri # Mounts /dev/dri for direct access to GPU (for hardware transcoding)
+              mountPath: /dev/dri
+          securityContext:
+            # privileged: true grants the container all capabilities, similar to running
+            # with --privileged in Docker. Often needed for direct hardware access like GPUs.
+            privileged: true
+      volumes: # Defines the actual storage volumes that are available to the Pod
+        - name: config # Local host path for Plex configuration
+          hostPath:
+            path: /home/johndoe86x/k3s/plex/plex_data
+            type: Directory # Ensures the path exists and is a directory
+        - name: movies # Links to the PersistentVolumeClaim for movies
+          persistentVolumeClaim:
+            claimName: plex-movies-pvc
+        - name: tv # Links to the PersistentVolumeClaim for TV shows
+          persistentVolumeClaim:
+            claimName: plex-tv-pvc
+        - name: ramtranscode # Local host path for /dev/shm (RAM-based temp)
+          hostPath:
+            path: /dev/shm
+            type: Directory
+        - name: zfstranscode # Links to the PersistentVolumeClaim for ZFS transcode
+          persistentVolumeClaim:
+            claimName: plex-zfstranscode-pvc
+        - name: lily # Links to the PersistentVolumeClaim for Lily's share
+          persistentVolumeClaim:
+            claimName: plex-lily-pvc
+        - name: abbie # Links to the PersistentVolumeClaim for Abbie's share
+          persistentVolumeClaim:
+            claimName: plex-abbie-pvc
+        - name: dri # Local host path for direct GPU access
+          hostPath:
+            path: /dev/dri
+            type: Directory

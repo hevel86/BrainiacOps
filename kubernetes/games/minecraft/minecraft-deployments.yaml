@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minecraft-survival
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minecraft-survival
+  template:
+    metadata:
+      labels:
+        app: minecraft-survival
+    spec:
+      nodeSelector: # Add this section
+        cpu.cores: "8plus"
+      containers:
+        - name: minecraft
+          image: itzg/minecraft-server:stable
+          ports:
+            - containerPort: 25565
+              hostPort: 25565
+              protocol: TCP
+            - containerPort: 25565
+              hostPort: 25565
+              protocol: UDP
+            - containerPort: 19132
+              hostPort: 19132
+              protocol: UDP
+          env:
+            - name: TZ
+              value: "America/New_York"
+            - name: EULA
+              value: "TRUE"
+            - name: ONLINE_MODE
+              value: "false"
+            - name: VERSION
+              value: "1.21.5"
+            - name: TYPE
+              value: "FABRIC"
+            - name: MEMORY
+              value: "4G"
+            - name: ENABLE_ROLLING_LOGS
+              value: "TRUE"
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          nfs:
+            server: truenas1.torquasmvo.internal
+            path: /mnt/media/minecraft/minecraft-data
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minecraft-creative
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minecraft-creative
+  template:
+    metadata:
+      labels:
+        app: minecraft-creative
+    spec:
+      nodeSelector: # Add this section
+        cpu.cores: "8plus"
+      containers:
+        - name: minecraft
+          image: itzg/minecraft-server:stable
+          ports:
+            - containerPort: 25565
+              hostPort: 25566
+              protocol: TCP
+            - containerPort: 25565
+              hostPort: 25566
+              protocol: UDP
+          env:
+            - name: TZ
+              value: "America/New_York"
+            - name: EULA
+              value: "TRUE"
+            - name: ONLINE_MODE
+              value: "TRUE"
+            - name: VERSION
+              value: "1.21.5"
+            - name: TYPE
+              value: "FABRIC"
+            - name: MODE
+              value: "creative"
+            - name: SERVER_NAME
+              value: "Raven"
+            - name: ENABLE_RCON
+              value: "TRUE"
+            - name: RCON_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minecraft-secrets
+                  key: RCON_PASSWORD
+            - name: ENABLE_ROLLING_LOGS
+              value: "TRUE"
+            - name: MEMORY
+              value: "4G"
+          volumeMounts:
+            - name: creative-data
+              mountPath: /data
+      volumes:
+        - name: creative-data
+          nfs:
+            server: truenas1.torquasmvo.internal
+            path: /mnt/media/minecraft/minecraft_creative-data

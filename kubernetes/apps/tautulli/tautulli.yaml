@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: tautulli-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /mnt/media/k3stor/tautulli
+    server: truenas1.torquasmvo.internal
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tautulli-config
+spec:
+  volumeName: tautulli-pv
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tautulli
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tautulli
+  template:
+    metadata:
+      labels:
+        app: tautulli
+    spec:
+      nodeSelector: # Add this section
+        cpu.cores: "8plus"    
+      containers:
+        - name: tautulli
+          image: ghcr.io/linuxserver/tautulli:latest
+          ports:
+            - containerPort: 8181
+          volumeMounts:
+            - name: config
+              mountPath: /config
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "America/New_York"
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: tautulli-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tautulli
+spec:
+  type: NodePort
+  ports:
+    - port: 8181
+      targetPort: 8181
+      nodePort: 30181
+  selector:
+    app: tautulli

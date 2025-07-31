@@ -1,0 +1,83 @@
+# --- CONFIG PV/PVC ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: prowlarr-config-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /mnt/media/k3stor/prowlarr_config
+    server: truenas1.torquasmvo.internal
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prowlarr-config-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: prowlarr-config-pv
+  storageClassName: ""
+  volumeMode: Filesystem
+
+# --- DEPLOYMENT ---
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prowlarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prowlarr
+  template:
+    metadata:
+      labels:
+        app: prowlarr
+    spec:
+      containers:
+        - name: prowlarr
+          image: lscr.io/linuxserver/prowlarr:latest
+          ports:
+            - containerPort: 9696
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "America/New_York"
+          volumeMounts:
+            - name: prowlarr-config
+              mountPath: /config
+      volumes:
+        - name: prowlarr-config
+          persistentVolumeClaim:
+            claimName: prowlarr-config-pvc
+
+# --- SERVICE ---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prowlarr
+spec:
+  type: NodePort
+  selector:
+    app: prowlarr
+  ports:
+    - name: http
+      protocol: TCP
+      port: 9696
+      targetPort: 9696
+      nodePort: 30969

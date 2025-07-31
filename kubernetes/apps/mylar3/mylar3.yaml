@@ -1,0 +1,224 @@
+# --- CONFIG PV/PVC ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mylar3-config-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /mnt/media/k3stor/mylar3_config
+    server: truenas1.torquasmvo.internal
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mylar3-config-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: mylar3-config-pv
+  storageClassName: ""
+  volumeMode: Filesystem
+
+# --- COMICS PV/PVC ---
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mylar3-comics-pv
+spec:
+  capacity:
+    storage: 1Ti
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /mnt/media/nas/comics
+    server: truenas1.torquasmvo.internal
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mylar3-comics-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Ti
+  volumeName: mylar3-comics-pv
+  storageClassName: ""
+  volumeMode: Filesystem
+
+# --- DOWNLOADS PV/PVC ---
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mylar3-downloads-pv
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /mnt/media/downloaders/sabnzbd
+    server: truenas1.torquasmvo.internal
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mylar3-downloads-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: mylar3-downloads-pv
+  storageClassName: ""
+  volumeMode: Filesystem
+
+# --- WATCH PV/PVC ---
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mylar3-watch-pv
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /mnt/media/downloaders/transmission/watch
+    server: truenas1.torquasmvo.internal
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mylar3-watch-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+  volumeName: mylar3-watch-pv
+  storageClassName: ""
+  volumeMode: Filesystem
+
+# --- COMPLETED PV/PVC ---
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mylar3-completed-pv
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /mnt/media/downloaders/transmission/completed
+    server: truenas1.torquasmvo.internal
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mylar3-completed-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: mylar3-completed-pv
+  storageClassName: ""
+  volumeMode: Filesystem
+
+# --- DEPLOYMENT ---
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mylar3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mylar3
+  template:
+    metadata:
+      labels:
+        app: mylar3
+    spec:
+      containers:
+        - name: mylar3
+          image: lscr.io/linuxserver/mylar3:latest
+          ports:
+            - containerPort: 8090
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+          volumeMounts:
+            - name: mylar3-config
+              mountPath: /config
+            - name: mylar3-comics
+              mountPath: /comics
+            - name: mylar3-downloads
+              mountPath: /downloads
+            - name: mylar3-watch
+              mountPath: /watch
+            - name: mylar3-completed
+              mountPath: /data/completed
+      volumes:
+        - name: mylar3-config
+          persistentVolumeClaim:
+            claimName: mylar3-config-pvc
+        - name: mylar3-comics
+          persistentVolumeClaim:
+            claimName: mylar3-comics-pvc
+        - name: mylar3-downloads
+          persistentVolumeClaim:
+            claimName: mylar3-downloads-pvc
+        - name: mylar3-watch
+          persistentVolumeClaim:
+            claimName: mylar3-watch-pvc
+        - name: mylar3-completed
+          persistentVolumeClaim:
+            claimName: mylar3-completed-pvc
+
+# --- SERVICE ---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mylar3
+spec:
+  type: NodePort
+  selector:
+    app: mylar3
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8090
+      targetPort: 8090
+      nodePort: 30890
