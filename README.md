@@ -5,4 +5,4 @@
 
 ## Contents
 
-- `manifests/` – your Kubernetes YAML files go here
+- `kubernetes/` – your Kubernetes YAML files go here
