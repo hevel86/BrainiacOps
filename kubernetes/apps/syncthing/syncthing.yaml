@@ -211,7 +211,7 @@ spec:
             - name: TS_AUTHKEY
               valueFrom:
                 secretKeyRef:
-                  name: tailscale-auth
+                  name: tailscale
                   key: TS_AUTHKEY
             - name: TS_EXTRA_ARGS
               value: "--hostname=syncthing-sidecar"
