@@ -4,14 +4,19 @@ This folder contains Tailscale integration resources for Kubernetes.
 
 ## Generate an Auth Key
 
-1. Log in to the Tailscale admin console:
+1. Log in to the Tailscale admin console:  
    https://login.tailscale.com/admin/settings/keys
 
-2. Generate an **ephemeral** or **reusable** auth key.
+2. Generate a **reusable** auth key with auto-approval enabled (ephemeral keys will not persist across pod restarts).
 
-3. Create the secret in Kubernetes:
+3. Save the key in a `Secret` manifest called `tailscale-secret.yaml`. Example:
 
-```bash
-kubectl create secret generic tailscale-auth \
-  --from-literal=TS_AUTHKEY="tskey-abc123..." \
-  --namespace=default
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tailscale
+  namespace: default
+type: Opaque
+stringData:
+  TS_AUTHKEY: tskey-auth-abc123...
