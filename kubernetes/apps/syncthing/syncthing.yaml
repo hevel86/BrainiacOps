@@ -1,11 +1,10 @@
-# --- CONFIG PV/PVC ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: syncthing-config-pv
 spec:
   capacity:
-    storage: 2Gi
+    storage: 5Gi
   accessModes:
     - ReadWriteMany
   nfs:
@@ -13,6 +12,7 @@ spec:
     server: truenas1.torquasmvo.internal
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
+  storageClassName: ""
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -23,19 +23,137 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 2Gi
+      storage: 5Gi
   volumeName: syncthing-config-pv
-  storageClassName: ""
   volumeMode: Filesystem
-
-# (PV/PVC blocks for citra, desmume, sync_saves, and christian_saves remain the same)
-
-# --- DEPLOYMENT ---
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: syncthing-citra-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /mnt/media/games/sync_saves/citra
+    server: truenas1.torquasmvo.internal
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: syncthing-citra-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: syncthing-citra-pv
+  volumeMode: Filesystem
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: syncthing-desmume-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /mnt/media/games/sync_saves/desmume
+    server: truenas1.torquasmvo.internal
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: syncthing-desmume-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: syncthing-desmume-pv
+  volumeMode: Filesystem
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: syncthing-sync-saves-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /mnt/media/games/sync_saves
+    server: truenas1.torquasmvo.internal
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: syncthing-sync-saves-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  volumeName: syncthing-sync-saves-pv
+  volumeMode: Filesystem
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: syncthing-christian-saves-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /mnt/media/games/sync_saves/christian_saves
+    server: truenas1.torquasmvo.internal
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: syncthing-christian-saves-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: syncthing-christian-saves-pv
+  volumeMode: Filesystem
+  storageClassName: ""
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: syncthing
+  labels:
+    app: syncthing
 spec:
   replicas: 1
   selector:
@@ -46,19 +164,10 @@ spec:
       labels:
         app: syncthing
     spec:
-      hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
+      hostname: brainiac
       containers:
         - name: syncthing
           image: lscr.io/linuxserver/syncthing
-          ports:
-            - containerPort: 8384
-            - containerPort: 22000
-              protocol: TCP
-            - containerPort: 22000
-              protocol: UDP
-            - containerPort: 21027
-              protocol: UDP
           env:
             - name: PUID
               value: "1000"
@@ -68,46 +177,67 @@ spec:
               value: "America/New_York"
             - name: UMASK_SET
               value: "000"
+          ports:
+            - containerPort: 8384
+            - containerPort: 22000
+              protocol: TCP
+            - containerPort: 22000
+              protocol: UDP
+            - containerPort: 21027
+              protocol: UDP
           volumeMounts:
-            - name: syncthing-config
+            - name: config
               mountPath: /config
-            - name: syncthing-citra
+            - name: citra
               mountPath: /citra
-            - name: syncthing-desmume
+            - name: desmume
               mountPath: /desmume
-            - name: syncthing-sync-root
+            - name: sync-saves
               mountPath: /sync_saves
-            - name: syncthing-christian
+            - name: christian-saves
               mountPath: /christian_saves
       volumes:
-        - name: syncthing-config
+        - name: config
           persistentVolumeClaim:
             claimName: syncthing-config-pvc
-        - name: syncthing-citra
+        - name: citra
           persistentVolumeClaim:
             claimName: syncthing-citra-pvc
-        - name: syncthing-desmume
+        - name: desmume
           persistentVolumeClaim:
             claimName: syncthing-desmume-pvc
-        - name: syncthing-sync-root
+        - name: sync-saves
           persistentVolumeClaim:
-            claimName: syncthing-sync-root-pvc
-        - name: syncthing-christian
+            claimName: syncthing-sync-saves-pvc
+        - name: christian-saves
           persistentVolumeClaim:
-            claimName: syncthing-christian-pvc
-
-# --- SERVICE (optional) ---
+            claimName: syncthing-christian-saves-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: syncthing-ui
+  labels:
+    app: syncthing
 spec:
-  type: ClusterIP
   selector:
     app: syncthing
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.201
   ports:
-    - name: gui
+    - name: web-ui
       port: 8384
       targetPort: 8384
       protocol: TCP
+    - name: sync-tcp
+      port: 22000
+      targetPort: 22000
+      protocol: TCP
+    - name: sync-udp
+      port: 22000
+      targetPort: 22000
+      protocol: UDP
+    - name: discovery
+      port: 21027
+      targetPort: 21027
+      protocol: UDP
