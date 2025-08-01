@@ -1,1 +1,1 @@
-kubernetes/apps/syncthing/tailscale-auth-secret.yaml
+kubernetes/infrastructure/tailscale/tailscale-auth-secret.yaml
