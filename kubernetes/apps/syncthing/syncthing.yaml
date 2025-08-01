@@ -196,6 +196,30 @@ spec:
               mountPath: /sync_saves
             - name: christian-saves
               mountPath: /christian_saves
+        - name: tailscale
+          image: tailscale/tailscale:stable
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+          env:
+            - name: TS_STATE_DIR
+              value: "/var/lib/tailscale"
+            - name: TS_AUTHKEY
+              valueFrom:
+                secretKeyRef:
+                  name: tailscale-auth
+                  key: TS_AUTHKEY
+            - name: TS_EXTRA_ARGS
+              value: "--hostname=syncthing-sidecar"
+          volumeMounts:
+            - mountPath: /dev/net/tun
+              name: dev-net-tun
+            - mountPath: /var/lib/tailscale
+              name: tailscale-state
       volumes:
         - name: config
           persistentVolumeClaim:
@@ -212,6 +236,11 @@ spec:
         - name: christian-saves
           persistentVolumeClaim:
             claimName: syncthing-christian-saves-pvc
+        - name: dev-net-tun
+          hostPath:
+            path: /dev/net/tun
+        - name: tailscale-state
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
