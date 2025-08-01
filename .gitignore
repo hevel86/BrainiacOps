@@ -1,1 +1,46 @@
-kubernetes/infrastructure/tailscale/tailscale-auth-secret.yaml
+# Ignore secret and auth files
+**/*secret*.yaml
+**/*auth*.yaml
+**/*cred*.yaml
+
+# Ignore sensitive config files
+**/*.env
+**/.env
+.envrc
+
+# Ignore private keys and certs
+**/*.pem
+**/*.key
+**/*.crt
+**/*.csr
+
+# Ignore kubeconfigs
+kubeconfig
+.kube/config
+
+# Ignore local tooling config
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Ignore Kustomize build artifacts
+kustomization.yaml.kustomize.config.yaml
+.kustomize/
+
+# Ignore Helm charts and cache
+charts/
+Chart.lock
+*.tgz
+
+# Ignore output or deployment directories
+dist/
+build/
+tmp/
+.cache/
+
+# Ignore backup files
+*~
+*.bak
+*.orig
+*.tmp
