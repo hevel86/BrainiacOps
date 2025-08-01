@@ -10,5 +10,5 @@ data:
       protocol: layer2
       addresses:
       - 10.0.0.200-10.0.0.250
-kubectl get pvc | grep syncthing
+
 
