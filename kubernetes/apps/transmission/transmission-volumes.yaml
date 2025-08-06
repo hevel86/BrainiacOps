@@ -11,7 +11,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   nfs:
     server: truenas1.torquasmvo.internal
-    path: "/mnt/media/k3stor/transmission_config"
+    path: "/mnt/media/k3stor/transmission2_config"
 ---
 apiVersion: v1
 kind: PersistentVolume

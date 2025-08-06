@@ -31,11 +31,11 @@ spec:
             configMapKeyRef:
               name: transmission-config
               key: TZ
-        - name: WHITELIST
+        - name: HOST_WHITELIST
           valueFrom:
             configMapKeyRef:
               name: transmission-config
-              key: WHITELIST
+              key: HOST_WHITELIST
         - name: USER
           valueFrom:
             secretKeyRef:
