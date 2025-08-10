@@ -164,6 +164,7 @@ spec:
       labels:
         app: syncthing
     spec:
+      serviceAccountName: syncthing-tailscale
       hostname: brainiac
       containers:
         - name: syncthing

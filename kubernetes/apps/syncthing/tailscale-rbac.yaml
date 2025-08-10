@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: syncthing-tailscale
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: syncthing-tailscale-role
+  namespace: default
+rules:
+  # Let tailscaled store/read its state in Secret "tailscale"
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["tailscale"]
+    verbs: ["get", "create", "update", "patch"]
+  # Let it write Pod Events for easier debugging (per the log hint)
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: syncthing-tailscale-rb
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: syncthing-tailscale
+    namespace: default
+roleRef:
+  kind: Role
+  name: syncthing-tailscale-role
+  apiGroup: rbac.authorization.k8s.io

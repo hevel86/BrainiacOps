@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transmission
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transmission
+  template:
+    metadata:
+      labels:
+        app: transmission
+    spec:
+      containers:
+      - name: transmission
+        image: lscr.io/linuxserver/transmission:latest
+        env:
+        - name: PUID
+          valueFrom:
+            configMapKeyRef:
+              name: transmission-config
+              key: PUID
+        - name: PGID
+          valueFrom:
+            configMapKeyRef:
+              name: transmission-config
+              key: PGID
+        - name: TZ
+          valueFrom:
+            configMapKeyRef:
+              name: transmission-config
+              key: TZ
+        - name: HOST_WHITELIST
+          valueFrom:
+            configMapKeyRef:
+              name: transmission-config
+              key: HOST_WHITELIST
+        - name: USER
+          valueFrom:
+            secretKeyRef:
+              name: transmission-secret
+              key: USER
+        - name: PASS
+          valueFrom:
+            secretKeyRef:
+              name: transmission-secret
+              key: PASS
+        ports:
+        - name: web
+          containerPort: 9091
+        - name: peer-tcp
+          containerPort: 51413
+        - name: peer-udp
+          containerPort: 51413
+          protocol: UDP
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: downloads
+          mountPath: /downloads
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: transmission-config-pvc
+      - name: downloads
+        persistentVolumeClaim:
+          claimName: transmission-downloads-pvc
