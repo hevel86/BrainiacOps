@@ -30,7 +30,7 @@ spec:
   # Specifies the NFS server details for this volume.
   nfs:
     path: /mnt/media/movies # The exact path to the exported share on your TrueNAS server
-    server: truenas1.torquasmvo.internal # The hostname or IP address of your TrueNAS server
+    server: truenas1-nfs.torquasmvo.internal # The hostname or IP address of your TrueNAS server
   # NFS Mount Options for improved performance and behavior.
   # 'noatime' is particularly useful for media servers as it prevents the OS from
   # writing access times every time a file is read, reducing I/O overhead.
@@ -75,7 +75,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   nfs:
     path: /mnt/media/tv # Exact path to the TV shows share on TrueNAS
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
   mountOptions:
     - nfsvers=4.1
     - noatime
@@ -106,7 +106,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   nfs:
     path: /mnt/media/plex_transcode # Exact path for Plex transcode scratch space
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
   mountOptions:
     - nfsvers=4.1
     - noatime
@@ -137,7 +137,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   nfs:
     path: /mnt/media/nas/lily_gcs_cheers # Exact path for Lily's GCS Cheers share
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
   mountOptions:
     - nfsvers=4.1
     - noatime
@@ -168,7 +168,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   nfs:
     path: /mnt/media/pictures/Abbie # Exact path for Abbie's pictures share
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
   mountOptions:
     - nfsvers=4.1
     - noatime

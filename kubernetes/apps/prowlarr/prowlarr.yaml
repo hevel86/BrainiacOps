@@ -10,7 +10,7 @@ spec:
     - ReadWriteMany
   nfs:
     path: /mnt/media/k3stor/prowlarr_config
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
 

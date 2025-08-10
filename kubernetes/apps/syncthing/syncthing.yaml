@@ -9,7 +9,7 @@ spec:
     - ReadWriteMany
   nfs:
     path: /mnt/media/k3stor/syncthing_config
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
   storageClassName: ""
@@ -39,7 +39,7 @@ spec:
     - ReadWriteMany
   nfs:
     path: /mnt/media/games/sync_saves/citra
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
   storageClassName: ""
@@ -69,7 +69,7 @@ spec:
     - ReadWriteMany
   nfs:
     path: /mnt/media/games/sync_saves/desmume
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
   storageClassName: ""
@@ -99,7 +99,7 @@ spec:
     - ReadWriteMany
   nfs:
     path: /mnt/media/games/sync_saves
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
   storageClassName: ""
@@ -129,7 +129,7 @@ spec:
     - ReadWriteMany
   nfs:
     path: /mnt/media/games/sync_saves/christian_saves
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
   storageClassName: ""

@@ -9,7 +9,7 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
     path: /mnt/media/k3stor/jellyfin
   persistentVolumeReclaimPolicy: Retain
 ---
@@ -23,7 +23,7 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
     path: /mnt/media/tv
   persistentVolumeReclaimPolicy: Retain
 ---
@@ -37,7 +37,7 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
     path: /mnt/media/movies
   persistentVolumeReclaimPolicy: Retain
 ---

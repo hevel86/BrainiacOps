@@ -10,7 +10,7 @@ spec:
     - ReadWriteMany
   nfs:
     path: /mnt/media/k3stor/bazarr_config
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
 
@@ -42,7 +42,7 @@ spec:
     - ReadWriteMany
   nfs:
     path: /mnt/media/movies
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
 
@@ -74,7 +74,7 @@ spec:
     - ReadWriteMany
   nfs:
     path: /mnt/media/tv
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
 

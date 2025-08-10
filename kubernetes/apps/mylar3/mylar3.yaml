@@ -10,7 +10,7 @@ spec:
     - ReadWriteMany
   nfs:
     path: /mnt/media/k3stor/mylar3_config
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
 ---
@@ -41,7 +41,7 @@ spec:
     - ReadWriteMany
   nfs:
     path: /mnt/media/nas/comics
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
 ---
@@ -72,7 +72,7 @@ spec:
     - ReadWriteMany
   nfs:
     path: /mnt/media/downloaders/sabnzbd
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
 ---
@@ -103,7 +103,7 @@ spec:
     - ReadWriteMany
   nfs:
     path: /mnt/media/downloaders/transmission/watch
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
 ---
@@ -134,7 +134,7 @@ spec:
     - ReadWriteMany
   nfs:
     path: /mnt/media/downloaders/transmission/completed
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
 ---

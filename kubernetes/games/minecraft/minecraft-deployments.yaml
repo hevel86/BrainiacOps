@@ -48,7 +48,7 @@ spec:
       volumes:
         - name: data
           nfs:
-            server: truenas1.torquasmvo.internal
+            server: truenas1-nfs.torquasmvo.internal
             path: /mnt/media/minecraft/minecraft-data
 ---
 apiVersion: apps/v1
@@ -109,5 +109,5 @@ spec:
       volumes:
         - name: creative-data
           nfs:
-            server: truenas1.torquasmvo.internal
+            server: truenas1-nfs.torquasmvo.internal
             path: /mnt/media/minecraft/minecraft_creative-data

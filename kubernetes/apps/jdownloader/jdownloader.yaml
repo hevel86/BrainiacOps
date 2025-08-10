@@ -10,7 +10,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: "" # Use "" for static provisioning without a StorageClass
   nfs:
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
     path: /mnt/media/downloaders/jdownloader
 ---
 apiVersion: v1
@@ -25,7 +25,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: "" # Use "" for static provisioning without a StorageClass
   nfs:
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
     path: /mnt/media/k3stor/jdownloader
 ---
 apiVersion: v1
