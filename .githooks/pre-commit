@@ -1,25 +1,40 @@
 #!/bin/bash
+set -euo pipefail
 
 echo "🔍 Running TruffleHog scan on staged changes..."
 
-# Create a temporary index for only staged files
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.ya?ml$|\.env$|\.json$')
+# Optional manual bypass
+if [ "${SKIP_TRUFFLEHOG:-}" = "1" ]; then
+    echo "⚠️  SKIP_TRUFFLEHOG=1 → skipping TruffleHog scan."
+    exit 0
+fi
 
+# Identify staged YAML, ENV, or JSON files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.ya?ml$|\.env$|\.json$' || true)
+
+# Skip if no relevant files staged
 if [ -z "$STAGED_FILES" ]; then
     echo "✅ No staged YAML, ENV, or JSON files to scan."
     exit 0
 fi
 
-# Run TruffleHog only on staged changes using git diff and pipe to stdin
-git diff --cached | docker run --rm -i ghcr.io/trufflesecurity/trufflehog:latest \
-  filesystem --path - --only-verified --no-update \
-  --fail
+# Require Docker CLI
+if ! command -v docker >/dev/null 2>&1; then
+    echo "⚠️  Docker CLI not found → skipping TruffleHog scan."
+    exit 0
+fi
 
-EXIT_CODE=$?
+# Require Docker daemon
+if ! docker info >/dev/null 2>&1; then
+    echo "⚠️  Docker daemon unavailable → skipping TruffleHog scan."
+    exit 0
+fi
 
-if [ "$EXIT_CODE" -ne 0 ]; then
+# Run TruffleHog only on staged changes using git diff piped to stdin
+if ! git diff --cached | docker run --rm -i ghcr.io/trufflesecurity/trufflehog:latest \
+    filesystem --path - --only-verified --no-update --fail; then
     echo "❌ TruffleHog found potential secrets. Commit aborted."
     exit 1
-else
-    echo "✅ TruffleHog found no issues. Proceeding with commit."
 fi
+
+echo "✅ TruffleHog found no issues. Proceeding with commit."
