@@ -10,10 +10,10 @@ if [ "${SKIP_TRUFFLEHOG:-}" = "1" ]; then
 fi
 
 # Identify staged YAML, ENV, or JSON files
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.ya?ml$|\.env$|\.json$' || true)
+mapfile -d '' STAGED <<<"$(git diff --cached --name-only --diff-filter=ACM -z | grep -z -E '\.ya?ml$|\.env$|\.json$' || true)"
 
 # Skip if no relevant files staged
-if [ -z "$STAGED_FILES" ]; then
+if [ "${#STAGED[@]}" -eq 0 ]; then
     echo "✅ No staged YAML, ENV, or JSON files to scan."
     exit 0
 fi
@@ -30,9 +30,15 @@ if ! docker info >/dev/null 2>&1; then
     exit 0
 fi
 
-# Run TruffleHog only on staged changes using git diff piped to stdin
-if ! git diff --cached | docker run --rm -i ghcr.io/trufflesecurity/trufflehog:latest \
-    filesystem --path - --only-verified --no-update --fail; then
+# Convert to container paths
+FILES=()
+for f in "${STAGED[@]}"; do
+    FILES+=("/repo/$f")
+done
+
+echo "🔍 Running TruffleHog (filesystem) on ${#FILES[@]} staged file(s)..."
+if ! docker run --rm -v "$(pwd):/repo" ghcr.io/trufflesecurity/trufflehog:latest \
+    filesystem --no-update --only-verified --fail "${FILES[@]}"; then
     echo "❌ TruffleHog found potential secrets. Commit aborted."
     exit 1
 fi
