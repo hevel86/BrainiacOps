@@ -1,5 +1,5 @@
 # =========================
-# HandBrake - Full Manifest (MetalLB)
+# HandBrake - Full Manifest (CPU-only, MetalLB, NodeSelector)
 # =========================
 
 # --- PVs/PVCs (NFS-backed) ---
@@ -16,7 +16,6 @@ spec:
   storageClassName: ""
   nfs:
     server: truenas1-nfs.torquasmvo.internal
-    # map your "./handbrake/config" → an NFS path
     path: /mnt/media/k3stor/handbrake/config
 ---
 apiVersion: v1
@@ -46,7 +45,6 @@ spec:
   storageClassName: ""
   nfs:
     server: truenas1-nfs.torquasmvo.internal
-    # map your "./handbrake/output" → an NFS path
     path: /mnt/media/k3stor/handbrake/output
 ---
 apiVersion: v1
@@ -76,7 +74,6 @@ spec:
   storageClassName: ""
   nfs:
     server: truenas1-nfs.torquasmvo.internal
-    # map your "/mnt/truenas1/tv" → NFS export path
     path: /mnt/media/tv
 ---
 apiVersion: v1
@@ -106,7 +103,6 @@ spec:
   storageClassName: ""
   nfs:
     server: truenas1-nfs.torquasmvo.internal
-    # map your "/mnt/truenas1/movies" → NFS export path
     path: /mnt/media/movies
 ---
 apiVersion: v1
@@ -142,6 +138,8 @@ spec:
       labels:
         app: handbrake
     spec:
+      nodeSelector:
+        cpu.cores: "8plus"
       containers:
         - name: handbrake
           image: jlesage/handbrake:latest
@@ -203,7 +201,7 @@ metadata:
     app: handbrake
 spec:
   type: LoadBalancer
-  loadBalancerIP: 10.0.0.203   # <-- change/remove as needed
+  loadBalancerIP: 10.0.0.203
   selector:
     app: handbrake
   ports:
