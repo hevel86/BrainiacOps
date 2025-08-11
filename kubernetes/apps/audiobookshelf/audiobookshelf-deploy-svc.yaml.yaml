@@ -1,0 +1,60 @@
+# kubernetes/apps/audiobookshelf/audiobookshelf-deploy-svc.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audiobookshelf
+  namespace: default
+  labels:
+    app: audiobookshelf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: audiobookshelf
+  template:
+    metadata:
+      labels:
+        app: audiobookshelf
+    spec:
+      containers:
+        - name: audiobookshelf
+          image: ghcr.io/advplyr/audiobookshelf:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          volumeMounts:
+            - name: audiobooks
+              mountPath: /audiobooks
+            - name: config
+              mountPath: /config
+            - name: metadata
+              mountPath: /metadata
+      volumes:
+        - name: audiobooks
+          persistentVolumeClaim:
+            claimName: audiobookshelf-audiobooks-pvc
+        - name: config
+          persistentVolumeClaim:
+            claimName: audiobookshelf-config-pvc
+        - name: metadata
+          persistentVolumeClaim:
+            claimName: audiobookshelf-metadata-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: audiobookshelf
+  namespace: default
+  labels:
+    app: audiobookshelf
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.208   # pick a free IP from your MetalLB pool
+  selector:
+    app: audiobookshelf
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
