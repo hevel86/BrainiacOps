@@ -1,0 +1,67 @@
+# kubernetes/apps/komga/komga-deploy-svc.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: komga
+  namespace: default
+  labels:
+    app: komga
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: komga
+  template:
+    metadata:
+      labels:
+        app: komga
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: komga
+          image: gotson/komga:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: "America/New_York"
+            - name: KOMGA_DATABASE_CHECKLOCALFILESYSTEM
+              value: "false"
+            - name: KOMGA_TASKSDB_CHECKLOCALFILESYSTEM
+              value: "false"
+          ports:
+            - name: http
+              containerPort: 25600
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: komga-config-pvc
+        - name: data
+          persistentVolumeClaim:
+            claimName: komga-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: komga
+  namespace: default
+  labels:
+    app: komga
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.205   # Pick any free IP from your MetalLB pool
+  selector:
+    app: komga
+  ports:
+    - name: http
+      port: 25600
+      targetPort: 25600
+      protocol: TCP

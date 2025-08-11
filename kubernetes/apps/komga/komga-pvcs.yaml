@@ -1,0 +1,58 @@
+# kubernetes/apps/komga/komga-pvcs.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: komga-config-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes: ["ReadWriteMany"]
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+  storageClassName: ""
+  nfs:
+    server: truenas1-nfs.torquasmvo.internal
+    path: /mnt/media/docker/app_data/komga_config
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: komga-config-pvc
+  namespace: default
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests:
+      storage: 10Gi
+  volumeMode: Filesystem
+  storageClassName: ""
+  volumeName: komga-config-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: komga-data-pv
+spec:
+  capacity:
+    storage: 2Ti
+  accessModes: ["ReadWriteMany"]
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+  storageClassName: ""
+  nfs:
+    server: truenas1-nfs.torquasmvo.internal
+    path: /mnt/media/nas/comics
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: komga-data-pvc
+  namespace: default
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests:
+      storage: 2Ti
+  volumeMode: Filesystem
+  storageClassName: ""
+  volumeName: komga-data-pv
