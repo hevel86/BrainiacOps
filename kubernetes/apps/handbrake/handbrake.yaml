@@ -1,0 +1,213 @@
+# =========================
+# HandBrake - Full Manifest (MetalLB)
+# =========================
+
+# --- PVs/PVCs (NFS-backed) ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: handbrake-config-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes: ["ReadWriteMany"]
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+  storageClassName: ""
+  nfs:
+    server: truenas1-nfs.torquasmvo.internal
+    # map your "./handbrake/config" → an NFS path
+    path: /mnt/media/k3stor/handbrake/config
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: handbrake-config-pvc
+  namespace: default
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests:
+      storage: 5Gi
+  volumeMode: Filesystem
+  storageClassName: ""
+  volumeName: handbrake-config-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: handbrake-output-pv
+spec:
+  capacity:
+    storage: 2Ti
+  accessModes: ["ReadWriteMany"]
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+  storageClassName: ""
+  nfs:
+    server: truenas1-nfs.torquasmvo.internal
+    # map your "./handbrake/output" → an NFS path
+    path: /mnt/media/k3stor/handbrake/output
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: handbrake-output-pvc
+  namespace: default
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests:
+      storage: 2Ti
+  volumeMode: Filesystem
+  storageClassName: ""
+  volumeName: handbrake-output-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: handbrake-tv-pv
+spec:
+  capacity:
+    storage: 2Ti
+  accessModes: ["ReadWriteMany"]
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+  storageClassName: ""
+  nfs:
+    server: truenas1-nfs.torquasmvo.internal
+    # map your "/mnt/truenas1/tv" → NFS export path
+    path: /mnt/media/tv
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: handbrake-tv-pvc
+  namespace: default
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests:
+      storage: 2Ti
+  volumeMode: Filesystem
+  storageClassName: ""
+  volumeName: handbrake-tv-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: handbrake-movies-pv
+spec:
+  capacity:
+    storage: 2Ti
+  accessModes: ["ReadWriteMany"]
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+  storageClassName: ""
+  nfs:
+    server: truenas1-nfs.torquasmvo.internal
+    # map your "/mnt/truenas1/movies" → NFS export path
+    path: /mnt/media/movies
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: handbrake-movies-pvc
+  namespace: default
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests:
+      storage: 2Ti
+  volumeMode: Filesystem
+  storageClassName: ""
+  volumeName: handbrake-movies-pv
+
+# --- Deployment ---
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: handbrake
+  namespace: default
+  labels:
+    app: handbrake
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: handbrake
+  template:
+    metadata:
+      labels:
+        app: handbrake
+    spec:
+      containers:
+        - name: handbrake
+          image: jlesage/handbrake:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: web
+              containerPort: 5800
+              protocol: TCP
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "America/New_York"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: output
+              mountPath: /output
+            - name: tv
+              mountPath: /tv
+              readOnly: true
+            - name: movies
+              mountPath: /movies
+              readOnly: true
+          readinessProbe:
+            tcpSocket:
+              port: 5800
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 5800
+            initialDelaySeconds: 30
+            periodSeconds: 20
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: handbrake-config-pvc
+        - name: output
+          persistentVolumeClaim:
+            claimName: handbrake-output-pvc
+        - name: tv
+          persistentVolumeClaim:
+            claimName: handbrake-tv-pvc
+        - name: movies
+          persistentVolumeClaim:
+            claimName: handbrake-movies-pvc
+
+# --- Service (MetalLB LoadBalancer) ---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: handbrake
+  namespace: default
+  labels:
+    app: handbrake
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.203   # <-- change/remove as needed
+  selector:
+    app: handbrake
+  ports:
+    - name: web
+      port: 5800
+      targetPort: 5800
+      protocol: TCP
