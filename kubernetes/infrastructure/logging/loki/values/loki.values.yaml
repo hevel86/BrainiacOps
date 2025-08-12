@@ -1,16 +1,12 @@
+# A corrected configuration for filesystem persistence
 loki:
   auth_enabled: false
 
-  commonConfig:
-    replication_factor: 1
-
-  storage_config:
-    boltdb_shipper:
-      active_index_directory: /var/loki/index
-      cache_location: /var/loki/cache
-      shared_store: filesystem
+  storage:
+    type: 'filesystem'
     filesystem:
-      directory: /var/loki/chunks
+      chunks_directory: /var/loki/chunks
+      rules_directory: /var/loki/rules-temp
 
   schemaConfig:
     configs:
@@ -26,23 +22,7 @@ loki:
     working_directory: /var/loki/compactor
     compaction_interval: 10m
 
-# Use an existing PersistentVolumeClaim
+# Use the existing PersistentVolumeClaim you already created
 persistence:
   enabled: true
   existingClaim: loki-pvc
-
-service:
-  type: ClusterIP
-
-resources:
-  requests:
-    cpu: 200m
-    memory: 512Mi
-
-limits_config:
-  ingestion_rate_mb: 8
-  ingestion_burst_size_mb: 16
-  max_global_streams_per_user: 10000
-
-ruler:
-  enabled: false
