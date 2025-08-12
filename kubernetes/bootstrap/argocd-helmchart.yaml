@@ -4,24 +4,26 @@ metadata:
   name: argo-cd
   namespace: kube-system
 spec:
-  chart: argo-cd
   repo: https://argoproj.github.io/argo-helm
-  targetNamespace: argocd
+  chart: argo-cd
   version: 7.6.10
+  targetNamespace: argocd
   valuesContent: |
     global:
       image:
         pullPolicy: IfNotPresent
+    crds:
+      install: true
+    dex:
+      enabled: false
     controller:
       metrics:
         enabled: true
     server:
+      enabled: true
       service:
         type: ClusterIP
       extraArgs:
         - --insecure
-    repoServer: {}
-    dex:
-      enabled: false
-    crds:
-      install: true
+    repoServer:
+      enabled: true
