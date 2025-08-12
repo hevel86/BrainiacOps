@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-server-lb
+  namespace: argocd
+  annotations:
+    # If you use named pools in MetalLB, uncomment and set:
+    # metallb.universe.tf/address-pool: default
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.209
+  selector:
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+  ports:
+    - name: https
+      port: 443
+      targetPort: 8080
+    - name: http
+      port: 80
+      targetPort: 8080
