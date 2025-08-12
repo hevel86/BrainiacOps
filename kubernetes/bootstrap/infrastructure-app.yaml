@@ -8,11 +8,10 @@ spec:
   source:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
-    path: kubernetes/apps
+    path: kubernetes/infrastructure
     directory:
-      include:
-        - argocd
-        - metallb-system
+      recurse: true
+      include: "*.yaml"   # <- this tells ArgoCD to treat files as kustomize-processed YAMLs
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
@@ -22,4 +21,3 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - ApplyOutOfSyncOnly=true
