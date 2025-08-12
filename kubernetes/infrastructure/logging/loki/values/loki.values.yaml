@@ -1,12 +1,8 @@
 loki:
-  # This key is required by the helm chart.
-  # The value is a multi-line YAML string that becomes the loki config file.
   config: |
     auth_enabled: false
-
     server:
       http_listen_port: 3100
-
     ingester:
       lifecycler:
         address: 127.0.0.1
@@ -18,7 +14,6 @@ loki:
       chunk_target_size: 1048576
       max_chunk_age: 1h
       chunk_encoding: snappy
-
     schema_config:
       configs:
         - from: 2020-10-24
@@ -28,14 +23,12 @@ loki:
           index:
             prefix: index_
             period: 24h
-
     storage_config:
       boltdb_shipper:
         active_index_directory: /var/loki/index
         shared_store: filesystem
       filesystem:
         directory: /var/loki/chunks
-
     compactor:
       working_directory: /var/loki/compactor
       compaction_interval: 10m
@@ -43,8 +36,7 @@ loki:
       retention_delete_delay: 2h
       retention_delete_worker_count: 150
 
-# This section tells the Helm chart to use your manually created PVC
-# instead of trying to create its own.
-persistence:
-  enabled: true
-  existingClaim: loki-pvc
+  # This is the corrected part. 'persistence' must be under 'loki'.
+  persistence:
+    enabled: true
+    existingClaim: loki-pvc
