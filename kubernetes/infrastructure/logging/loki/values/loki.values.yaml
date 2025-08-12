@@ -1,28 +1,50 @@
-# A corrected configuration for filesystem persistence
 loki:
-  auth_enabled: false
+  # This key is required by the helm chart.
+  # The value is a multi-line YAML string that becomes the loki config file.
+  config: |
+    auth_enabled: false
 
-  storage:
-    type: 'filesystem'
-    filesystem:
-      chunks_directory: /var/loki/chunks
-      rules_directory: /var/loki/rules-temp
+    server:
+      http_listen_port: 3100
 
-  schemaConfig:
-    configs:
-      - from: 2020-10-24
-        store: boltdb-shipper
-        object_store: filesystem
-        schema: v13
-        index:
-          prefix: index_
-          period: 24h
+    ingester:
+      lifecycler:
+        address: 127.0.0.1
+        ring:
+          kvstore:
+            store: inmemory
+          replication_factor: 1
+      chunk_idle_period: 1h
+      chunk_target_size: 1048576
+      max_chunk_age: 1h
+      chunk_encoding: snappy
 
-  compactor:
-    working_directory: /var/loki/compactor
-    compaction_interval: 10m
+    schema_config:
+      configs:
+        - from: 2020-10-24
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v13
+          index:
+            prefix: index_
+            period: 24h
 
-# Use the existing PersistentVolumeClaim you already created
+    storage_config:
+      boltdb_shipper:
+        active_index_directory: /var/loki/index
+        shared_store: filesystem
+      filesystem:
+        directory: /var/loki/chunks
+
+    compactor:
+      working_directory: /var/loki/compactor
+      compaction_interval: 10m
+      retention_enabled: true
+      retention_delete_delay: 2h
+      retention_delete_worker_count: 150
+
+# This section tells the Helm chart to use your manually created PVC
+# instead of trying to create its own.
 persistence:
   enabled: true
   existingClaim: loki-pvc
