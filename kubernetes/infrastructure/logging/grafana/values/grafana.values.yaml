@@ -1,0 +1,55 @@
+# Admin credentials (choose one)
+adminUser: admin
+adminPassword: admin           # TODO: replace, or use an existingSecret instead
+# existingSecret: grafana-admin  # if you prefer a Secret (keys: admin-user, admin-password)
+
+persistence:
+  enabled: true
+  size: 10Gi
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: truenas-nfs
+
+service:
+  type: ClusterIP                  # expose later via Traefik/Ingress if desired
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Loki
+        type: loki
+        url: http://loki:3100
+        access: proxy
+        isDefault: true
+        jsonData:
+          maxLines: 5000
+
+# Auto-load dashboards from ConfigMaps/Secrets labeled grafana_dashboard=true
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    labelValue: "true"
+  datasources:
+    enabled: true
+
+# Basic hardening / cleanliness
+env:
+  GF_AUTH_ANONYMOUS_ENABLED: "false"
+  GF_USERS_ALLOW_SIGN_UP: "false"
+  GF_SECURITY_DISABLE_GRAVATAR: "true"
+  GF_LOG_MODE: "console"
+  GF_LOG_LEVEL: "info"
+
+# Optional: set a root URL if fronted by Ingress/Traefik later
+# grafana:
+#   grafana.ini:
+#     server:
+#       root_url: https://grafana.torquasmvo.internal
+#       serve_from_sub_path: true
+
+# Resource floor (adjust to taste)
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
