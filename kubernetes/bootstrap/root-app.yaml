@@ -11,6 +11,7 @@ spec:
     path: kubernetes/apps         # <— this folder in your repo
     directory:
       recurse: true                         # <— pick up loki/promtail/grafana + truenas-nfs
+      include: '{argocd/**,metallb-system/**}' 
   # destination:
   #   server: https://kubernetes.default.svc
     namespace: argocd
