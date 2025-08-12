@@ -10,6 +10,12 @@ democratic-csi:
       parameters: {}
   controller:
     enabled: true
+    env:
+      - name: TRUENAS_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: truenas-credentials
+            key: TRUENAS_API_KEY
   node:
     enabled: false   # NFS = no node daemon needed
   driver:
