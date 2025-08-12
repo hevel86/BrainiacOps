@@ -26,7 +26,6 @@ democratic-csi:
         protocol: http             # or https
         host: truenas1-nfs.torquasmvo.internal     # e.g., truenas1.torquasmvo.internal
         port: 80                   # or 443 for https
-        apiKey: ${TRUENAS_API_KEY} # from Secret/Env
         allowInsecure: true        # set false if you use proper TLS
       zfs:
         datasetParentName: media/k3stor   # e.g., media/k3stor
