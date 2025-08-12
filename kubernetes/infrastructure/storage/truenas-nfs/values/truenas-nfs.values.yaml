@@ -20,7 +20,7 @@ democratic-csi:
     enabled: false   # NFS = no node daemon needed
   driver:
     config:
-      driver: truenas-api-nfs
+      driver: freenas-api-nfs
       instance_id: truenas
       httpConnection:
         protocol: http             # or https
