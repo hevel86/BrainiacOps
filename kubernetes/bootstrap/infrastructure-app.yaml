@@ -1,19 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: root
+  name: infrastructure
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
-    path: kubernetes/apps         # <— this folder in your repo
+    path: kubernetes/apps
     directory:
-      recurse: true                         # <— pick up loki/promtail/grafana + truenas-nfs
-      include: '{argocd/**,metallb-system/**}' 
-  # destination:
-  #   server: https://kubernetes.default.svc
+      include:
+        - argocd
+        - metallb-system
+  destination:
+    server: https://kubernetes.default.svc
     namespace: argocd
   syncPolicy:
     automated:
