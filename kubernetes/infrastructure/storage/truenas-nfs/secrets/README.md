@@ -1,1 +1,0 @@
-Rename truenas-sample.yaml to truenas-credentials.yaml
