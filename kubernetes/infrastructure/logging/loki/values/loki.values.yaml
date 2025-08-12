@@ -4,8 +4,13 @@ loki:
   commonConfig:
     replication_factor: 1
 
-  storage:
-    type: filesystem
+  storage_config:
+    boltdb_shipper:
+      active_index_directory: /var/loki/index
+      cache_location: /var/loki/cache
+      shared_store: filesystem
+    filesystem:
+      directory: /var/loki/chunks
 
   schemaConfig:
     configs:
@@ -21,13 +26,10 @@ loki:
     working_directory: /var/loki/compactor
     compaction_interval: 10m
 
-# Chart-level persistence (backed by dynamic NFS via truenas-nfs)
+# Use an existing PersistentVolumeClaim
 persistence:
   enabled: true
-  size: 100Gi
-  storageClassName: truenas-nfs
-  accessModes:
-    - ReadWriteMany
+  existingClaim: loki-pvc
 
 service:
   type: ClusterIP

@@ -1,0 +1,32 @@
+# kubernetes/infrastructure/logging/loki/loki-pvc.yaml
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: loki-pv
+spec:
+  capacity:
+    storage: 100Gi # From your original values file
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /mnt/media/k3stor/loki # The path you specified
+    server: truenas1-nfs.torquasmvo.internal
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: loki-pvc
+  namespace: logging # Make sure this is in the logging namespace
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: loki-pv
+  storageClassName: "" # This is crucial to bind to your manual PV
+  volumeMode: Filesystem
