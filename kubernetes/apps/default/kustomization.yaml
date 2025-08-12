@@ -1,0 +1,43 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Inject "default" into every namespaced resource
+namespace: default
+
+# All app manifests in this folder
+resources:
+  - audiobookshelf/audiobookshelf-deploy-svc.yaml.yaml
+  - audiobookshelf/audiobookshelf-pvcs.yaml
+  - bazarr/bazarr.yaml
+  - handbrake/handbrake.yaml
+  - jdownloader/jdownloader.yaml
+  - jellyfin/jellyfin.yaml
+  - komga/komga-deply-svc.yaml
+  - komga/komga-pvcs.yaml
+  - mylar3/mylar3.yaml
+  - ombi/ombi.yaml
+  - peanut/peanut.yaml
+  - plex/plex.yaml
+  - prowlarr/prowlarr.yaml
+  - radarr/radarr.yaml
+  - sabnzbd/sabnzbd.yaml
+  - sonarr/sonarr.yaml
+  - syncthing/syncthing.yaml
+  - syncthing/tailscale-rbac.yaml
+  - tautulli/tautulli.yaml
+  - transmission/transmission-configmap.yaml
+  - transmission/transmission-deployment.yaml
+  - transmission/transmission-service.yaml
+  - transmission/transmission-volumes.yaml
+
+# Enforce your PVC policy across EVERY PVC here
+patches:
+  - target:
+      kind: PersistentVolumeClaim
+    patch: |-
+      - op: add
+        path: /spec/storageClassName
+        value: ""
+      - op: add
+        path: /spec/volumeMode
+        value: Filesystem
