@@ -1,0 +1,35 @@
+# filename: kubernetes/apps/default/n8n/n8n-pv-pvc.yaml
+# resources: n8n-data-pv, n8n-data-pvc
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: n8n-data-pv
+  labels:
+    pv-name: n8n-data-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeMode: Filesystem
+  nfs:
+    path: /mnt/media/k3stor/n8n
+    server: truenas1-nfs.torquasmvo.internal
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: n8n-data-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  selector:
+    matchLabels:
+      pv-name: n8n-data-pv
