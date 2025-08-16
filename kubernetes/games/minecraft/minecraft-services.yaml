@@ -4,23 +4,21 @@ kind: Service
 metadata:
   name: minecraft-survival
 spec:
-  type: NodePort
+  type: LoadBalancer
+  loadBalancerIP: "10.0.0.211" # Add this line
   ports:
     - name: survival-tcp
       port: 25565
       protocol: TCP
       targetPort: 25565
-      nodePort: 30565
     - name: survival-udp
       port: 25565
       protocol: UDP
       targetPort: 25565
-      nodePort: 30566
     - name: bedrock-udp
       port: 19132
       protocol: UDP
       targetPort: 19132
-      nodePort: 30132
   selector:
     app: minecraft-survival
 ---
@@ -29,17 +27,16 @@ kind: Service
 metadata:
   name: minecraft-creative
 spec:
-  type: NodePort
+  type: LoadBalancer
+  loadBalancerIP: "10.0.0.212" # Add this line
   ports:
     - name: creative-tcp
       port: 25566
       protocol: TCP
       targetPort: 25565
-      nodePort: 30567
     - name: creative-udp
       port: 25566
       protocol: UDP
       targetPort: 25565
-      nodePort: 30568
   selector:
     app: minecraft-creative

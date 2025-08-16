@@ -12,20 +12,17 @@ spec:
       labels:
         app: minecraft-survival
     spec:
-      nodeSelector: # Add this section
+      nodeSelector:
         cpu.cores: "8plus"
       containers:
         - name: minecraft
           image: itzg/minecraft-server:stable
           ports:
             - containerPort: 25565
-              hostPort: 25565
               protocol: TCP
             - containerPort: 25565
-              hostPort: 25565
               protocol: UDP
             - containerPort: 19132
-              hostPort: 19132
               protocol: UDP
           env:
             - name: TZ
@@ -65,17 +62,15 @@ spec:
       labels:
         app: minecraft-creative
     spec:
-      nodeSelector: # Add this section
+      nodeSelector:
         cpu.cores: "8plus"
       containers:
         - name: minecraft
           image: itzg/minecraft-server:stable
           ports:
             - containerPort: 25565
-              hostPort: 25566
               protocol: TCP
             - containerPort: 25565
-              hostPort: 25566
               protocol: UDP
           env:
             - name: TZ
