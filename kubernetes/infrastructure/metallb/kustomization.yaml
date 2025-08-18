@@ -1,0 +1,7 @@
+# kubernetes/infrastructure/metallb/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# This lists all the manifest files Kustomize should include.
+resources:
+  - metallb.yaml
