@@ -1,4 +1,4 @@
-# kubernetes/infrastructure/metallb/applications.yaml
+# Wave 0: install MetalLB (CRDs + controllers) via Helm
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -6,6 +6,8 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   destination:
@@ -23,10 +25,18 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    retry:
+      limit: 3
+      backoff:
+        duration: 15s
+        factor: 2
+        maxDuration: 2m
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+
 ---
+# Wave 1: apply your IPAddressPool + L2Advertisement after CRDs/webhooks are ready
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -34,6 +44,8 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   destination:
@@ -43,10 +55,19 @@ spec:
     repoURL: https://github.com/hevel86/BrainiacOps.git
     targetRevision: HEAD
     path: kubernetes/infrastructure/metallb/overlays/default
+    directory:
+      recurse: true
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 20s
+        factor: 2
+        maxDuration: 3m
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+      - SkipDryRunOnMissingResource=true
