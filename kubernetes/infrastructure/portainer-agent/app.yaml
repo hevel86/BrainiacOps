@@ -1,0 +1,24 @@
+# kubernetes/infrastructure/portainer-agent/app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: portainer-agent
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/hevel86/BrainiacOps
+    targetRevision: HEAD
+    path: kubernetes/infrastructure/portainer-agent
+    directory:
+      recurse: true
+      include: "*.yaml"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default                # resources that specify 'portainer' will still be created there
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true          # ensures the 'portainer' namespace is created
