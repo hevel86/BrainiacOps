@@ -55,8 +55,9 @@ spec:
     repoURL: https://github.com/hevel86/BrainiacOps.git
     targetRevision: HEAD
     path: kubernetes/infrastructure/metallb/overlays/default
-    directory:
-      recurse: true
+    kustomize: {}
+    # directory:
+    #   recurse: true
   syncPolicy:
     automated:
       prune: true
