@@ -1,5 +1,4 @@
-
-# Installs MetalLB (with CRDs) first…
+# kubernetes/infrastructure/metallb/applications.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -26,9 +25,8 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-
+      - ServerSideApply=true
 ---
-# …then applies your pool & L2Advertisement after CRDs exist.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -50,5 +48,5 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
+      - CreateNamespace=true
       - ServerSideApply=true
-      - PrunePropagationPolicy=foreground
