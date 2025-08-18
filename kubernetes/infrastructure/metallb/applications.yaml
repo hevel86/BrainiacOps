@@ -1,11 +1,12 @@
-# kubernetes/infrastructure/metallb/applications.yaml
+
+# Installs MetalLB (with CRDs) first…
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: metallb
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "0"   # <-- install CRDs first
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   project: default
   destination:
@@ -14,7 +15,7 @@ spec:
   source:
     repoURL: https://metallb.github.io/metallb
     chart: metallb
-    targetRevision: 0.14.5               # pick your desired version
+    targetRevision: 0.14.5
     helm:
       values: |
         crds:
@@ -25,16 +26,16 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - ServerSideApply=true
 
 ---
+# …then applies your pool & L2Advertisement after CRDs exist.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: metallb-config
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "1"   # <-- apply CRs after CRDs exist
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: default
   destination:
@@ -44,12 +45,10 @@ spec:
     repoURL: https://github.com/hevel86/BrainiacOps.git
     targetRevision: HEAD
     path: kubernetes/infrastructure/metallb/overlays/default
-    directory:
-      recurse: true
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
       - ServerSideApply=true
+      - PrunePropagationPolicy=foreground
