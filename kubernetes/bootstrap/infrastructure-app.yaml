@@ -11,7 +11,7 @@ spec:
     path: kubernetes/infrastructure
     directory:
       recurse: true
-      include: "*.yaml"   # <- this tells ArgoCD to treat files as kustomize-processed YAMLs
+      include: "app.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
@@ -21,3 +21,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true
