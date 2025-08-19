@@ -9,6 +9,9 @@ spec:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
     path: kubernetes/infrastructure/argocd # <--- Points to the config
+    directory:
+      recurse: true
+      include: "*.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
