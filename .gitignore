@@ -3,6 +3,8 @@
 **/*auth*.yaml
 **/*cred*.yaml
 
+!./kubernetes/infrastructure/external-secrets/external-secret-app.yaml
+
 # Ignore sensitive config files
 **/*.env
 **/.env
