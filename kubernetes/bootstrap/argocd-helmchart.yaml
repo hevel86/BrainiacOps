@@ -19,9 +19,6 @@ spec:
     controller:
       metrics:
         enabled: true
-    configs:
-      secret:
-        create: false
     server:
       enabled: true
       service:
