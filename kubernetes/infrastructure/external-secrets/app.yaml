@@ -1,3 +1,9 @@
+# Make sure name space is created immediately
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: external-secrets
+---
 # external-secrets-app.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -22,3 +28,5 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true
+      - Replace=true
