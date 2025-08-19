@@ -5,7 +5,7 @@
 
 # Allow specific files with secret in the name
 !/kubernetes/infrastructure/external-secrets/external-secrets-app.yaml
-!/kubernetes/apps/default/transmission/bitwarden-secret.yaml
+!**/*bitwarden-secrets.yaml
 
 # Ignore sensitive config files
 **/*.env
