@@ -39,12 +39,12 @@ spec:
         - name: USER
           valueFrom:
             secretKeyRef:
-              name: transmission-secret
+              name: transmission-credentials
               key: USER
         - name: PASS
           valueFrom:
             secretKeyRef:
-              name: transmission-secret
+              name: transmission-credentials
               key: PASS
         ports:
         - name: web
