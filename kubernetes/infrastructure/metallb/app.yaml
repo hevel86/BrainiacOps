@@ -56,8 +56,16 @@ spec:
     targetRevision: HEAD
     path: kubernetes/infrastructure/metallb/overlays/default
     kustomize: {}
-    # directory:
-    #   recurse: true
+  # This block is the only change and will fix the flickering
+  ignoreDifferences:
+    - group: metallb.io
+      kind: IPAddressPool
+      jsonPointers:
+        - /spec/addresses
+    - group: metallb.io
+      kind: L2Advertisement
+      jsonPointers:
+        - /spec/ipAddressPools
   syncPolicy:
     automated:
       prune: true
