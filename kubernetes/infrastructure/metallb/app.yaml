@@ -55,17 +55,17 @@ spec:
     repoURL: https://github.com/hevel86/BrainiacOps.git
     targetRevision: HEAD
     path: kubernetes/infrastructure/metallb/overlays/default
-    kustomize: {}
+    # kustomize: {}
   # This block is the only change and will fix the flickering
-  ignoreDifferences:
-    - group: metallb.io
-      kind: IPAddressPool
-      jsonPointers:
-        - /spec/addresses
-    - group: metallb.io
-      kind: L2Advertisement
-      jsonPointers:
-        - /spec/ipAddressPools
+  # ignoreDifferences:
+  #   - group: metallb.io
+  #     kind: IPAddressPool
+  #     jsonPointers:
+  #       - /spec/addresses
+  #   - group: metallb.io
+  #     kind: L2Advertisement
+  #     jsonPointers:
+  #       - /spec/ipAddressPools
   syncPolicy:
     automated:
       prune: true
