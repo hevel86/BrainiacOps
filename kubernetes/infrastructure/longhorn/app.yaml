@@ -1,0 +1,44 @@
+# kubernetes/infrastructure/longhorn/app.yaml
+# name: longhorn-app
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: longhorn-system
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: longhorn
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: longhorn-system
+  source:
+    repoURL: https://charts.longhorn.io
+    chart: longhorn
+    targetRevision: 1.*           # track 1.x; pin later if you want
+    helm:
+      values: |
+        preUpgradeChecker:
+          jobEnabled: false
+        defaultSettings:
+          # Optional: enable NFS backups if you want Longhorn snapshots/backups off-cluster
+          # Use an export path that exists on your NAS
+          # backupTarget: nfs://truenas1-nfs.torquasmvo.internal:/mnt/media/longhorn-backups
+          defaultReplicaCount: 2   # homelab-friendly (can set 3 if you’ve got space)
+          createDefaultDiskLabeledNodes: false
+        persistence:
+          defaultClass: false      # do NOT create/set a default StorageClass
+          defaultClassReplicaCount: 2
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - Replace=true
