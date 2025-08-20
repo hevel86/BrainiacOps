@@ -1,0 +1,23 @@
+# kubernetes/infrastructure/gateway-crds/app.yaml
+# name: gateway-api-crds-app
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gateway-api-crds
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/hevel86/BrainiacOps
+    path: kubernetes/infrastructure/gateway-crds
+    targetRevision: HEAD
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system   # CRDs are cluster-scoped; namespace here is for tracking
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - Replace=true

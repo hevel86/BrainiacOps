@@ -1,0 +1,4 @@
+# kubernetes/infrastructure/gateway-crds/kustomization.yaml
+# name: gateway-api-crds (standard channel)
+resources:
+  - https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/standard-install.yaml
