@@ -15,7 +15,7 @@ spec:
       include: "*.yaml"
   destination:
     server: https://kubernetes.default.svc
-    namespace: default                # resources that specify 'portainer' will still be created there
+    namespace: portainer               # resources that specify 'portainer' will still be created there
   syncPolicy:
     automated:
       prune: true
