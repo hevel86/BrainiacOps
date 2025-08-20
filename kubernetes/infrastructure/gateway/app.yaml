@@ -1,25 +1,25 @@
 # kubernetes/infrastructure/gateway/app.yaml
-# name: traefik-gateway (Gateway API bootstrap)
-
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: GatewayClass
-metadata:
-  name: traefik
-spec:
-  controllerName: traefik.io/gateway-controller
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: Gateway
+# name: traefik-gateway-app (sync wave 0 -> after CRDs)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
 metadata:
   name: traefik-gateway
-  namespace: kube-system
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
-  gatewayClassName: traefik
-  listeners:
-    - name: http
-      protocol: HTTP
-      port: 80
-      allowedRoutes:
-        namespaces:
-          from: All
+  project: default
+  source:
+    repoURL: https://github.com/hevel86/BrainiacOps
+    path: kubernetes/infrastructure/gateway/resources
+    targetRevision: HEAD
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - Replace=true
