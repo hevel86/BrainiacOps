@@ -5,7 +5,7 @@ metadata:
   name: portainer-agent
   namespace: argocd
 spec:
-  project: default
+  project: portainer
   source:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
