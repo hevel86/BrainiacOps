@@ -1,0 +1,53 @@
+# kubernetes/infrastructure/traefik/app.yaml
+# name: traefik-app (Gateway API only)
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  source:
+    repoURL: https://traefik.github.io/charts
+    chart: traefik
+    targetRevision: 27.*          # v3 chart line; pin later if desired
+    helm:
+      values: |
+        # Use Gateway API, skip Ingress/CRD providers
+        providers:
+          kubernetesGateway:
+            enabled: true
+          kubernetesCRD:
+            enabled: false
+          kubernetesIngress:
+            enabled: false
+
+        # Expose Traefik via MetalLB
+        service:
+          enabled: true
+          type: LoadBalancer
+          spec:
+            loadBalancerIP: 10.0.0.200   # pick a free IP in your MetalLB pool
+
+        # (Optional) Access logs/metrics you like
+        logs:
+          general:
+            level: INFO
+          access:
+            enabled: true
+        metrics:
+          prometheus:
+            enabled: false
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - Replace=true
