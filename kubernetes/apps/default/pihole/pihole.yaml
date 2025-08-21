@@ -1,0 +1,88 @@
+# pihole-manifest.yaml
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pihole-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pihole
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pihole
+  template:
+    metadata:
+      labels:
+        app: pihole
+    spec:
+      containers:
+      - name: pihole
+        image: pihole/pihole:latest
+        env:
+        - name: TZ
+          value: "America/New_York" # Set your timezone
+        - name: WEBPASSWORD
+          valueFrom:
+            secretKeyRef:
+              # This name must match spec.secretName in your BitwardenSecret
+              name: pihole-credentials 
+              # This key must match a secretKeyName in your BitwardenSecret map
+              key: WEBPASSWORD
+        ports:
+        - containerPort: 53
+          protocol: TCP
+          name: dns-tcp
+        - containerPort: 53
+          protocol: UDP
+          name: dns-udp
+        - containerPort: 80
+          protocol: TCP
+          name: http
+        volumeMounts:
+        - name: pihole-storage
+          mountPath: /etc/pihole
+        - name: dnsmasq-storage
+          mountPath: /etc/dnsmasq.d
+      volumes:
+      - name: pihole-storage
+        persistentVolumeClaim:
+          claimName: pihole-pvc
+      - name: dnsmasq-storage
+        persistentVolumeClaim:
+          claimName: pihole-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pihole-service
+  namespace: default
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.240 # Static IP from MetalLB
+  selector:
+    app: pihole
+  ports:
+  - name: dns-udp
+    protocol: UDP
+    port: 53
+    targetPort: dns-udp
+  - name: dns-tcp
+    protocol: TCP
+    port: 53
+    targetPort: dns-tcp
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: http
