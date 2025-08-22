@@ -1,0 +1,6 @@
+# kubernetes/infrastructure/system-upgrade-controller/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: cattle-system
+resources:
+  - https://github.com/rancher/system-upgrade-controller/releases/latest/download/system-upgrade-controller.yaml
