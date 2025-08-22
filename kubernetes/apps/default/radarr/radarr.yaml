@@ -141,6 +141,8 @@ spec:
       labels:
         app: radarr
     spec:
+      nodeSelector:
+        cpu.cores: "8plus"
       containers:
         - name: radarr
           image: lscr.io/linuxserver/radarr

@@ -105,6 +105,8 @@ spec:
       labels:
         app: sabnzbd
     spec:
+      nodeSelector:
+        cpu.cores: "8plus"
       containers:
         - name: sabnzbd
           image: lscr.io/linuxserver/sabnzbd:latest

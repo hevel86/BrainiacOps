@@ -141,6 +141,8 @@ spec:
       labels:
         app: sonarr
     spec:
+      nodeSelector:
+        cpu.cores: "8plus"
       containers:
         - name: sonarr
           image: lscr.io/linuxserver/sonarr
