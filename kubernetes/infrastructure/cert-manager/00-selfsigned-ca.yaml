@@ -1,0 +1,25 @@
+# kubernetes/infrastructure/cert-manager/00-selfsigned-ca.yaml
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: selfsigned-issuer
+  namespace: cert-manager
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: torquasmvo-internal-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: torquasmvo-internal-ca
+  secretName: torquasmvo-internal-ca
+  duration: 87600h # ~10 years
+  privateKey:
+    algorithm: RSA
+    size: 4096
+  issuerRef:
+    name: selfsigned-issuer
+    kind: Issuer
