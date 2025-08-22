@@ -13,8 +13,6 @@ spec:
     directory:
       recurse: true
       include: "*.yaml"
-      # Add this exclude block to prevent the app from managing itself
-      exclude: "app.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: portainer
