@@ -13,13 +13,15 @@ spec:
     directory:
       recurse: true
       include: "*.yaml"
+      # Add this exclude block to prevent the app from managing itself
+      exclude: "app.yaml"
   destination:
     server: https://kubernetes.default.svc
-    namespace: portainer               # resources that specify 'portainer' will still be created there
+    namespace: portainer
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true        
+      - CreateNamespace=true
       - ServerSideApply=true
