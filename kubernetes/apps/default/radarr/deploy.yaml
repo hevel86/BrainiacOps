@@ -1,0 +1,60 @@
+# kubernetes/apps/default/radarr/deploy.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: radarr
+  namespace: default
+  labels:
+    app: radarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: radarr
+  template:
+    metadata:
+      labels:
+        app: radarr
+    spec:
+      containers:
+        - name: radarr
+          image: lscr.io/linuxserver/radarr:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 7878
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "America/New_York"
+          volumeMounts:
+            - name: config
+              mountPath: /config              # Longhorn PVC
+            - name: movies
+              mountPath: /movies              # NFS media
+            - name: tv
+              mountPath: /tv                  # NFS media
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 7878
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 7878
+            initialDelaySeconds: 60
+            periodSeconds: 20
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: radarr-config          # Longhorn PVC you created
+        - name: movies
+          persistentVolumeClaim:
+            claimName: media-movies-pvc       # shared NFS PVC
+        - name: tv
+          persistentVolumeClaim:
+            claimName: media-tv-pvc           # shared NFS PVC

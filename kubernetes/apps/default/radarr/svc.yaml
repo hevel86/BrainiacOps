@@ -1,0 +1,17 @@
+# kubernetes/apps/default/radarr/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: radarr
+  namespace: default
+  labels:
+    app: radarr
+spec:
+  type: NodePort   # switch to ClusterIP if you use Ingress
+  selector:
+    app: radarr
+  ports:
+    - name: http
+      port: 7878
+      targetPort: 7878
+      nodePort: 30787
