@@ -31,6 +31,7 @@ spec:
           defaultReplicaCount: 3
           defaultDataPath: /mnt/longhorn-storage
           createDefaultDiskLabeledNodes: true
+          backupTarget: nfs://truenas1-nfs.torquasmvo.internal:/mnt/media/longhorn-backup
   syncPolicy:
     automated:
       prune: true
