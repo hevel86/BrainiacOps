@@ -4,6 +4,9 @@ kind: Application
 metadata:
   name: volsync
   namespace: argocd
+  annotations:
+    # Make sure this wave is higher than the csi-snapshotter's wave
+    argocd.argoproj.io/sync-wave: "6" 
 spec:
   project: default
   source:
