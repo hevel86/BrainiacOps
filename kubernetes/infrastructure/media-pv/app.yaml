@@ -1,0 +1,27 @@
+# kubernetes/infrastructure/media-pv/app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: media-pv
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-3"   # before Longhorn, apps, etc.
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system               # ignored for cluster-scoped PVs
+  source:
+    repoURL: https://github.com/hevel86/BrainiacOps
+    targetRevision: HEAD
+    path: kubernetes/storage/media       # <- directory containing your PV YAMLs
+    directory:
+      recurse: true
+      include: "*.yaml"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - ApplyOutOfSyncOnly=true
