@@ -15,7 +15,7 @@ spec:
   source:
     repoURL: https://traefik.github.io/charts
     chart: traefik
-    targetRevision: 27.*          # v3 chart line; pin later if desired
+    targetRevision: 37.*
     helm:
       values: |
         # Use Gateway API, skip Ingress/CRD providers
