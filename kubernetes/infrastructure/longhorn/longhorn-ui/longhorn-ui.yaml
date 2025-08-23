@@ -1,0 +1,15 @@
+# kubernetes/infrastructure/longhorn/ui/longhorn-ui-lb.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: longhorn-ui-lb
+  namespace: longhorn-system
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.215 # A free IP from your MetalLB pool
+  selector:
+    app: longhorn-ui
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
