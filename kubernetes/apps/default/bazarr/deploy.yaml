@@ -1,0 +1,61 @@
+# kubernetes/apps/default/bazarr/deploy.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bazarr
+  namespace: default
+  labels:
+    app: bazarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bazarr
+  template:
+    metadata:
+      labels:
+        app: bazarr
+    spec:
+      containers:
+        - name: bazarr
+          image: lscr.io/linuxserver/bazarr:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 6767
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "America/New_York"
+          volumeMounts:
+            - name: config
+              mountPath: /config          # Longhorn PVC (RWO)
+            - name: movies
+              mountPath: /movies          # NFS PV/PVC (RWX)
+            - name: tv
+              mountPath: /tv              # NFS PV/PVC (RWX)
+          # (Optional) basic health checks
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 6767
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 6767
+            initialDelaySeconds: 60
+            periodSeconds: 20
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: bazarr-config      # Longhorn PVC you created earlier
+        - name: movies
+          persistentVolumeClaim:
+            claimName: media-movies-pvc   # NFS PVC (default ns)
+        - name: tv
+          persistentVolumeClaim:
+            claimName: media-tv-pvc       # NFS PVC (default ns)
