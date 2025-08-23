@@ -1,0 +1,60 @@
+# kubernetes/apps/default/sonarr/deploy.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarr
+  namespace: default
+  labels:
+    app: sonarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sonarr
+  template:
+    metadata:
+      labels:
+        app: sonarr
+    spec:
+      containers:
+        - name: sonarr
+          image: lscr.io/linuxserver/sonarr:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8989
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "America/New_York"
+          volumeMounts:
+            - name: config
+              mountPath: /config              # Longhorn PVC
+            - name: movies
+              mountPath: /movies              # NFS media (shared)
+            - name: tv
+              mountPath: /tv                  # NFS media (shared)
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8989
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8989
+            initialDelaySeconds: 60
+            periodSeconds: 20
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: sonarr-config          # <- Longhorn PVC you created
+        - name: movies
+          persistentVolumeClaim:
+            claimName: media-movies-pvc       # <- your bound NFS PVC
+        - name: tv
+          persistentVolumeClaim:
+            claimName: media-tv-pvc           # <- your bound NFS PVC
