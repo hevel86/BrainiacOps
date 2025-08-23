@@ -1,7 +1,8 @@
 # kubernetes/infrastructure/longhorn/backup/backup-target.yaml
 apiVersion: longhorn.io/v1beta2
-kind: Setting
+kind: BackupTarget
 metadata:
-  name: backup-target
+  name: default                 # singleton name used by Longhorn
   namespace: longhorn-system
-value: nfs://truenas1-nfs.torquasmvo.internal:/mnt/media/longhorn-backup
+spec:
+  backupTarget: nfs://truenas1-nfs.torquasmvo.internal:/mnt/media/longhorn-backup
