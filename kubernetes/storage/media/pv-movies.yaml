@@ -1,0 +1,14 @@
+# kubernetes/storage/media/pv-movies.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: media-movies-pv-default     # copy per namespace: media-movies-pv-<ns>
+spec:
+  capacity:
+    storage: 5Ti
+  accessModes: ["ReadWriteMany"]
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+  nfs:
+    server: truenas1-nfs.torquasmvo.internal
+    path: /mnt/media/movies

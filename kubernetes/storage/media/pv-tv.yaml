@@ -1,0 +1,14 @@
+# kubernetes/storage/media/pv-tv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: media-tv-pv-default         # copy per namespace: media-tv-pv-<ns>
+spec:
+  capacity:
+    storage: 2Ti
+  accessModes: ["ReadWriteMany"]
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+  nfs:
+    server: truenas1-nfs.torquasmvo.internal
+    path: /mnt/media/tv
