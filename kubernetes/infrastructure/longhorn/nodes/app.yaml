@@ -1,20 +1,19 @@
-# kubernetes/infrastructure/longhorn/ui/app.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: longhorn-ui
+  name: longhorn-nodes
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "1"   # comes after longhorn is installed
+    argocd.argoproj.io/sync-wave: "-1"   # apply before Longhorn itself
 spec:
   project: default
   destination:
     server: https://kubernetes.default.svc
-    namespace: longhorn-system
+    namespace: kube-system               # ignored for Node; harmless
   source:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
-    path: kubernetes/infrastructure/longhorn/ui
+    path: kubernetes/infrastructure/longhorn/nodes
     directory:
       recurse: true
       include: "*.yaml"
@@ -24,3 +23,4 @@ spec:
       selfHeal: true
     syncOptions:
       - ServerSideApply=true
+      - ApplyOutOfSyncOnly=true

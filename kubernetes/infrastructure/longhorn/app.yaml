@@ -9,6 +9,8 @@ kind: Application
 metadata:
   name: longhorn
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   project: default
   destination:
@@ -22,44 +24,17 @@ spec:
       values: |
         preUpgradeChecker:
           jobEnabled: false
+        persistence:
+          defaultClass: true
+          defaultClassReplicaCount: 3
         defaultSettings:
           defaultReplicaCount: 3
-          createDefaultDiskLabeledNodes: true # Changed to true for your node config
-        persistence:
-          defaultClass: true # Sets Longhorn as the default StorageClass
-          defaultClassReplicaCount: 3 # Changed from 2 to 3 for better redundancy
-        # This section configures your specific nodes and disks
-        longhorn:
-          nodes:
-            cyborg: # VM with the temporary 1.86TB USB SSD
-              disks:
-                disk-1:
-                  path: "/mnt/longhorn-storage"
-                  allowScheduling: true
-                  storageReserved: 186000 # Reserving ~186GB
-                  tags:
-                    - "usb-ssd"
-                    - "temp-disk"
-            kube2: # VM with the 2TB NVMe
-              disks:
-                disk-1:
-                  path: "/mnt/longhorn-storage"
-                  allowScheduling: true
-                  storageReserved: 204800 # Reserving 200GB
-                  tags:
-                    - "nvme"
-            brainiac: # Bare-metal node with the 2TB SSD
-              disks:
-                disk-1:
-                  path: "/mnt/longhorn-storage"
-                  allowScheduling: true
-                  storageReserved: 204800 # Reserving 200GB
-                  tags:
-                    - "ssd"
+          defaultDataPath: /mnt/longhorn-storage
+          createDefaultDiskLabeledNodes: true
   syncPolicy:
     automated:
-      selfHeal: true
       prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true

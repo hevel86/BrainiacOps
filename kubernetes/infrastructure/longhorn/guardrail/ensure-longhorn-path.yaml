@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: ensure-longhorn-path
+  namespace: longhorn-system
+  labels:
+    app: ensure-longhorn-path
+spec:
+  selector:
+    matchLabels:
+      app: ensure-longhorn-path
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: ensure-longhorn-path
+    spec:
+      # Only run on nodes where you've declared disk config via IaC
+      nodeSelector:
+        node.longhorn.io/create-default-disk: "config"
+
+      # Allow on control-plane nodes too (common in k3s)
+      tolerations:
+        - key: "node-role.kubernetes.io/master"
+          effect: NoSchedule
+        - key: "node-role.kubernetes.io/control-plane"
+          effect: NoSchedule
+
+      # This pod exists only to trigger hostPath DirectoryOrCreate
+      containers:
+        - name: hold
+          image: registry.k8s.io/pause:3.9
+          volumeMounts:
+            - name: longhorn-storage
+              mountPath: /mnt/longhorn-storage
+      volumes:
+        - name: longhorn-storage
+          hostPath:
+            path: /mnt/longhorn-storage
+            type: DirectoryOrCreate

@@ -4,16 +4,23 @@ kind: Application
 metadata:
   name: longhorn-vsc
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"   # after Longhorn core is ready
 spec:
   project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: longhorn-system
   source:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
     path: kubernetes/infrastructure/longhorn/vsc
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: default # Or the namespace where you want this class available
+    directory:
+      recurse: true
+      include: "*.yaml"
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
