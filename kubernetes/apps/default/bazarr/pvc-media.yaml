@@ -1,0 +1,29 @@
+# kubernetes/apps/default/bazarr/pvc-movies.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: media-movies-pvc
+  namespace: default
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests:
+      storage: 5Ti
+  volumeName: media-movies-pv-default
+  storageClassName: ""
+  volumeMode: Filesystem
+---
+# kubernetes/apps/default/bazarr/pvc-tv.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: media-tv-pvc
+  namespace: default
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests:
+      storage: 2Ti
+  volumeName: media-tv-pv-default
+  storageClassName: ""
+  volumeMode: Filesystem
