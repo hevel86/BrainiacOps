@@ -1,0 +1,7 @@
+# kubernetes/infrastructure/longhorn/longhorn-vsc.yaml
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+metadata:
+  name: longhorn-snapshot-class
+driver: driver.longhorn.io
+deletionPolicy: Delete
