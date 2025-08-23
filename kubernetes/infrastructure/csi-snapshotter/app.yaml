@@ -1,0 +1,26 @@
+# kubernetes/infrastructure/csi-snapshotter/app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: csi-snapshotter
+  namespace: argocd
+  annotations:
+    # This wave should be lower than volsync's wave to ensure it's deployed first
+    argocd.argoproj.io/sync-wave: "5" 
+spec:
+  project: default
+  source:
+    repoURL: https://piraeusdatastore.github.io/helm-charts
+    chart: snapshot-controller
+    targetRevision: 4.*
+  destination:
+    server: https://kubernetes.default.svc
+    # It's good practice to install this in the kube-system namespace
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
