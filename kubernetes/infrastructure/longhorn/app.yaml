@@ -1,4 +1,9 @@
 # kubernetes/infrastructure/longhorn/app.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: longhorn-system
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -19,9 +24,10 @@ spec:
           jobEnabled: false
         defaultSettings:
           defaultReplicaCount: 3
-          createDefaultDiskLabeledNodes: true
+          createDefaultDiskLabeledNodes: true # Changed to true for your node config
         persistence:
-          defaultClass: false
+          defaultClass: true # Sets Longhorn as the default StorageClass
+          defaultClassReplicaCount: 3 # Changed from 2 to 3 for better redundancy
         # This section configures your specific nodes and disks
         longhorn:
           nodes:
