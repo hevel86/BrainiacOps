@@ -9,20 +9,16 @@ spec:
   trigger:
     schedule: "0 */6 * * *"
   restic:
-    # Use the generic secret you created
+    # 1. Point to the GLOBAL secret for the password
     repository: volsync-restic-secret
 
-    # Point to the PVC that maps to your NFS backup share
+    # 2. Point to the GLOBAL PVC for the backup destination
     destinationPVC: volsync-backup-repo-pvc
 
-    # Define a unique directory within the PVC for this application's backup
-    # This is optional but highly recommended to keep backups organized
+    # 3. CRITICAL: Define a UNIQUE subdirectory for this app's backup
     subPath: bazarr
 
-    # 'Snapshot' is efficient for CSI drivers like Longhorn
     copyMethod: Snapshot
-
-    # Pruning policy for the remote repository
     retain:
       hourly: 24
       daily: 7
