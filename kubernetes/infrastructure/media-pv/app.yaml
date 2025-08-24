@@ -14,7 +14,7 @@ spec:
   source:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
-    path: kubernetes/storage/media       # <- directory containing your PV YAMLs
+    path: kubernetes/storage       # <- directory containing your PV YAMLs
     directory:
       recurse: true
       include: "*.yaml"
