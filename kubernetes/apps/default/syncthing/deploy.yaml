@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: syncthing
+  labels:
+    app: syncthing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: syncthing
+  template:
+    metadata:
+      labels:
+        app: syncthing
+    spec:
+      serviceAccountName: syncthing-tailscale
+      hostname: brainiac
+      containers:
+        - name: syncthing
+          image: lscr.io/linuxserver/syncthing
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "America/New_York"
+            - name: UMASK_SET
+              value: "000"
+          ports:
+            - containerPort: 8384
+            - containerPort: 22000
+              protocol: TCP
+            - containerPort: 22000
+              protocol: UDP
+            - containerPort: 21027
+              protocol: UDP
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: sync-saves
+              mountPath: /sync_saves
+        - name: tailscale
+          image: tailscale/tailscale:stable
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+          env:
+            - name: TS_STATE_DIR
+              value: "/var/lib/tailscale"
+            - name: TS_AUTHKEY
+              valueFrom:
+                secretKeyRef:
+                  name: tailscale
+                  key: TS_AUTHKEY
+            - name: TS_EXTRA_ARGS
+              value: "--hostname=syncthing-sidecar"
+          volumeMounts:
+            - mountPath: /dev/net/tun
+              name: dev-net-tun
+            - mountPath: /var/lib/tailscale
+              name: tailscale-state
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: syncthing-config
+        - name: sync-saves
+          persistentVolumeClaim:
+            claimName: syncthing-sync-saves-pvc
+        - name: dev-net-tun
+          hostPath:
+            path: /dev/net/tun
+        - name: tailscale-state
+          emptyDir: {}
+---
