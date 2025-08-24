@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restic-rest-server
+  namespace: backup-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: restic-rest-server }
+  template:
+    metadata:
+      labels: { app: restic-rest-server }
+    spec:
+      containers:
+        - name: rest-server
+          image: restic/rest-server:0.14.0
+          args: ["--path", "/data", "--no-auth"]
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - name: repo
+              mountPath: /data
+          readinessProbe:
+            httpGet: { path: "/", port: 8000 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: "/", port: 8000 }
+            initialDelaySeconds: 10
+            periodSeconds: 20
+      volumes:
+        - name: repo
+          persistentVolumeClaim:
+            claimName: restic-repo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: restic
+  namespace: backup-system
+spec:
+  type: ClusterIP
+  selector: { app: restic-rest-server }
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
