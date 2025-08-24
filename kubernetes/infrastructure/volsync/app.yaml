@@ -12,7 +12,10 @@ spec:
   source:
     repoURL: https://backube.github.io/helm-charts
     chart: volsync
-    targetRevision: 0.13.*
+    targetRevision: 0.13.*          # keep your pin
+    helm:
+      values: |
+        manageCRDs: true            # <- make this explicit for 0.13+
   destination:
     server: https://kubernetes.default.svc
     namespace: volsync-system
