@@ -1,0 +1,29 @@
+# kubernetes/apps/default/bazarr/volsync.yaml
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: bazarr-backup
+  namespace: default
+spec:
+  sourcePVC: bazarr-config
+  trigger:
+    schedule: "0 */6 * * *"
+  restic:
+    # Use the generic secret you created
+    repository: volsync-restic-secret
+
+    # Point to the PVC that maps to your NFS backup share
+    destinationPVC: volsync-backup-repo-pvc
+
+    # Define a unique directory within the PVC for this application's backup
+    # This is optional but highly recommended to keep backups organized
+    subPath: bazarr
+
+    # 'Snapshot' is efficient for CSI drivers like Longhorn
+    copyMethod: Snapshot
+
+    # Pruning policy for the remote repository
+    retain:
+      hourly: 24
+      daily: 7
+      weekly: 4
