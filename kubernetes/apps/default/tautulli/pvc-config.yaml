@@ -1,0 +1,12 @@
+# kubernetes/apps/default/tautulli/pvc-config.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tautulli-config-lh
+  namespace: default
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi

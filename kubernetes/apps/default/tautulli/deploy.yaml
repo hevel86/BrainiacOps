@@ -1,0 +1,50 @@
+# kubernetes/apps/default/tautulli/deploy.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tautulli
+  namespace: default
+  labels:
+    app: tautulli
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tautulli
+  template:
+    metadata:
+      labels:
+        app: tautulli
+    spec:
+      containers:
+        - name: tautulli
+          image: lscr.io/linuxserver/tautulli:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8181
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "America/New_York"
+          volumeMounts:
+            - name: config
+              mountPath: /config          # Longhorn PVC
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8181
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8181
+            initialDelaySeconds: 60
+            periodSeconds: 20
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: tautulli-config-lh   # <-- new Longhorn PVC
