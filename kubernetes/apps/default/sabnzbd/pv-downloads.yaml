@@ -1,0 +1,20 @@
+# kubernetes/storage/media/pv-sabnzbd-downloads.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sabnzbd-downloads-pv-default
+spec:
+  capacity:
+    storage: 2Ti
+  accessModes: ["ReadWriteMany"]
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+  nfs:
+    server: truenas1-nfs.torquasmvo.internal
+    path: /mnt/media/downloaders/sabnzbd/downloads
+  mountOptions:
+    - nfsvers=4.1
+    - rsize=1048576
+    - wsize=1048576
+    - hard
+    - noatime

@@ -1,0 +1,70 @@
+# kubernetes/apps/default/sabnzbd/deploy.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sabnzbd
+  namespace: default
+  labels:
+    app: sabnzbd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sabnzbd
+  template:
+    metadata:
+      labels:
+        app: sabnzbd
+    spec:
+      containers:
+        - name: sabnzbd
+          image: lscr.io/linuxserver/sabnzbd:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "America/New_York"
+          volumeMounts:
+            - name: config
+              mountPath: /config                  # Longhorn (RWO)
+            - name: downloads
+              mountPath: /downloads              # NFS (RWX)
+            - name: incomplete
+              mountPath: /incomplete             # NFS (RWX)
+            - name: movies
+              mountPath: /movies                 # NFS (RWX)
+            - name: tv
+              mountPath: /tv                     # NFS (RWX)
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 20
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: sabnzbd-config
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: sabnzbd-downloads-pvc
+        - name: incomplete
+          persistentVolumeClaim:
+            claimName: sabnzbd-incomplete-pvc
+        - name: movies
+          persistentVolumeClaim:
+            claimName: media-movies-pvc
+        - name: tv
+          persistentVolumeClaim:
+            claimName: media-tv-pvc
