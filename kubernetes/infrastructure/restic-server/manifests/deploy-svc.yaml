@@ -14,24 +14,30 @@ spec:
       containers:
         - name: rest-server
           image: restic/rest-server:0.14.0
-          args: ["--path", "/data", "--no-auth"]
+          env:
+            - name: DISABLE_AUTHENTICATION   # turn off basic auth for now
+              value: "1"
+            - name: OPTIONS                  # pass flags via the image's expected env
+              value: "--path /data"
           ports:
             - containerPort: 8000
           volumeMounts:
             - name: repo
               mountPath: /data
+          # Use TCP probes so we don't depend on any specific HTTP path
           readinessProbe:
-            httpGet: { path: "/", port: 8000 }
+            tcpSocket: { port: 8000 }
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
-            httpGet: { path: "/", port: 8000 }
+            tcpSocket: { port: 8000 }
             initialDelaySeconds: 10
             periodSeconds: 20
       volumes:
         - name: repo
           persistentVolumeClaim:
             claimName: restic-repo
+
 ---
 apiVersion: v1
 kind: Service
