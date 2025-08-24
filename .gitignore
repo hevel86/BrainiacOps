@@ -6,6 +6,7 @@
 # Allow specific files with secret in the name
 !/kubernetes/infrastructure/external-secrets/external-secrets-app.yaml
 !**/*bitwarden-secrets.yaml
+!**/*bitwarden-volsync-secret.yaml
 
 # Ignore sensitive config files
 **/*.env
