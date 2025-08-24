@@ -31,7 +31,7 @@ spec:
   loadBalancerIP: "10.0.0.212" # Add this line
   ports:
     - name: creative-tcp
-      port: 25566
+      port: 25565
       protocol: TCP
       targetPort: 25565
     - name: creative-udp
