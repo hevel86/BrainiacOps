@@ -9,9 +9,11 @@ metadata:
 spec:
   project: default
   source:
+    # Use the Helm repository you added
     repoURL: https://nvidia.github.io/k8s-device-plugin
     chart: nvidia-device-plugin
-    targetRevision: 0.17.*
+    # Use a stable version for consistency
+    targetRevision: 0.17.3
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system
