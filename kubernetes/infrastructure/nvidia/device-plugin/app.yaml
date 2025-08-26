@@ -1,19 +1,15 @@
-# kubernetes/infrastructure/nvidia/device-plugin/app.yaml
+# name: nvidia-device-plugin-app
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: nvidia-device-plugin
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
-    # Use the Helm repository you added
-    repoURL: https://nvidia.github.io/k8s-device-plugin
-    chart: nvidia-device-plugin
-    # Use a stable version for consistency
-    targetRevision: 0.17.3
+    repoURL: https://github.com/hevel86/BrainiacOps
+    targetRevision: HEAD
+    path: kubernetes/infrastructure/nvidia-device-plugin/stack
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system
@@ -22,5 +18,5 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
       - ServerSideApply=true
+      - CreateNamespace=true
