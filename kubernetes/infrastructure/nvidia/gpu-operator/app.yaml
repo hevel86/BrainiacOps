@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nvidia-gpu-operator
+  namespace: argocd # <-- The namespace where Argo CD is running
+spec:
+  project: default
+  source:
+    # The official NVIDIA Helm chart repository
+    repoURL: 'https://helm.ngc.nvidia.com/nvidia'
+    chart: gpu-operator
+    targetRevision: v25.3.2 # <-- Pin to a specific version for consistency
+
+    # --- This is where you put the configuration ---
+    helm:
+      values: |
+        # This includes the critical fix we found for your k3s environment
+        toolkit:
+          env:
+          - name: CONTAINERD_SOCKET
+            value: /run/k3s/containerd/containerd.sock
+          - name: CONTAINERD_CONFIG
+            value: /var/lib/rancher/k3s/agent/etc/containerd/config.toml
+          - name: CONTAINERD_RUNTIME_DIR
+            value: /run/k3s/containerd
+
+  # --- Where to deploy the operator in your cluster ---
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: gpu-operator # <-- The namespace for the GPU operator itself
+
+  # --- Automated syncing policy ---
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
