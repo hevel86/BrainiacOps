@@ -28,14 +28,19 @@ spec:
       labels:
         app: pihole
     spec:
-      # This is the key change to preserve the client IP
-      hostNetwork: true
+      # This will now work correctly without hostNetwork
       hostname: pihole-k3s
-      # This is also important when using hostNetwork to avoid DNS conflicts
-      dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: pihole
-        image: pihole/pihole:latest
+        image: pihole/pihole:2025.08.0
+        imagePullPolicy: "IfNotPresent"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
         env:
         - name: TZ
           value: "America/New_York"
@@ -78,6 +83,7 @@ metadata:
   namespace: default
 spec:
   type: LoadBalancer
+  # This is the correct way to preserve the client's source IP
   externalTrafficPolicy: Local
   loadBalancerIP: 10.0.0.213
   selector:
@@ -86,12 +92,12 @@ spec:
   - name: dns-udp
     protocol: UDP
     port: 53
-    targetPort: 53
+    targetPort: dns-udp
   - name: dns-tcp
     protocol: TCP
     port: 53
-    targetPort: 53
+    targetPort: dns-tcp
   - name: http
     protocol: TCP
     port: 80
-    targetPort: 80
+    targetPort: http
