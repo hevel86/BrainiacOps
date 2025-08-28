@@ -28,8 +28,11 @@ spec:
       labels:
         app: pihole
     spec:
-      # Set a static hostname for the pod
+      # This is the key change to preserve the client IP
+      hostNetwork: true
       hostname: pihole-k3s
+      # This is also important when using hostNetwork to avoid DNS conflicts
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: pihole
         image: pihole/pihole:latest
@@ -75,21 +78,20 @@ metadata:
   namespace: default
 spec:
   type: LoadBalancer
-  # This setting preserves the client's source IP address
   externalTrafficPolicy: Local
-  loadBalancerIP: 10.0.0.213 # Static IP from MetalLB
+  loadBalancerIP: 10.0.0.213
   selector:
     app: pihole
   ports:
   - name: dns-udp
     protocol: UDP
     port: 53
-    targetPort: dns-udp
+    targetPort: 53
   - name: dns-tcp
     protocol: TCP
     port: 53
-    targetPort: dns-tcp
+    targetPort: 53
   - name: http
     protocol: TCP
     port: 80
-    targetPort: http
+    targetPort: 80
