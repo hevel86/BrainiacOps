@@ -51,6 +51,8 @@ spec:
               key: FTLCONF_webserver_api_password
         - name: FTLCONF_dns_listeningMode
           value: "all"
+        - name: FTLCONF_ignore_localhost
+          value: "yes"
         ports:
         - containerPort: 53
           protocol: TCP
