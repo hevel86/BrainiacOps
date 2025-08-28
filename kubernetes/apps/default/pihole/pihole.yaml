@@ -75,6 +75,8 @@ metadata:
   namespace: default
 spec:
   type: LoadBalancer
+  # This setting preserves the client's source IP address
+  externalTrafficPolicy: Local
   loadBalancerIP: 10.0.0.213 # Static IP from MetalLB
   selector:
     app: pihole
