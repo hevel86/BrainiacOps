@@ -31,6 +31,11 @@ spec:
           kubernetesIngress:
             enabled: false
 
+        # Expose ports
+        ports:
+          traefik:
+            expose: true
+
         # Expose Traefik via MetalLB
         service:
           enabled: true
