@@ -18,6 +18,10 @@ spec:
     targetRevision: 37.*
     helm:
       values: |
+        # Enable the dashboard
+        additionalArguments:
+          - "--api.dashboard=true"
+          - "--api.insecure=true"   # don't do this in production
         # Use Gateway API, skip Ingress/CRD providers
         providers:
           kubernetesGateway:
