@@ -34,7 +34,17 @@ spec:
         # Expose ports
         ports:
           traefik:
-            expose: true
+            port: 80
+            exposedPort: 80
+            # nodePort: 32080   # uncomment to use NodePort instead of LoadBalancer
+          websecure:
+            port: 443
+            exposedPort: 443
+            # nodePort: 32443  # uncomment to use NodePort instead of LoadBalancer
+          admin:
+            port: 8080
+            exposedPort: 8080
+            # nodePort: 32081  # uncomment to use NodePort instead of LoadBalancer  
 
         # Expose Traefik via MetalLB
         service:
