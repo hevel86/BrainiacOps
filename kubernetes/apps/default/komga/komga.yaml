@@ -1,4 +1,20 @@
-# kubernetes/apps/komga/komga-deploy-svc.yaml
+# --- CONFIG PVC (Longhorn) ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: komga-config-lh
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: longhorn
+  volumeMode: Filesystem
+
+---
+# --- DEPLOYMENT ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,40 +44,30 @@ spec:
           env:
             - name: TZ
               value: "America/New_York"
-            - name: KOMGA_DATABASE_CHECKLOCALFILESYSTEM
-              value: "false"
-            - name: KOMGA_TASKSDB_CHECKLOCALFILESYSTEM
-              value: "false"
           ports:
-            - name: http
-              containerPort: 25600
+            - containerPort: 8080
           volumeMounts:
-            - name: config
+            - name: komga-config
               mountPath: /config
-            - name: data
-              mountPath: /data
       volumes:
-        - name: config
+        - name: komga-config
           persistentVolumeClaim:
-            claimName: komga-config-pvc
-        - name: data
-          persistentVolumeClaim:
-            claimName: komga-data-pvc
+            claimName: komga-config-lh
+
 ---
+# --- SERVICE (MetalLB) ---
 apiVersion: v1
 kind: Service
 metadata:
   name: komga
   namespace: default
-  labels:
-    app: komga
 spec:
   type: LoadBalancer
-  loadBalancerIP: 10.0.0.205   # Pick any free IP from your MetalLB pool
+  loadBalancerIP: 10.0.0.205
   selector:
     app: komga
   ports:
     - name: http
-      port: 25600
-      targetPort: 25600
       protocol: TCP
+      port: 25600
+      targetPort: 8080
