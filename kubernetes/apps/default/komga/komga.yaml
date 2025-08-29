@@ -39,7 +39,7 @@ spec:
         fsGroupChangePolicy: "OnRootMismatch"
       containers:
         - name: komga
-          image: gotson/komga:latest
+          image: gotson/komga:1.23.3
           imagePullPolicy: IfNotPresent
           env:
             - name: TZ
@@ -70,4 +70,4 @@ spec:
     - name: http
       protocol: TCP
       port: 25600
-      targetPort: 8080
+      targetPort: 25600
