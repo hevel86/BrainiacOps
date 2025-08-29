@@ -1,40 +1,25 @@
-# --- CONFIG PV/PVC ---
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: prowlarr-config-pv
-spec:
-  capacity:
-    storage: 5Gi
-  accessModes:
-    - ReadWriteMany
-  nfs:
-    path: /mnt/media/k3stor/prowlarr_config
-    server: truenas1-nfs.torquasmvo.internal
-  persistentVolumeReclaimPolicy: Retain
-  volumeMode: Filesystem
-
----
+# --- CONFIG PVC (Longhorn) ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: prowlarr-config-pvc
+  name: prowlarr-config-lh
+  namespace: default
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 5Gi
-  volumeName: prowlarr-config-pv
-  storageClassName: ""
+  storageClassName: longhorn
   volumeMode: Filesystem
 
-# --- DEPLOYMENT ---
 ---
+# --- DEPLOYMENT ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prowlarr
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -63,14 +48,15 @@ spec:
       volumes:
         - name: prowlarr-config
           persistentVolumeClaim:
-            claimName: prowlarr-config-pvc
+            claimName: prowlarr-config-lh
 
-# --- SERVICE ---
 ---
+# --- SERVICE ---
 apiVersion: v1
 kind: Service
 metadata:
   name: prowlarr
+  namespace: default
 spec:
   type: NodePort
   selector:
