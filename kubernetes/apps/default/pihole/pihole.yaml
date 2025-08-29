@@ -1,4 +1,4 @@
-# pihole-manifest.yaml
+# kubernetes/apps/default/pihole/pihole.yaml
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -8,6 +8,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  storageClassName: longhorn
   resources:
     requests:
       storage: 2Gi
@@ -27,19 +28,31 @@ spec:
       labels:
         app: pihole
     spec:
+      # This will now work correctly without hostNetwork
+      hostname: pihole-k3s
       containers:
       - name: pihole
-        image: pihole/pihole:latest
+        image: pihole/pihole:2025.08.0
+        imagePullPolicy: "IfNotPresent"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
         env:
         - name: TZ
-          value: "America/New_York" # Set your timezone
-        - name: WEBPASSWORD
+          value: "America/New_York"
+        - name: FTLCONF_webserver_api_password
           valueFrom:
             secretKeyRef:
-              # This name must match spec.secretName in your BitwardenSecret
-              name: pihole-credentials 
-              # This key must match a secretKeyName in your BitwardenSecret map
-              key: WEBPASSWORD
+              name: pihole-credentials
+              key: FTLCONF_webserver_api_password
+        - name: FTLCONF_dns_listeningMode
+          value: "all"
+        - name: FTLCONF_ignore_localhost
+          value: "yes"
         ports:
         - containerPort: 53
           protocol: TCP
@@ -50,16 +63,18 @@ spec:
         - containerPort: 80
           protocol: TCP
           name: http
+        securityContext:
+          capabilities:
+            add:
+              - NET_ADMIN
         volumeMounts:
         - name: pihole-storage
           mountPath: /etc/pihole
-        - name: dnsmasq-storage
+        - name: pihole-storage
           mountPath: /etc/dnsmasq.d
+          subPath: dnsmasq.d
       volumes:
       - name: pihole-storage
-        persistentVolumeClaim:
-          claimName: pihole-pvc
-      - name: dnsmasq-storage
         persistentVolumeClaim:
           claimName: pihole-pvc
 ---
@@ -70,7 +85,9 @@ metadata:
   namespace: default
 spec:
   type: LoadBalancer
-  loadBalancerIP: 10.0.0.240 # Static IP from MetalLB
+  # This is the correct way to preserve the client's source IP
+  externalTrafficPolicy: Local
+  loadBalancerIP: 10.0.0.213
   selector:
     app: pihole
   ports:
