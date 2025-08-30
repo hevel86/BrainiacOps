@@ -5,25 +5,22 @@ metadata:
   name: volsync-backup-repo-pv
 spec:
   capacity:
-    storage: 5Ti # Should be large enough for all your backups
-  accessModes:
-    - ReadWriteMany
+    storage: 5Ti
+  accessModes: ["ReadWriteMany"]
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: "" # Static provisioning
+  storageClassName: ""
   volumeMode: Filesystem
   nfs:
     server: truenas1-nfs.torquasmvo.internal
-    # It's good practice to use a dedicated directory for VolSync
     path: /mnt/media/longhorn-backup/volsync
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: volsync-backup-repo-pvc
-  namespace: default # This PVC needs to be in the same namespace as the ReplicationSource
+  namespace: default # This PVC must be in the same namespace as your apps
 spec:
-  accessModes:
-    - ReadWriteMany
+  accessModes: ["ReadWriteMany"]
   resources:
     requests:
       storage: 5Ti
