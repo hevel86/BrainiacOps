@@ -1,0 +1,20 @@
+# kubernetes/apps/default/komga/volsync.yaml
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: komga-backup
+  namespace: default
+spec:
+  sourcePVC: komga-config-lh
+  trigger:
+    schedule: "0 */6 * * *"
+  restic:
+    repository: volsync-restic-secret
+    destinationPVC: volsync-backup-repo-pvc
+    subPath: komga
+    copyMethod: Snapshot
+    volumeSnapshotClassName: longhorn-snapshot-class
+    retain:
+      hourly: 24
+      daily: 7
+      weekly: 4

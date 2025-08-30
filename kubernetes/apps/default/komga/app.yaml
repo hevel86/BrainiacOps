@@ -1,0 +1,21 @@
+# kubernetes/apps/default/komga/app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: komga
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  source:
+    repoURL: https://github.com/hevel86/BrainiacOps.git # Change if your repo URL is different
+    targetRevision: HEAD
+    path: kubernetes/apps/default/komga
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
