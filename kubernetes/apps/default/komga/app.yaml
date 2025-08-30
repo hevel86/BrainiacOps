@@ -10,9 +10,19 @@ spec:
     server: https://kubernetes.default.svc
     namespace: default
   source:
-    repoURL: https://github.com/hevel86/BrainiacOps.git # Change if your repo URL is different
+    repoURL: https://github.com/hevel86/BrainiacOps.git
     targetRevision: HEAD
     path: kubernetes/apps/default/komga
+  
+  # --- ADD THIS BLOCK ---
+  ignoreDifferences:
+  - group: "" # Core API group
+    kind: PersistentVolumeClaim
+    name: komga-config-lh
+    jsonPointers:
+    - /spec/volumeName
+  # --------------------
+
   syncPolicy:
     automated:
       prune: true
