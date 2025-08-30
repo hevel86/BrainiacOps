@@ -16,7 +16,7 @@ spec:
     path: kubernetes/apps/default/_shared
     directory:
       recurse: true
-      include: "*.yaml"
+      include: "**/app.yaml"
   syncPolicy:
     automated:
       prune: true
