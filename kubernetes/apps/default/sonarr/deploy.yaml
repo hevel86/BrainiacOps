@@ -32,11 +32,11 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config              # Longhorn PVC
-            - name: movies
-              mountPath: /movies              # NFS media (shared)
             - name: tv
               mountPath: /tv                  # NFS media (shared)
-          readinessProbe:
+            - name: downloads
+              mountPath: /downloads           # NFS media (shared)
+          readinessProbe: 
             httpGet:
               path: /
               port: 8989
@@ -52,9 +52,9 @@ spec:
         - name: config
           persistentVolumeClaim:
             claimName: sonarr-config          # <- Longhorn PVC you created
-        - name: movies
-          persistentVolumeClaim:
-            claimName: media-movies-pvc       # <- your bound NFS PVC
         - name: tv
           persistentVolumeClaim:
             claimName: media-tv-pvc           # <- your bound NFS PVC
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: sabnzbd-downloads-pvc            
