@@ -34,8 +34,8 @@ spec:
               mountPath: /config              # Longhorn PVC
             - name: movies
               mountPath: /movies              # NFS media
-            - name: tv
-              mountPath: /tv                  # NFS media
+            - name: downloads
+              mountPath: /downloads
           readinessProbe:
             httpGet:
               path: /
@@ -55,6 +55,6 @@ spec:
         - name: movies
           persistentVolumeClaim:
             claimName: media-movies-pvc       # shared NFS PVC
-        - name: tv
+        - name: downloads
           persistentVolumeClaim:
-            claimName: media-tv-pvc           # shared NFS PVC
+            claimName: sabnzbd-downloads-pvc            
