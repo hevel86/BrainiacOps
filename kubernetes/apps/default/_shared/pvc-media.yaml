@@ -27,3 +27,18 @@ spec:
   volumeName: media-tv-pv-default
   storageClassName: ""
   volumeMode: Filesystem
+---
+# kubernetes/apps/default/_shared/pvc-downloads.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: media-downloaders-pvc
+  namespace: default
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests:
+      storage: 2Ti
+  volumeName: media-tv-pv-default
+  storageClassName: ""
+  volumeMode: Filesystem
