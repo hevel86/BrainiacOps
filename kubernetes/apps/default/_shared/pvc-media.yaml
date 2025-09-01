@@ -39,6 +39,6 @@ spec:
   resources:
     requests:
       storage: 2Ti
-  volumeName: media-tv-pv-default
+  volumeName: media-downloaders-pv-default
   storageClassName: ""
   volumeMode: Filesystem
