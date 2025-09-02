@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: volsync
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/backube/volsync.git
+    path: deploy/operator
+    targetRevision: v0.13.0   # adjust as needed
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: volsync
+  syncPolicy:
+    automated: {}
