@@ -5,3 +5,4 @@ resources:
   - komga.yaml
   - volsync.yaml
   - bitwarden-secrets.yaml
+  - volsync-restore.yaml

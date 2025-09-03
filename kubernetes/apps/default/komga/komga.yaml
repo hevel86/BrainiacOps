@@ -22,6 +22,8 @@ metadata:
   namespace: default
   labels:
     app: komga
+  annotations:
+    argocd.argoproj.io/sync-wave: "30"
 spec:
   replicas: 1
   selector:
@@ -32,6 +34,18 @@ spec:
       labels:
         app: komga
     spec:
+      initContainers:
+        - name: wait-for-restore
+          image: busybox:1.36
+          command: ["/bin/sh","-c"]
+          args:
+            - |
+              i=0; until [ -n "$(ls -A /config 2>/dev/null)" ] || [ $i -ge 360 ]; do
+                echo "waiting for restore to populate /config..."; i=$((i+1)); sleep 5;
+              done
+          volumeMounts:
+            - name: komga-config
+              mountPath: /config
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
