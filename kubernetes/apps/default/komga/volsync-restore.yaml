@@ -15,8 +15,10 @@ spec:
     repository: volsync-restic-komga
     # Restore directly into the app PVC
     destinationPVC: komga-config-lh
+    # Auto-cleanup temp volumes after successful restore
+    cleanupTempPVC: true
+    cleanupCachePVC: true
     moverSecurityContext:
       runAsUser: 1000
       runAsGroup: 1000
       fsGroup: 1000
-
