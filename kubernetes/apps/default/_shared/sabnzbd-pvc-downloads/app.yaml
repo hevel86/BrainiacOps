@@ -1,3 +1,4 @@
+---
 # kubernetes/storage/media/pv-sabnzbd-downloads.yaml
 apiVersion: v1
 kind: PersistentVolume

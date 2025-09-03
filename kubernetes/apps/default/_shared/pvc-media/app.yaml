@@ -1,3 +1,4 @@
+---
 # kubernetes/apps/default/bazarr/pvc-movies.yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
