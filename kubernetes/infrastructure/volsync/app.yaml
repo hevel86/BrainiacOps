@@ -3,16 +3,25 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: volsync
+  namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "10"
 spec:
   project: default
   source:
-    repoURL: https://github.com/backube/volsync.git
-    path: config/default
-    targetRevision: v0.13.0
+    # Point to the Helm chart repository
+    repoURL: https://backube.github.io/helm-charts
+    # Specify the chart name
+    chart: volsync
+    # Specify the chart version that corresponds to the operator version you want
+    targetRevision: 0.13.0
   destination:
     server: https://kubernetes.default.svc
     namespace: volsync
   syncPolicy:
-    automated: {}
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
