@@ -13,7 +13,6 @@ spec:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
     path: kubernetes/apps/default/komga
-    # Add this line to explicitly use kustomize
     kustomize: {}
 
   # Ignore controller-set field to avoid churn
@@ -23,6 +22,12 @@ spec:
     name: komga-config-lh
     jsonPointers:
     - /spec/volumeName
+  # Add this block to ignore the status field for the ReplicationSource
+  - group: volsync.backube
+    kind: ReplicationSource
+    name: komga-backup
+    jsonPointers:
+    - /status
 
   syncPolicy:
     automated:
