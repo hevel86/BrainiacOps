@@ -16,6 +16,7 @@ spec:
     directory:
       recurse: true
       include: "*.yaml"
+      exclude: "app.yaml"   # prevent self-managing recursion
 
   # Ignore controller-set field to avoid churn
   ignoreDifferences:
