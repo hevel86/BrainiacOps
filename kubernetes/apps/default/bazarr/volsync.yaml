@@ -19,6 +19,7 @@ spec:
     subPath: bazarr
 
     copyMethod: Snapshot
+    volumeSnapshotClassName: longhorn-snapshot-class
     retain:
       hourly: 24
       daily: 7

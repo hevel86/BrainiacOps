@@ -1,3 +1,4 @@
+---
 # kubernetes/apps/default/_shared/bitwarden-volsync-secret.yaml
 apiVersion: k8s.bitwarden.com/v1
 kind: BitwardenSecret
