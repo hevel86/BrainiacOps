@@ -9,9 +9,7 @@ spec:
   trigger:
     schedule: "0 */6 * * *"
   restic:
-    repository: volsync-restic-secret
-    destinationPVC: volsync-backup-repo-pvc
-    subPath: komga
+    repository: volsync-restic-komga
     copyMethod: Snapshot
     volumeSnapshotClassName: longhorn-snapshot-class
     retain:

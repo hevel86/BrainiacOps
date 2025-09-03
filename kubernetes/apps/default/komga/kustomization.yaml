@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - komga.yaml
   - volsync.yaml
+  - bitwarden-secrets.yaml
