@@ -22,8 +22,6 @@ metadata:
   namespace: default
   labels:
     app: komga
-  annotations:
-    argocd.argoproj.io/sync-wave: "30"
 spec:
   replicas: 1
   selector:
