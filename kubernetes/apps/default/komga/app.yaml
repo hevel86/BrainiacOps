@@ -13,10 +13,8 @@ spec:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
     path: kubernetes/apps/default/komga
-    directory:
-      recurse: true
-      include: "*.yaml"
-      exclude: "app.yaml"   # prevent self-managing recursion
+    # Add this line to explicitly use kustomize
+    kustomize: {}
 
   # Ignore controller-set field to avoid churn
   ignoreDifferences:
