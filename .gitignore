@@ -49,3 +49,4 @@ tmp/
 *.bak
 *.orig
 *.tmp
+kubernetes/infrastructure/nvidia/nvidia-smi-test.yaml
