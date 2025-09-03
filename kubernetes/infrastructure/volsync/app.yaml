@@ -1,3 +1,4 @@
+# kubernetes/infrastructure/volsync/app.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -8,8 +9,8 @@ spec:
   project: default
   source:
     repoURL: https://github.com/backube/volsync.git
-    path: deploy/operator
-    targetRevision: v0.13.0   # adjust as needed
+    path: config/default
+    targetRevision: v0.13.0
   destination:
     server: https://kubernetes.default.svc
     namespace: volsync
