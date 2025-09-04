@@ -1,17 +1,3 @@
-# kubernetes/apps/default/sabnzbd/pvc-downloads.yaml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: sabnzbd-downloads-pvc
-  namespace: default
-spec:
-  accessModes: ["ReadWriteMany"]
-  resources:
-    requests:
-      storage: 2Ti
-  volumeName: sabnzbd-downloads-pv-default
-  storageClassName: ""
-  volumeMode: Filesystem
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
