@@ -1,0 +1,17 @@
+---
+# --- SERVICE (MetalLB) ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: komga
+  namespace: default
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.205
+  selector:
+    app: komga
+  ports:
+    - name: http
+      protocol: TCP
+      port: 25600
+      targetPort: 25600
