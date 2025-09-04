@@ -1,0 +1,55 @@
+
+# --- DEPLOYMENT ---
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mylar3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mylar3
+  template:
+    metadata:
+      labels:
+        app: mylar3
+    spec:
+      containers:
+        - name: mylar3
+          image: lscr.io/linuxserver/mylar3:latest
+          ports:
+            - containerPort: 8090
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+          volumeMounts:
+            - name: mylar3-config
+              mountPath: /config
+            - name: mylar3-comics
+              mountPath: /comics
+            - name: mylar3-downloads
+              mountPath: /downloads
+            - name: mylar3-watch
+              mountPath: /watch
+            - name: mylar3-completed
+              mountPath: /data/completed
+      volumes:
+        - name: mylar3-config
+          persistentVolumeClaim:
+            claimName: mylar3-config-pvc
+        - name: mylar3-comics
+          persistentVolumeClaim:
+            claimName: mylar3-comics-pvc
+        - name: mylar3-downloads
+          persistentVolumeClaim:
+            claimName: mylar3-downloads-pvc
+        - name: mylar3-watch
+          persistentVolumeClaim:
+            claimName: mylar3-watch-pvc
+        - name: mylar3-completed
+          persistentVolumeClaim:
+            claimName: mylar3-completed-pvc
+
