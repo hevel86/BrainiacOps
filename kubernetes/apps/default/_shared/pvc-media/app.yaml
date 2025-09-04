@@ -69,7 +69,7 @@ spec:
   accessModes: ["ReadWriteMany"]
   resources:
     requests:
-      storage: 100Gi
+      storage: 2Ti
   volumeName: sabnzbd-downloads-pv-default
   storageClassName: ""
   volumeMode: Filesystem
