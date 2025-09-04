@@ -1,0 +1,75 @@
+# =========================
+# HandBrake - Full Manifest (CPU-only, MetalLB, NodeSelector)
+# =========================
+# --- Deployment ---
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: handbrake
+  namespace: default
+  labels:
+    app: handbrake
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: handbrake
+  template:
+    metadata:
+      labels:
+        app: handbrake
+    spec:
+      nodeSelector:
+        cpu.cores: "8plus"
+      containers:
+        - name: handbrake
+          image: jlesage/handbrake:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: web
+              containerPort: 5800
+              protocol: TCP
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "America/New_York"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: output
+              mountPath: /output
+            - name: tv
+              mountPath: /tv
+              readOnly: true
+            - name: movies
+              mountPath: /movies
+              readOnly: true
+          readinessProbe:
+            tcpSocket:
+              port: 5800
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 5800
+            initialDelaySeconds: 30
+            periodSeconds: 20
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: handbrake-config-pvc
+        - name: output
+          persistentVolumeClaim:
+            claimName: handbrake-output-pvc
+        - name: tv
+          persistentVolumeClaim:
+            claimName: media-tv-pvc
+        - name: movies
+          persistentVolumeClaim:
+            claimName: media-movies-pvc
+
+

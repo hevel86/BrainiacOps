@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: handbrake-config-pvc
+  namespace: default
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 2Gi
+  #volumeMode: Filesystem
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: handbrake-output-pvc
+  namespace: default
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 50Gi
+  #volumeMode: Filesystem
+# TV and Movies use shared PVCs: media-tv-pvc and media-movies-pvc

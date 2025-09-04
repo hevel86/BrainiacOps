@@ -1,0 +1,19 @@
+# --- Service (MetalLB LoadBalancer) ---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: handbrake
+  namespace: default
+  labels:
+    app: handbrake
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.203
+  selector:
+    app: handbrake
+  ports:
+    - name: web
+      port: 5800
+      targetPort: 5800
+      protocol: TCP
