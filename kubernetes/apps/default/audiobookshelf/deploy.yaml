@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: audiobookshelf
-          image: ghcr.io/advplyr/audiobookshelf:latest
+          image: ghcr.io/advplyr/audiobookshelf:2.29.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -41,20 +41,3 @@ spec:
           persistentVolumeClaim:
             claimName: audiobookshelf-metadata-pvc
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: audiobookshelf
-  namespace: default
-  labels:
-    app: audiobookshelf
-spec:
-  type: LoadBalancer
-  loadBalancerIP: 10.0.0.208   # pick a free IP from your MetalLB pool
-  selector:
-    app: audiobookshelf
-  ports:
-    - name: http
-      port: 80
-      targetPort: 80
-      protocol: TCP
