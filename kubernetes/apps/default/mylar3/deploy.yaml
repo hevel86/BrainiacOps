@@ -42,10 +42,10 @@ spec:
             claimName: mylar3-config-pvc
         - name: mylar3-comics
           persistentVolumeClaim:
-            claimName: mylar3-comics-pvc
+            claimName: media-comics-pvc
         - name: mylar3-downloads
           persistentVolumeClaim:
-            claimName: mylar3-downloads-pvc
+            claimName: sabnzbd-downloads-pvc
         - name: mylar3-watch
           persistentVolumeClaim:
             claimName: mylar3-watch-pvc
