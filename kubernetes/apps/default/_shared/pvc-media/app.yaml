@@ -43,3 +43,18 @@ spec:
   volumeName: media-downloaders-pv-default
   storageClassName: ""
   volumeMode: Filesystem
+---
+# kubernetes/apps/default/_shared/pvc-comics.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: media-comics-pvc
+  namespace: default
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests:
+      storage: 30Gi
+  volumeName: media-comics-pv-default
+  storageClassName: ""
+  volumeMode: Filesystem
