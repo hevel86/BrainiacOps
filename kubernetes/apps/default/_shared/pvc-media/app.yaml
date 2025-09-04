@@ -30,19 +30,19 @@ spec:
   volumeMode: Filesystem
 ---
 # kubernetes/apps/default/_shared/pvc-downloads.yaml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: media-downloaders-pvc
-  namespace: default
-spec:
-  accessModes: ["ReadWriteMany"]
-  resources:
-    requests:
-      storage: 2Ti
-  volumeName: media-downloaders-pv-default
-  storageClassName: ""
-  volumeMode: Filesystem
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: media-downloaders-pvc
+#   namespace: default
+# spec:
+#   accessModes: ["ReadWriteMany"]
+#   resources:
+#     requests:
+#       storage: 2Ti
+#   volumeName: media-downloaders-pv-default
+#   storageClassName: ""
+#   volumeMode: Filesystem
 ---
 # kubernetes/apps/default/_shared/pvc-comics.yaml
 apiVersion: v1
@@ -56,5 +56,20 @@ spec:
     requests:
       storage: 30Gi
   volumeName: media-comics-pv-default
+  storageClassName: ""
+  volumeMode: Filesystem
+---
+# kubernetes/apps/default/sabnzbd/pvc-downloads.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sabnzbd-downloads-pvc
+  namespace: default
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: sabnzbd-downloads-pv-default
   storageClassName: ""
   volumeMode: Filesystem
