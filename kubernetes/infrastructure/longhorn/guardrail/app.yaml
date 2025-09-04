@@ -17,6 +17,7 @@ spec:
     directory:
       recurse: true
       include: "*.yaml"
+      exclude: "app.yaml"
   syncPolicy:
     automated:
       prune: true
