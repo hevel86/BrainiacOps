@@ -24,6 +24,10 @@ spec:
           - name: CONTAINERD_RUNTIME_DIR
             value: /run/k3s/containerd
 
+        # Disable MIG manager for non-MIG GPUs (P1000/P2000)
+        migManager:
+          enabled: false
+
   # --- Where to deploy the operator in your cluster ---
   destination:
     server: 'https://kubernetes.default.svc'
