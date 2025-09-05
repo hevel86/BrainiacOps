@@ -39,18 +39,6 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: romm-library-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 100Gi
-  storageClassName: nfs-client # Use your NFS storage class
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
   name: romm-assets-pvc
 spec:
   accessModes:
