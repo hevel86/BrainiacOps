@@ -8,63 +8,71 @@ metadata:
     app.kubernetes.io/instance: romm
 data:
   config.yml: |
-    # This is an example config file for romm.
-    # You can use this file as a starting point for your own configuration.
-    # For more information, see the documentation: https://docs.romm.app/latest/Configuration/
+    # This is a generic example of a configuration file
+    # Rename this file to `config.yml`, copy it to a `config` folder, and mount that folder as per the docker-compose.example.yml
+    # Only uncomment the lines you want to use/modify, or add new ones where needed
 
-    # The host and port to bind the web server to.
-    # Default: 0.0.0.0:8080
-    # server:
-    #   host: 0.0.0.0
-    #   port: 8080
+    exclude:
+      # Exclude platforms to be scanned
+      platforms: [] # ['my_excluded_platform_1', 'my_excluded_platform_2']
 
-    # The log level to use.
-    # Default: info
-    # log:
-    #   level: info
+      # Exclude roms or parts of roms to be scanned
+      roms:
+        # Single file games section.
+        # Will not apply to files that are in sub-folders (multi-disc roms, games with updates, DLC, patches, etc.)
+        single_file:
+          # Exclude all files with certain extensions to be scanned
+          extensions: [] # ['xml', 'txt']
 
-    # The database connection details.
-    # These are typically set via environment variables, but can be overridden here.
-    # db:
-    #   host: romm-db
-    #   name: romm
-    #   user: romm-user
-    #   passwd: your-db-password
+          # Exclude matched file names to be scanned.
+          # Supports unix filename pattern matching
+          # Can also exclude files by extension
+          names: [] # ['info.txt', '._*', '*.nfo']
 
-    # The secret key to use for signing sessions.
-    # This is typically set via the ROMM_AUTH_SECRET_KEY environment variable.
-    # auth:
-    #   secret_key: your-secret-key
+        # Multi files games section
+        # Will apply to files that are in sub-folders (multi-disc roms, games with updates, DLC, patches, etc.)
+        multi_file:
+          # Exclude matched 'folder' names to be scanned (RomM identifies folders as multi file games)
+          names: [] # ['my_multi_file_game', 'DLC']
 
-    # The path to the game library.
-    # Default: /romm/library
-    # library:
-    #   path: /romm/library
+          # Exclude files within sub-folders.
+          parts:
+            # Exclude matched file names to be scanned from multi file roms
+            # Keep in mind that RomM doesn't scan folders inside multi files games,
+            # so there is no need to exclude folders from inside of multi files games.
+            names: [] # ['data.xml', '._*'] # Supports unix filename pattern matching
 
-    # The path to the resources directory.
-    # Default: /romm/resources
-    # resources:
-    #   path: /romm/resources
+            # Exclude all files with certain extensions to be scanned from multi file roms
+            extensions: [] # ['xml', 'txt']
 
-    # The path to the assets directory.
-    # Default: /romm/assets
-    # assets:
-    #   path: /romm/assets
+    system:
+      # Asociate different platform names to your current file system platform names
+      # [your custom platform folder name]: [RomM platform name]
+      # In this example if you have a 'gc' folder, RomM will treat it like the 'ngc' folder and if you have a 'psx' folder, RomM will treat it like the 'ps' folder
+      platforms: {} # { gc: 'ngc', psx: 'ps' }
 
-    # The path to the redis data directory.
-    # Default: /redis-data
-    # redis:
-    #   data_dir: /redis-data
+      # Asociate one platform to it's main version
+      versions: {} # { naomi: 'arcade' }
 
-    # Metadata provider configuration.
-    # These are typically set via environment variables, but can be overridden here.
-    # metadata_providers:
-    #   screenscraper:
-    #     user: your-screenscraper-user
-    #     password: your-screenscraper-password
-    #   retroachievements:
-    #     api_key: your-retroachievements-api-key
-    #   steamgriddb:
-    #     api_key: your-steamgriddb-api-key
-    #   hasheous:
-    #     enabled: true
+    # The folder name where your roms are located
+    filesystem: {} # { roms_folder: 'roms' } For example if your folder structure is /home/user/library/roms_folder
+
+    # EmulatorJS per-core options
+    emulatorjs:
+      # debug: true # Available options will be logged to the browser console
+      settings:
+        parallel_n64: # Use the exact core name
+        #   vsync: disable
+        snes9x:
+        #   snes9x_region: ntsc
+        default: # These settings apply to all cores
+        #   fps: show
+      controls: # https://emulatorjs.org/docs4devs/control-mapping/
+        snes9x:
+        #   0: # Player 1
+        #     0: # A MAPPING FOR EACH BUTTON MUST BE SET!
+        #       value: x # Mapping for keyboard
+        #       value2: BUTTON_2 # Mapping for connected controller
+        #   1: # Player 2
+        #   2: # Player 3
+        #   3: # Player 4
