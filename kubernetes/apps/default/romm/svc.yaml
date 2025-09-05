@@ -1,0 +1,26 @@
+# svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: romm-db-svc
+spec:
+  selector:
+    app: romm-db
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: ClusterIP # Exposes the DB only inside the cluster
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: romm-svc
+spec:
+  selector:
+    app: romm
+  ports:
+    - protocol: TCP
+      port: 80 # External port
+      targetPort: 8080 # Container port
+  type: LoadBalancer # Exposes the app outside the cluster.

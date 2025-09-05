@@ -1,0 +1,102 @@
+## MARIADB
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: romm-db-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: romm-db
+  template:
+    metadata:
+      labels:
+        app: romm-db
+    spec:
+      containers:
+        - name: mariadb
+          image: mariadb:latest
+          ports:
+            - containerPort: 3306
+          envFrom:
+            - secretRef:
+                name: romm-secrets
+          env:
+            - name: MARIADB_DATABASE
+              value: "romm"
+            - name: MARIADB_USER
+              value: "romm-user"
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+          readinessProbe:
+            exec:
+              command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          livenessProbe:
+            exec:
+              command: ["healthcheck.sh", "--connect"]
+            initialDelaySeconds: 45
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+      volumes:
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: mysql-data-pvc
+---
+## ROMM
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: romm-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: romm
+  template:
+    metadata:
+      labels:
+        app: romm
+    spec:
+      containers:
+        - name: romm
+          image: rommapp/romm:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: romm-config
+            - secretRef:
+                name: romm-secrets
+          volumeMounts:
+            - name: romm-resources
+              mountPath: /romm/resources
+            - name: romm-redis-data
+              mountPath: /redis-data
+            - name: romm-library
+              mountPath: /romm/library
+            - name: romm-assets
+              mountPath: /romm/assets
+            - name: romm-config
+              mountPath: /romm/config
+      volumes:
+        - name: romm-resources
+          persistentVolumeClaim:
+            claimName: romm-resources-pvc
+        - name: romm-redis-data
+          persistentVolumeClaim:
+            claimName: romm-redis-data-pvc
+        - name: romm-library
+          persistentVolumeClaim:
+            claimName: romm-library-pvc
+        - name: romm-assets
+          persistentVolumeClaim:
+            claimName: romm-assets-pvc
+        - name: romm-config
+          persistentVolumeClaim:
+            claimName: romm-config-pvc
