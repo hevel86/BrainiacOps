@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: romm-initial-config
+  namespace: default
+  labels:
+    app.kubernetes.io/name: romm
+    app.kubernetes.io/instance: romm
+data:
+  config.yml: |
+    # This is an example config file for romm.
+    # You can use this file as a starting point for your own configuration.
+    # For more information, see the documentation: https://docs.romm.app/latest/Configuration/
+
+    # The host and port to bind the web server to.
+    # Default: 0.0.0.0:8080
+    # server:
+    #   host: 0.0.0.0
+    #   port: 8080
+
+    # The log level to use.
+    # Default: info
+    # log:
+    #   level: info
+
+    # The database connection details.
+    # These are typically set via environment variables, but can be overridden here.
+    # db:
+    #   host: romm-db
+    #   name: romm
+    #   user: romm-user
+    #   passwd: your-db-password
+
+    # The secret key to use for signing sessions.
+    # This is typically set via the ROMM_AUTH_SECRET_KEY environment variable.
+    # auth:
+    #   secret_key: your-secret-key
+
+    # The path to the game library.
+    # Default: /romm/library
+    # library:
+    #   path: /romm/library
+
+    # The path to the resources directory.
+    # Default: /romm/resources
+    # resources:
+    #   path: /romm/resources
+
+    # The path to the assets directory.
+    # Default: /romm/assets
+    # assets:
+    #   path: /romm/assets
+
+    # The path to the redis data directory.
+    # Default: /redis-data
+    # redis:
+    #   data_dir: /redis-data
+
+    # Metadata provider configuration.
+    # These are typically set via environment variables, but can be overridden here.
+    # metadata_providers:
+    #   screenscraper:
+    #     user: your-screenscraper-user
+    #     password: your-screenscraper-password
+    #   retroachievements:
+    #     api_key: your-retroachievements-api-key
+    #   steamgriddb:
+    #     api_key: your-steamgriddb-api-key
+    #   hasheous:
+    #     enabled: true

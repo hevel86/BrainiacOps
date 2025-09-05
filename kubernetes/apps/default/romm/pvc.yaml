@@ -4,6 +4,10 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mysql-data-pvc
+  labels:
+    app.kubernetes.io/name: romm
+    app.kubernetes.io/instance: romm
+    app.kubernetes.io/component: database
 spec:
   accessModes:
     - ReadWriteOnce
@@ -16,6 +20,10 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: romm-resources-pvc
+  labels:
+    app.kubernetes.io/name: romm
+    app.kubernetes.io/instance: romm
+    app.kubernetes.io/component: web
 spec:
   accessModes:
     - ReadWriteOnce
@@ -28,6 +36,10 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: romm-redis-data-pvc
+  labels:
+    app.kubernetes.io/name: romm
+    app.kubernetes.io/instance: romm
+    app.kubernetes.io/component: web
 spec:
   accessModes:
     - ReadWriteOnce
@@ -40,6 +52,10 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: romm-assets-pvc
+  labels:
+    app.kubernetes.io/name: romm
+    app.kubernetes.io/instance: romm
+    app.kubernetes.io/component: web
 spec:
   accessModes:
     - ReadWriteOnce
@@ -52,6 +68,10 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: romm-config-pvc
+  labels:
+    app.kubernetes.io/name: romm
+    app.kubernetes.io/instance: romm
+    app.kubernetes.io/component: web
 spec:
   accessModes:
     - ReadWriteOnce

@@ -1,23 +1,49 @@
-## MARIADB
+## ROMM
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: romm-db-deployment
+  name: romm-deployment
+  labels:
+    app.kubernetes.io/name: romm
+    app.kubernetes.io/instance: romm
+    app.kubernetes.io/component: web
 spec:
   replicas: 1
+  # The Recreate strategy ensures the old pod is terminated before the new one is created.
+  # This is crucial for ReadWriteOnce volumes (like Longhorn) to prevent mounting conflicts during updates.
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
-      app: romm-db
+      app.kubernetes.io/name: romm
+      app.kubernetes.io/component: web
   template:
     metadata:
       labels:
-        app: romm-db
+        app.kubernetes.io/name: romm
+        app.kubernetes.io/component: web
     spec:
+      # This initContainer runs before the main app container.
+      # It copies the default config.yml into the persistent volume if it doesn't exist.
+      # This prevents overwriting user changes on subsequent pod restarts.
+      initContainers:
+        - name: init-config
+          image: busybox:1.36
+          command:
+            - "sh"
+            - "-c"
+            - "if [ ! -f /config/config.yml ]; then cp /config-initial/config.yml /config/config.yml; echo 'Default config.yml copied.'; else echo 'config.yml already exists.'; fi"
+          volumeMounts:
+            - name: romm-config-initial
+              mountPath: /config-initial
+              readOnly: true
+            - name: romm-config
+              mountPath: /config
       containers:
+        # --- MariaDB Sidecar Container ---
         - name: mariadb
-          image: mariadb:latest
-          ports:
-            - containerPort: 3306
+          image: mariadb:12.0.2 # Pinned version for predictable deployments
+          # No port exposure needed, communication is over localhost within the pod.
           envFrom:
             - secretRef:
                 name: romm-secrets
@@ -29,43 +55,12 @@ spec:
           volumeMounts:
             - name: mysql-data
               mountPath: /var/lib/mysql
-          readinessProbe:
-            exec:
-              command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 5
-          livenessProbe:
-            exec:
-              command: ["healthcheck.sh", "--connect"]
-            initialDelaySeconds: 45
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 5
-      volumes:
-        - name: mysql-data
-          persistentVolumeClaim:
-            claimName: mysql-data-pvc
----
-## ROMM
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: romm-deployment
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: romm
-  template:
-    metadata:
-      labels:
-        app: romm
-    spec:
-      containers:
+          # Probes are omitted on the sidecar; the main app's liveness probe will trigger
+          # a pod restart if the DB connection fails, which is the desired outcome.
+
+        # --- ROMM Application Container ---
         - name: romm
-          image: rommapp/romm:latest
+          image: rommapp/romm:4.1.6 # Pinned version for predictable deployments
           ports:
             - containerPort: 8080
           envFrom:
@@ -79,18 +74,40 @@ spec:
                 secretKeyRef:
                   name: romm-secrets
                   key: MARIADB_PASSWORD
+          # Readiness probes signal when the app is ready to accept traffic.
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          # Liveness probes restart the pod if the app becomes unresponsive.
+          # This is key for recovering if the DB sidecar wasn't ready on first start.
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 45
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
           volumeMounts:
             - name: romm-resources
               mountPath: /romm/resources
             - name: romm-redis-data
               mountPath: /redis-data
             - name: romm-library
-              mountPath: /romm/library
+              mountPath: /romm/library/roms
             - name: romm-assets
               mountPath: /romm/assets
             - name: romm-config
               mountPath: /romm/config
       volumes:
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: mysql-data-pvc
         - name: romm-resources
           persistentVolumeClaim:
             claimName: romm-resources-pvc
@@ -103,6 +120,10 @@ spec:
         - name: romm-assets
           persistentVolumeClaim:
             claimName: romm-assets-pvc
+        # This volume provides the initial config.yml from the ConfigMap.
+        - name: romm-config-initial
+          configMap:
+            name: romm-initial-config
         - name: romm-config
           persistentVolumeClaim:
             claimName: romm-config-pvc
