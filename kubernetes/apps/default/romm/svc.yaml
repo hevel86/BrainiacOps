@@ -24,3 +24,4 @@ spec:
       port: 80 # External port
       targetPort: 8080 # Container port
   type: LoadBalancer # Exposes the app outside the cluster.
+  loadBalancerIP: 10.0.0.216
