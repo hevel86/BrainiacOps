@@ -10,3 +10,5 @@ data:
   DB_NAME: "romm"
   DB_USER: "romm-user"
   HASHEOUS_API_ENABLED: "true"
+  PLAYMATCH_API_ENABLED: "true"
+  LAUNCHBOX_API_ENABLED: "true"
