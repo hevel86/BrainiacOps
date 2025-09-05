@@ -73,6 +73,12 @@ spec:
                 name: romm-config
             - secretRef:
                 name: romm-secrets
+          env:
+            - name: DB_PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: romm-secrets
+                  key: MARIADB_PASSWORD
           volumeMounts:
             - name: romm-resources
               mountPath: /romm/resources
@@ -93,7 +99,7 @@ spec:
             claimName: romm-redis-data-pvc
         - name: romm-library
           persistentVolumeClaim:
-            claimName: romm-library-pvc
+            claimName: media-roms-pvc
         - name: romm-assets
           persistentVolumeClaim:
             claimName: romm-assets-pvc
