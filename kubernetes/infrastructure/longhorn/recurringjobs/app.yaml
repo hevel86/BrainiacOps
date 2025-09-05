@@ -1,0 +1,27 @@
+﻿# kubernetes/infrastructure/longhorn/recurringjobs/app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: longhorn-recurring-jobs
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"   # apply after Longhorn core is ready
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: longhorn-system
+  source:
+    repoURL: https://github.com/hevel86/BrainiacOps
+    targetRevision: HEAD
+    path: kubernetes/infrastructure/longhorn/recurringjobs
+    directory:
+      # Prevent the child app from managing its own Application manifest
+      exclude: "app.yaml"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - Replace=true

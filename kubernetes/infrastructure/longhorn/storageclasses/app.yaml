@@ -1,0 +1,28 @@
+﻿# kubernetes/infrastructure/longhorn/storageclasses/app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: longhorn-storageclasses
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"   # after Longhorn core
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: longhorn-system
+  source:
+    repoURL: https://github.com/hevel86/BrainiacOps
+    targetRevision: HEAD
+    path: kubernetes/infrastructure/longhorn/storageclasses
+    directory:
+      recurse: true
+      include: "*.yaml"
+      exclude: "app.yaml"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - Replace=true
