@@ -1,0 +1,14 @@
+# kubernetes/storage/media/pv-comics.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: media-roms-pv-default
+spec:
+  capacity:
+    storage: 3Ti
+  accessModes: ["ReadWriteMany"]
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+  nfs:
+    server: truenas1-nfs.torquasmvo.internal
+    path: /mnt/media/games/ROMs

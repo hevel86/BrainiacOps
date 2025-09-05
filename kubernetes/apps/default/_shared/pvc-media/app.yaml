@@ -73,3 +73,17 @@ spec:
   volumeName: sabnzbd-downloads-pv-default
   storageClassName: ""
   volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: media-roms-pvc
+  namespace: default
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests:
+      storage: 3Ti
+  volumeName: media-roms-pv-default
+  storageClassName: ""
+  volumeMode: Filesystem
