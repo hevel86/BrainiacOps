@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: minecraft-survival-data-nfs-pv
+spec:
+  capacity:
+    storage: 20Gi # Adjust size to match your data
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-minecraft
+  nfs:
+    path: /mnt/media/minecraft/minecraft-data
+    server: truenas1-nfs.torquasmvo.internal
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: minecraft-creative-data-nfs-pv
+spec:
+  capacity:
+    storage: 20Gi # Adjust size to match your data
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-minecraft
+  nfs:
+    path: /mnt/media/minecraft/minecraft_creative-data # Corrected path
+    server: truenas1-nfs.torquasmvo.internal

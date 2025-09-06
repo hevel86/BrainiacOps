@@ -1,0 +1,55 @@
+# This job migrates the 'creative' server data
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migration-creative-job
+  namespace: default
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: migration
+        image: eeacms/rsync
+        command: ["rsync", "-avh", "--progress", "/nfs/", "/longhorn/"]
+        volumeMounts:
+        - name: nfs-data
+          mountPath: /nfs
+        - name: longhorn-data
+          mountPath: /longhorn
+      volumes:
+      - name: nfs-data
+        persistentVolumeClaim:
+          claimName: minecraft-creative-data
+      - name: longhorn-data
+        persistentVolumeClaim:
+          claimName: minecraft-creative-data-longhorn
+  backoffLimit: 4
+---
+# This job migrates the 'survival' server data
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migration-survival-job
+  namespace: default
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: migration
+        image: eeacms/rsync
+        command: ["rsync", "-avh", "--progress", "/nfs/", "/longhorn/"]
+        volumeMounts:
+        - name: nfs-data
+          mountPath: /nfs
+        - name: longhorn-data
+          mountPath: /longhorn
+      volumes:
+      - name: nfs-data
+        persistentVolumeClaim:
+          claimName: minecraft-survival-data
+      - name: longhorn-data
+        persistentVolumeClaim:
+          claimName: minecraft-survival-data-longhorn
+  backoffLimit: 4
