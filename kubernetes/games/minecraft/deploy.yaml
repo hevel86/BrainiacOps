@@ -48,7 +48,7 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: minecraft-survival-data
+            claimName: minecraft-survival-data-longhorn
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -109,4 +109,4 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: minecraft-creative-data
+            claimName: minecraft-creative-data-longhorn
