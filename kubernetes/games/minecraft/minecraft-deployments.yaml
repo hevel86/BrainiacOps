@@ -5,13 +5,15 @@ metadata:
   namespace: default
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
-      app: minecraft-survival
+      app.kubernetes.io/name: minecraft-survival
   template:
     metadata:
       labels:
-        app: minecraft-survival
+        app.kubernetes.io/name: minecraft-survival
     spec:
       nodeSelector:
         cpu.cores: "8plus"
@@ -55,13 +57,15 @@ metadata:
   namespace: default
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
-      app: minecraft-creative
+      app.kubernetes.io/name: minecraft-creative
   template:
     metadata:
       labels:
-        app: minecraft-creative
+        app.kubernetes.io/name: minecraft-creative
     spec:
       nodeSelector:
         cpu.cores: "8plus"
