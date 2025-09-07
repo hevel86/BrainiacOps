@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: minecraft-creative-migrate
+  namespace: default
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: rsync
+          image: alpine:3.20
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              apk add --no-cache rsync;
+              echo "Copying creative world files...";
+              rsync -avh --chown=1000:1000 /old/ /new/;
+              echo "✅ Creative world migration complete (with fixed ownership)"
+          volumeMounts:
+            - name: old-data
+              mountPath: /old
+            - name: new-data
+              mountPath: /new
+      volumes:
+        - name: old-data
+          persistentVolumeClaim:
+            claimName: minecraft-creative-data   # existing NFS PVC
+        - name: new-data
+          persistentVolumeClaim:
+            claimName: minecraft-creative-data-longhorn   # new Longhorn PVC
