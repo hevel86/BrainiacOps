@@ -20,7 +20,7 @@ spec:
       protocol: UDP
       targetPort: 19132
   selector:
-    app: minecraft-survival
+    app.kubernetes.io/name: minecraft-survival
 ---
 apiVersion: v1
 kind: Service
@@ -39,4 +39,4 @@ spec:
       protocol: UDP
       targetPort: 25565
   selector:
-    app: minecraft-creative
+    app.kubernetes.io/name: minecraft-creative
