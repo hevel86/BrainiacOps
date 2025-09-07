@@ -10,7 +10,7 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   nfs:
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
     path: "/mnt/media/k3stor/transmission2_config"
 ---
 apiVersion: v1
@@ -24,7 +24,7 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   nfs:
-    server: truenas1.torquasmvo.internal
+    server: truenas1-nfs.torquasmvo.internal
     path: "/mnt/media/downloaders/transmission2"
 ---
 apiVersion: v1
