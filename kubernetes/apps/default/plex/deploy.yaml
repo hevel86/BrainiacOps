@@ -1,0 +1,96 @@
+---
+# --- Deployment for Plex Media Server ---
+# A Deployment manages a set of identical Pods, ensuring a desired number
+# of replicas are running and handling updates/rollbacks.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plex # Name of this Deployment
+  labels:
+    app: plex # Labels to identify this Deployment and its Pods
+spec:
+  replicas: 1 # We want one instance (Pod) of Plex running
+  selector:
+    matchLabels:
+      app: plex # This Deployment will manage Pods with the label app: plex
+  template:
+    metadata:
+      labels:
+        app: plex # Labels applied to the Pods created by this Deployment
+    spec:
+      # hostNetwork: true allows the Pod to use the host's network namespace directly.
+      # While generally not recommended for Kubernetes isolation, you've chosen this
+      # for direct host access similar to Docker Compose, and it works with external DNS.
+      hostNetwork: true
+      # Specifies a custom runtime for the container, likely for NVIDIA GPU passthrough.
+      runtimeClassName: nvidia
+      # Ensures this Pod only runs on the node named 'cyborg'.
+      # Useful in single-node or specialized hardware setups.
+      nodeSelector:
+        kubernetes.io/hostname: cyborg
+      containers:
+        - name: plex # Name of the container within the Pod
+          image: lscr.io/linuxserver/plex:latest # Docker image for Plex
+          imagePullPolicy: Always # Always pull the latest image on deploy/restart
+          env: # Environment variables passed to the Plex container
+            - name: TZ # Timezone setting for Plex
+              value: "America/New_York"
+            - name: PUID # User ID for Plex process inside the container
+              value: "1000"
+            - name: PGID # Group ID for Plex process inside the container
+              value: "1000"
+            - name: VERSION # Plex version, 'latest' for automatic updates
+              value: "latest"
+            - name: UMASK # File creation mask for permissions
+              value: "022"
+            - name: NVIDIA_VISIBLE_DEVICES # Exposes all detected NVIDIA GPUs to the container
+              value: "all"
+          volumeMounts: # Defines where volumes are mounted inside the container
+            - name: config # Mounts the Plex configuration directory
+              mountPath: /config
+            - name: movies # Mounts the movies library, now via PVC
+              mountPath: /data/movies
+            - name: tv # Mounts the TV shows library, now via PVC
+              mountPath: /data/tv
+            - name: ramtranscode # Mounts /dev/shm for RAM-based transcoding cache
+              mountPath: /dev/shm
+            - name: zfstranscode # Mounts the ZFS transcode scratch directory, now via PVC
+              mountPath: /scratch
+            - name: lily # Mounts Lily's media share, now via PVC
+              mountPath: /lily_gcs_cheers
+            - name: abbie # Mounts Abbie's pictures share, now via PVC
+              mountPath: /abbie
+            - name: dri # Mounts /dev/dri for direct access to GPU (for hardware transcoding)
+              mountPath: /dev/dri
+          securityContext:
+            # privileged: true grants the container all capabilities, similar to running
+            # with --privileged in Docker. Often needed for direct hardware access like GPUs.
+            privileged: true
+      volumes: # Defines the actual storage volumes that are available to the Pod
+        - name: config # Local host path for Plex configuration
+          hostPath:
+            path: /home/johndoe86x/k3s/plex/plex_data
+            type: Directory # Ensures the path exists and is a directory
+        - name: movies # Links to the PersistentVolumeClaim for movies
+          persistentVolumeClaim:
+            claimName: plex-movies-pvc
+        - name: tv # Links to the PersistentVolumeClaim for TV shows
+          persistentVolumeClaim:
+            claimName: plex-tv-pvc
+        - name: ramtranscode # Local host path for /dev/shm (RAM-based temp)
+          hostPath:
+            path: /dev/shm
+            type: Directory
+        - name: zfstranscode # Links to the PersistentVolumeClaim for ZFS transcode
+          persistentVolumeClaim:
+            claimName: plex-zfstranscode-pvc
+        - name: lily # Links to the PersistentVolumeClaim for Lily's share
+          persistentVolumeClaim:
+            claimName: plex-lily-pvc
+        - name: abbie # Links to the PersistentVolumeClaim for Abbie's share
+          persistentVolumeClaim:
+            claimName: plex-abbie-pvc
+        - name: dri # Local host path for direct GPU access
+          hostPath:
+            path: /dev/dri
+            type: Directory
