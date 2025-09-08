@@ -42,6 +42,7 @@ spec:
             claimName: mylar3-config-pvc-lh
         - name: mylar3-comics
           persistentVolumeClaim:
+            # Shared PVC: 'media-comics-pvc' is intentionally used across multiple deployments for comic storage.
             claimName: media-comics-pvc
         - name: mylar3-downloads
           persistentVolumeClaim:
