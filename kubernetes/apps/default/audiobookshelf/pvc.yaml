@@ -1,4 +1,27 @@
-# kubernetes/apps/audiobookshelf/audiobookshelf-pvcs.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: audiobookshelf-config-pvc-lh
+  namespace: default
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: longhorn-prod
+  resources:
+    requests:
+      storage: 1Gi
+---      
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: audiobookshelf-metadata-pvc-lh
+  namespace: default
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: longhorn-prod
+  resources:
+    requests:
+      storage: 1Gi
+---     
 apiVersion: v1
 kind: PersistentVolume
 metadata:

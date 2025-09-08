@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: audiobookshelf-data-migrate
+  namespace: default
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: rsync
+          image: alpine:3.20
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              apk add --no-cache rsync;
+              echo "Copying audiobookshelf config...";
+              rsync -avh --chown=1000:1000 /old-config/ /new-config/;
+              echo "✅ audiobookshelf config migration complete";
+              echo "Copying audiobookshelf metadata...";
+              rsync -avh --chown=1000:1000 /old-metadata/ /new-metadata/;
+              echo "✅ audiobookshelf metadata migration complete";
+          volumeMounts:
+            - name: old-config
+              mountPath: /old-config
+            - name: new-config
+              mountPath: /new-config
+            - name: old-metadata
+              mountPath: /old-metadata
+            - name: new-metadata
+              mountPath: /new-metadata
+      volumes:
+        - name: old-config
+          persistentVolumeClaim:
+            claimName: audiobookshelf-config-pvc     # your current NFS PVC
+        - name: new-config
+          persistentVolumeClaim:
+            claimName: audiobookshelf-config-pvc-lh  # your Longhorn PVC
+        - name: old-metadata
+          persistentVolumeClaim:
+            claimName: audiobookshelf-metadata-pvc   # your current NFS PVC for metadata
+        - name: new-metadata
+          persistentVolumeClaim:
+            claimName: audiobookshelf-metadata-pvc-lh # your Longhorn PVC for metadata

@@ -36,8 +36,8 @@ spec:
             claimName: audiobookshelf-audiobooks-pvc
         - name: config
           persistentVolumeClaim:
-            claimName: audiobookshelf-config-pvc
+            claimName: audiobookshelf-config-pvc-lh
         - name: metadata
           persistentVolumeClaim:
-            claimName: audiobookshelf-metadata-pvc
+            claimName: audiobookshelf-metadata-pvc-lh
 ---
