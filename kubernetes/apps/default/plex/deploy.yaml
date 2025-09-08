@@ -73,10 +73,10 @@ spec:
             type: Directory # Ensures the path exists and is a directory
         - name: movies # Links to the PersistentVolumeClaim for movies
           persistentVolumeClaim:
-            claimName: plex-movies-pvc
+            claimName: media-movies-pvc
         - name: tv # Links to the PersistentVolumeClaim for TV shows
           persistentVolumeClaim:
-            claimName: plex-tv-pvc
+            claimName: media-tv-pvc
         - name: ramtranscode # Local host path for /dev/shm (RAM-based temp)
           hostPath:
             path: /dev/shm
