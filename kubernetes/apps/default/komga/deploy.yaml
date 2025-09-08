@@ -34,9 +34,14 @@ spec:
           volumeMounts:
             - name: komga-config
               mountPath: /config
+            - name: komga-comics
+              mountPath: /data
       volumes:
         - name: komga-config
           persistentVolumeClaim:
             claimName: komga-config-lh
+        - name: komga-comics
+          persistentVolumeClaim:
+            claimName: media-comics-pvc
 
 
