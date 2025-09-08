@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: jdownloader-data-migrate
+  namespace: default
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: rsync
+          image: alpine:3.20
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              apk add --no-cache rsync;
+              echo "Copying jdownloader config...";
+              rsync -avh --chown=1000:1000 /old-config/ /new-config/;
+              echo "✅ jdownloader config migration complete";
+          volumeMounts:
+            - name: old-config
+              mountPath: /old-config
+            - name: new-config
+              mountPath: /new-config
+      volumes:
+        - name: old-config
+          persistentVolumeClaim:
+            claimName: jdownloader-config-pvc     # your current NFS PVC
+        - name: new-config
+          persistentVolumeClaim:
+            claimName: jdownloader-config-pvc-lh  # your Longhorn PVC

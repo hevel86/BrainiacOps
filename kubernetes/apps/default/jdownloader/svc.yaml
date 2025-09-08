@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jdownloader-service
+spec:
+  selector:
+    app: jdownloader # This must match the 'app' label in your Deployment's Pod template
+  ports:
+    - protocol: TCP
+      port: 5800      # The port on the Service (internal to the cluster)
+      targetPort: 5800 # The port your container (JDownloader) is listening on
+      nodePort: 30007 # The port on the Node that Traefik will access. Choose an available port between 30000-32767.
+  type: NodePort # This type exposes the service on a port on each Node's IP
