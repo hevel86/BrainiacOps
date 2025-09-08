@@ -62,7 +62,7 @@ spec:
       volumes:
       - name: config
         persistentVolumeClaim:
-          claimName: transmission-config-pvc
+          claimName: transmission-config-pvc-lh
       - name: downloads
         persistentVolumeClaim:
           claimName: transmission-downloads-pvc
