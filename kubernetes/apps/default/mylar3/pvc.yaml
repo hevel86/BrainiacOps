@@ -1,5 +1,17 @@
 # --- CONFIG PV/PVC ---
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mylar3-config-pvc-lh
+  namespace: default
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: longhorn-prod
+  resources:
+    requests:
+      storage: 1Gi
+---      
+apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: mylar3-config-pv

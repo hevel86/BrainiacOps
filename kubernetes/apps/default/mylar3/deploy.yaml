@@ -39,7 +39,7 @@ spec:
       volumes:
         - name: mylar3-config
           persistentVolumeClaim:
-            claimName: mylar3-config-pvc
+            claimName: mylar3-config-pvc-lh
         - name: mylar3-comics
           persistentVolumeClaim:
             claimName: media-comics-pvc
