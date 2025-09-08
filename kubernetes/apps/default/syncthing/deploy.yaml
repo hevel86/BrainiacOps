@@ -6,6 +6,10 @@ metadata:
     app: syncthing
 spec:
   replicas: 1
+  # The Recreate strategy ensures the old pod is terminated before the new one is created.
+  # This is crucial for ReadWriteOnce volumes (like Longhorn) to prevent mounting conflicts during updates.
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: syncthing
@@ -18,7 +22,7 @@ spec:
       hostname: brainiac
       containers:
         - name: syncthing
-          image: lscr.io/linuxserver/syncthing
+          image: lscr.io/linuxserver/syncthing:2.0.8
           env:
             - name: PUID
               value: "1000"
