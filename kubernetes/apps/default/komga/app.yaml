@@ -15,10 +15,6 @@ spec:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
     path: kubernetes/apps/default/komga
-    kustomize: {}
-
-
-
   syncPolicy:
     automated:
       prune: true
