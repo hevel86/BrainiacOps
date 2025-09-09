@@ -2,6 +2,8 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: nginx-pvc
+  annotations:
+    longhorn.io/from-backup: "nfs://truenas1-nfs.torquasmvo.internal:/mnt/media/longhorn-backup?backup=backup-94578552fd9c4118&volume=pvc-a7f072ed-610a-4ff0-840b-eb7a46820e26"
 spec:
   accessModes:
     - ReadWriteOnce
