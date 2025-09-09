@@ -5,5 +5,5 @@ resources:
   - bitwarden-secrets.yaml
   - configmap.yaml
   - deploy.yaml
-  - svc.yaml
   - pvc.yaml
+  - svc.yaml
