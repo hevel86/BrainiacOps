@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn-prod
+  resources:
+    requests:
+      storage: 1Gi
+#  volumeName: pvc-a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6
