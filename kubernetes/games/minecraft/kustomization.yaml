@@ -1,4 +1,4 @@
-# kubernetes/apps/default/komga/kustomization.yaml
+# kubernetes/games/minecraft/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
@@ -6,4 +6,3 @@ resources:
   - deploy.yaml
   - longhorn-pvc.yaml
   - svc.yaml
-
