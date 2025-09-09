@@ -1,5 +1,3 @@
-# filename: kubernetes/apps/default/n8n/n8n-deploy-svc.yaml
-# resources: n8n (Deployment), n8n-service (Service)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -69,23 +67,5 @@ spec:
       volumes:
         - name: n8n-data
           persistentVolumeClaim:
-            claimName: n8n-data-pvc
+            claimName: n8n-data-pvc-lh
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: n8n-service
-  namespace: default
-  labels:
-    app: n8n
-spec:
-  type: LoadBalancer
-  selector:
-    app: n8n
-  ports:
-    - name: http
-      port: 5678
-      targetPort: http
-      protocol: TCP
-  # Optional: pin a MetalLB IP you like
-  loadBalancerIP: 10.0.0.210
