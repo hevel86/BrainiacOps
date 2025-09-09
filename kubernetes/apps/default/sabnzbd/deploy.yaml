@@ -35,7 +35,7 @@ spec:
             - name: downloads
               mountPath: /downloads              # NFS (RWX)
             - name: incomplete
-              mountPath: /incomplete             # NFS (RWX)
+              mountPath: /incomplete             # Longhorn (RWO)
             - name: movies
               mountPath: /movies                 # NFS (RWX)
             - name: tv
@@ -61,7 +61,7 @@ spec:
             claimName: sabnzbd-downloads-pvc
         - name: incomplete
           persistentVolumeClaim:
-            claimName: sabnzbd-incomplete-pvc
+            claimName: sabnzbd-incomplete-pvc-lh
         - name: movies
           persistentVolumeClaim:
             claimName: media-movies-pvc
