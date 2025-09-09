@@ -16,19 +16,17 @@ spec:
       labels:
         app: sabnzbd
     spec:
+      securityContext:
+        fsGroup: 1000
       containers:
         - name: sabnzbd
           image: lscr.io/linuxserver/sabnzbd:4.5.3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
-          env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
-            - name: TZ
-              value: "America/New_York"
+          envFrom:
+            - configMapRef:
+                name: sabnzbd-configmap
           volumeMounts:
             - name: config
               mountPath: /config                  # Longhorn (RWO)
