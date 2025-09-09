@@ -12,34 +12,16 @@ spec:
       storage: 1Gi
 ---
 apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: mylar3-watch-pv
-spec:
-  capacity:
-    storage: 50Gi
-  accessModes:
-    - ReadWriteMany
-  nfs:
-    path: /mnt/media/downloaders/transmission/watch
-    server: truenas1-nfs.torquasmvo.internal
-  persistentVolumeReclaimPolicy: Retain
-  volumeMode: Filesystem
----
-apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mylar3-watch-pvc
+  name: mylar3-watch-pvc-lh
+  namespace: default
 spec:
-  accessModes:
-    - ReadWriteMany
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: longhorn
   resources:
     requests:
-      storage: 50Gi
-  volumeName: mylar3-watch-pv
-  storageClassName: ""
-  volumeMode: Filesystem
-
+      storage: 1Gi
 # --- COMPLETED PV/PVC ---
 ---
 apiVersion: v1
