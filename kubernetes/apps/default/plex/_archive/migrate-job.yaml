@@ -1,0 +1,42 @@
+# c:\Users\archa\gitstuff\BrainiacOps\kubernetes\apps\default\plex\migrate-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: plex-config-migrate
+  namespace: default
+spec:
+  template:
+    spec:
+      # We must run this on the node that has the original hostPath data.
+      nodeSelector:
+        kubernetes.io/hostname: cyborg
+      containers:
+      - name: migration
+        image: alpine:latest
+        # Install rsync first, then copy the data
+        command:
+          - "sh"
+          - "-c"
+          - |
+            apk add --no-cache rsync
+            echo "Starting rsync from /old-config to /new-config..."
+            # -a: archive mode (preserves permissions, ownership, etc.)
+            # -v: verbose
+            # --chown: ensure new files are owned by PUID/PGID 1000, which Plex uses.
+            rsync -av --chown=1000:1000 /old-config/ /new-config/
+            echo "Migration complete."
+        volumeMounts:
+        - name: old-plex-config
+          mountPath: /old-config
+        - name: new-plex-config
+          mountPath: /new-config
+      volumes:
+      - name: old-plex-config
+        hostPath:
+          path: /home/johndoe86x/k3s/plex/plex_data
+          type: Directory
+      - name: new-plex-config
+        persistentVolumeClaim:
+          claimName: plex-config-pvc
+      restartPolicy: OnFailure
+  backoffLimit: 4
