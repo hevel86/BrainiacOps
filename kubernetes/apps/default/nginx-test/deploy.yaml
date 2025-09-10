@@ -14,12 +14,27 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx
+        image: nginx:1.25.4-alpine
         ports:
         - containerPort: 80
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
         volumeMounts:
         - name: nginx-storage
           mountPath: /usr/share/nginx/html
+      - name: toolbox
+        image: alpine:latest
+        # Installs nano and sleeps forever, keeping the container running for you to exec into.
+        command: ["sh", "-c", "apk add --no-cache nano && sleep infinity"]
+        volumeMounts:
+        - name: nginx-storage
+          mountPath: /data # Mount the shared volume at /data for easy access.
       volumes:
       - name: nginx-storage
         persistentVolumeClaim:
