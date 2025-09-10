@@ -90,3 +90,17 @@ spec:
     requests:
       storage: 2Ti # IMPORTANT: Match or be less than plex-abbie-pv capacity
   storageClassName: "" # Explicitly bind to static PV
+---
+# --- PersistentVolumeClaim for Plex Configuration (Longhorn) ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: plex-config-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce # Required for Longhorn volumes
+  storageClassName: longhorn-prod
+  resources:
+    requests:
+      storage: 100Gi # A generous size for Plex metadata, thumbnails, etc.
