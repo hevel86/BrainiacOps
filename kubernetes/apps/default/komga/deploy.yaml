@@ -9,6 +9,8 @@ metadata:
     app: komga
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: komga
