@@ -1,12 +1,19 @@
+---
+# --- Service for Jellyfin ---
+# This exposes Jellyfin externally on a stable IP from your MetalLB pool.
 apiVersion: v1
 kind: Service
 metadata:
   name: jellyfin
+  namespace: default
 spec:
-  type: NodePort
-  ports:
-    - port: 8096
-      targetPort: 8096
-      nodePort: 30096
+  type: LoadBalancer
+  # Assign a specific, static IP from your MetalLB pool.
+  loadBalancerIP: 10.0.0.218
   selector:
-    app: jellyfin
+    app: jellyfin # This matches the label on the Jellyfin pods
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8096
+      targetPort: 8096
