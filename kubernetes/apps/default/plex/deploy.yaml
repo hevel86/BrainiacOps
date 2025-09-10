@@ -10,6 +10,11 @@ metadata:
     app: plex # Labels to identify this Deployment and its Pods
 spec:
   replicas: 1 # We want one instance (Pod) of Plex running
+  # Recreate strategy is crucial for ReadWriteOnce volumes like Longhorn.
+  # It ensures the old pod is terminated before the new one is created,
+  # preventing volume mounting conflicts.
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: plex # This Deployment will manage Pods with the label app: plex
@@ -25,9 +30,7 @@ spec:
       # Specifies a custom runtime for the container, likely for NVIDIA GPU passthrough.
       runtimeClassName: nvidia
       # Ensures this Pod only runs on the node named 'cyborg'.
-      # Useful in single-node or specialized hardware setups.
-      nodeSelector:
-        kubernetes.io/hostname: cyborg
+      # We are changing this to run on any node with a GPU.
       containers:
         - name: plex # Name of the container within the Pod
           image: lscr.io/linuxserver/plex:latest # Docker image for Plex
@@ -43,8 +46,6 @@ spec:
               value: "latest"
             - name: UMASK # File creation mask for permissions
               value: "022"
-            - name: NVIDIA_VISIBLE_DEVICES # Exposes all detected NVIDIA GPUs to the container
-              value: "all"
           volumeMounts: # Defines where volumes are mounted inside the container
             - name: config # Mounts the Plex configuration directory
               mountPath: /config
@@ -66,11 +67,16 @@ spec:
             # privileged: true grants the container all capabilities, similar to running
             # with --privileged in Docker. Often needed for direct hardware access like GPUs.
             privileged: true
+          resources:
+            limits:
+              # This requests one GPU from the cluster. The scheduler will only place
+              # this pod on a node with an available GPU. This is the modern
+              # replacement for the nodeSelector and NVIDIA_VISIBLE_DEVICES env var.
+              nvidia.com/gpu: 1
       volumes: # Defines the actual storage volumes that are available to the Pod
-        - name: config # Local host path for Plex configuration
-          hostPath:
-            path: /home/johndoe86x/k3s/plex/plex_data
-            type: Directory # Ensures the path exists and is a directory
+        - name: config # Plex configuration on Longhorn
+          persistentVolumeClaim:
+            claimName: plex-config-pvc
         - name: movies # Links to the PersistentVolumeClaim for movies
           persistentVolumeClaim:
             claimName: media-movies-pvc
