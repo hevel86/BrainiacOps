@@ -1,0 +1,17 @@
+---
+# --- Service for Plex Media Server ---
+# This creates a stable internal DNS name (plex.default.svc.cluster.local)
+# that other applications in the cluster, like Tautulli, can use to
+# communicate with Plex, regardless of which node it's running on.
+apiVersion: v1
+kind: Service
+metadata:
+  name: plex
+  namespace: default
+spec:
+  selector:
+    app: plex # This matches the label on the Plex pods
+  ports:
+    - name: http
+      port: 32400
+      targetPort: 32400
