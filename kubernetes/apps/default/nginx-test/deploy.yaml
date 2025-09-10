@@ -12,6 +12,14 @@ spec:
       labels:
         app: nginx
     spec:
+      initContainers:
+      - name: init-site
+        image: busybox:1.36
+        # This command creates a default index file, which makes the liveness probe pass.
+        command: ['sh', '-c', 'echo "<h1>Ready to Edit!</h1>" > /usr/share/nginx/html/index.html']
+        volumeMounts:
+        - name: nginx-storage
+          mountPath: /usr/share/nginx/html
       containers:
       - name: nginx
         image: nginx:1.25.4-alpine
