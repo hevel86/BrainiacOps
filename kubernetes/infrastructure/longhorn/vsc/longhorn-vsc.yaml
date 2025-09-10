@@ -4,4 +4,4 @@ kind: VolumeSnapshotClass
 metadata:
   name: longhorn-snapshot-class
 driver: driver.longhorn.io
-deletionPolicy: Delete
+deletionPolicy: Retain

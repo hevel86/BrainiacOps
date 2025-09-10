@@ -25,6 +25,7 @@ spec:
         preUpgradeChecker:
           jobEnabled: false
         persistence:
+          reclaimPolicy: Retain
           defaultClass: true
           defaultClassReplicaCount: 3
         defaultSettings:
