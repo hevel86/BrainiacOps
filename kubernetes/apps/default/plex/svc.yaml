@@ -1,17 +1,26 @@
 ---
 # --- Service for Plex Media Server ---
 # This creates a stable internal DNS name (plex.default.svc.cluster.local)
-# that other applications in the cluster, like Tautulli, can use to
-# communicate with Plex, regardless of which node it's running on.
+# for internal apps like Tautulli. It also exposes Plex externally
+# on a stable IP from your MetalLB pool.
 apiVersion: v1
 kind: Service
 metadata:
   name: plex
   namespace: default
 spec:
+  # Expose Plex on a dedicated IP from your MetalLB pool
+  type: LoadBalancer
+  # This preserves the client's source IP and avoids a second hop for network traffic.
+  # It's important for services with pods using hostNetwork: true.
+  externalTrafficPolicy: Local
+  # Assign a specific, static IP from your MetalLB pool.
+  # Make sure this IP is not already in use.
+  loadBalancerIP: 10.0.0.217
   selector:
     app: plex # This matches the label on the Plex pods
   ports:
     - name: http
       port: 32400
       targetPort: 32400
+      protocol: TCP
