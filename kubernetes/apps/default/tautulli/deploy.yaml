@@ -8,6 +8,8 @@ metadata:
     app: tautulli
 spec:
   replicas: 1
+  strategy:
+    type: Recreate # Important for ReadWriteOnce volumes like Longhorn
   selector:
     matchLabels:
       app: tautulli
@@ -18,7 +20,7 @@ spec:
     spec:
       containers:
         - name: tautulli
-          image: lscr.io/linuxserver/tautulli:latest
+          image: lscr.io/linuxserver/tautulli:2.16.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8181
