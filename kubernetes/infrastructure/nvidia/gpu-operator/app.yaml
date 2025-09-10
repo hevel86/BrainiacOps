@@ -28,6 +28,16 @@ spec:
         migManager:
           enabled: false
 
+        # Since your nodes are also control-plane/master nodes, we need to add
+        # tolerations so the operator's pods (like the driver daemonset) can run on them.
+        tolerations:
+        - key: "node-role.kubernetes.io/master"
+          operator: "Exists"
+          effect: "NoSchedule"
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: "Exists"
+          effect: "NoSchedule"
+
   # --- Where to deploy the operator in your cluster ---
   destination:
     server: 'https://kubernetes.default.svc'
