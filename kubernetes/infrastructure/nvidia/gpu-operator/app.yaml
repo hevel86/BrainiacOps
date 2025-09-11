@@ -38,6 +38,11 @@ spec:
           operator: "Exists"
           effect: "NoSchedule"
 
+        # By setting an empty nodeSelector, we ensure the operator's components
+        # are not restricted to a specific node. This allows the operator to run
+        # on all nodes with GPUs, including 'brainiac', not just 'cyborg'.
+        nodeSelector: {}
+
         # Enable GPU time-slicing to allow multiple pods to share a single GPU.
         # This is ideal for transcoding workloads which are often bursty.
         devicePlugin:
@@ -63,6 +68,11 @@ spec:
   # --- Automated syncing policy ---
   syncPolicy:
     automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    - ServerSideApply=true
       prune: true
       selfHeal: true
     syncOptions:
