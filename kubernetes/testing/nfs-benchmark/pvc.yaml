@@ -1,19 +1,25 @@
-# kubernetes/storage/media/pv-tv.yaml
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: nfs-benchmark-pv         # copy per namespace: media-tv-pv-<ns>
+  name: nfs-benchmark-pv
 spec:
   capacity:
     storage: 5Gi
   accessModes: ["ReadWriteMany"]
   persistentVolumeReclaimPolicy: Retain
+  # Add mount options to tune NFS performance.
+  # 'async' is the key change to improve write speed.
+  mountOptions:
+    - nfsvers=4.2
+    - async
+    - noatime
+    - rsize=1048576
+    - wsize=1048576
   volumeMode: Filesystem
   nfs:
     server: truenas1-nfs.torquasmvo.internal
     path: /mnt/media/nas
 ---
-# This PVC will provision a new volume on your NFS storage for this test.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -23,10 +29,7 @@ spec:
   accessModes: ["ReadWriteMany"]
   resources:
     requests:
-      # A 5Gi volume is a good size for this benchmark.
       storage: 5Gi
   volumeName: nfs-benchmark-pv
   storageClassName: ""
   volumeMode: Filesystem
-  
-  
