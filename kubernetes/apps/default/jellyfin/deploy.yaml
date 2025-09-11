@@ -15,6 +15,12 @@ spec:
       labels:
         app: jellyfin
     spec:
+      # hostNetwork allows the Pod to use the host's network directly. This can be
+      # necessary for features like DLNA discovery to work correctly across your network.
+      hostNetwork: true
+      # When using hostNetwork, it's good practice to set the dnsPolicy.
+      dnsPolicy: ClusterFirstWithHostNet
+      runtimeClassName: nvidia
       containers:
         - name: jellyfin
           image: lscr.io/linuxserver/jellyfin:10.10.7
@@ -34,6 +40,13 @@ spec:
               mountPath: /data/tv
             - name: movies
               mountPath: /data/movies
+            - name: dri
+              mountPath: /dev/dri
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          securityContext:
+            privileged: true
       volumes:
         - name: config
           persistentVolumeClaim:
@@ -44,4 +57,7 @@ spec:
         - name: movies
           persistentVolumeClaim:
             claimName: media-movies-pvc
-
+        - name: dri
+          hostPath:
+            path: /dev/dri
+            type: Directory
