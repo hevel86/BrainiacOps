@@ -38,28 +38,6 @@ spec:
           operator: "Exists"
           effect: "NoSchedule"
 
-        # By setting an empty nodeSelector, we ensure the operator's components
-        # are not restricted to a specific node. This allows the operator to run
-        # on all nodes with GPUs, including 'brainiac', not just 'cyborg'.
-        nodeSelector: {}
-
-        # Enable GPU time-slicing to allow multiple pods to share a single GPU.
-        # This is ideal for transcoding workloads which are often bursty.
-        devicePlugin:
-          config:
-            name: time-slicing-config
-            # We must specify which key in the 'data' block is the default.
-            default: any
-            data:
-              any: |-
-                version: v1
-                flags:
-                  migStrategy: none
-                sharing:
-                  timeSlicing:
-                    resources:
-                    - name: nvidia.com/gpu
-                      replicas: 10 # This will advertise 10 "slices" per physical GPU
   # --- Where to deploy the operator in your cluster ---
   destination:
     server: 'https://kubernetes.default.svc'
@@ -68,11 +46,6 @@ spec:
   # --- Automated syncing policy ---
   syncPolicy:
     automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-    - CreateNamespace=true
-    - ServerSideApply=true
       prune: true
       selfHeal: true
     syncOptions:
