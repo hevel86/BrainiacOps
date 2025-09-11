@@ -34,7 +34,7 @@ spec:
       containers:
         - name: plex # Name of the container within the Pod
           image: lscr.io/linuxserver/plex:1.42.1 # Docker image for Plex
-          imagePullPolicy: Always # Always pull the latest image on deploy/restart
+          imagePullPolicy: IfNotPresent # More efficient when not using a ':latest' tag
           env: # Environment variables passed to the Plex container
             - name: TZ # Timezone setting for Plex
               value: "America/New_York"
@@ -44,6 +44,8 @@ spec:
               value: "1000"
             - name: UMASK # File creation mask for permissions
               value: "022"
+            - name: "NVIDIA_VISIBLE_DEVICES" # Requests all available GPUs
+              value: "all"
           volumeMounts: # Defines where volumes are mounted inside the container
             - name: config # Mounts the Plex configuration directory
               mountPath: /config
@@ -59,6 +61,8 @@ spec:
               mountPath: /lily_gcs_cheers
             - name: abbie # Mounts Abbie's pictures share, now via PVC
               mountPath: /abbie
+          securityContext:
+            privileged: true # Required for GPU access within the container
           resources:
             limits:
               # This requests one GPU from the cluster. The scheduler will only place
