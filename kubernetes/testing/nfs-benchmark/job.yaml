@@ -46,6 +46,8 @@ spec:
 
               echo "-------------------------------------------------"
               echo "--- FIO Benchmark Complete ---"
+              echo "Cleaning up test file..."
+              rm $TEST_FILE
           volumeMounts:
             - name: benchmark-volume
               mountPath: /data
@@ -53,6 +55,3 @@ spec:
         - name: benchmark-volume
           persistentVolumeClaim:
             claimName: nfs-benchmark-pvc
-
-
-
