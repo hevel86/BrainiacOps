@@ -1,0 +1,32 @@
+# kubernetes/storage/media/pv-tv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-benchmark-pv         # copy per namespace: media-tv-pv-<ns>
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes: ["ReadWriteMany"]
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+  nfs:
+    server: truenas1-nfs.torquasmvo.internal
+    path: /mnt/media/nas
+---
+# This PVC will provision a new volume on your NFS storage for this test.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-benchmark-pvc
+  namespace: default
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests:
+      # A 5Gi volume is a good size for this benchmark.
+      storage: 5Gi
+  volumeName: nfs-benchmark-pv
+  storageClassName: ""
+  volumeMode: Filesystem
+  
+  
