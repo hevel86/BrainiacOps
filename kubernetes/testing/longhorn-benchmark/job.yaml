@@ -1,0 +1,58 @@
+# This Job will run the 'fio' benchmark tool against the PVC created above.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: longhorn-fio-benchmark
+  namespace: default
+spec:
+  # This ensures the job runs to completion once.
+  # We don't want it to restart if it fails; we'd rather inspect the logs.
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: fio-benchmark
+          # A container image with the 'fio' tool pre-installed.
+          # Switched to an older image tag to resolve a pull error.
+          image: xridge/fio:3.13
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -ex
+              TEST_DIR=/data
+              TEST_FILE=$TEST_DIR/test.fio
+              TEST_SIZE=2G # Use a 2GB file for the test
+
+              echo "--- Starting FIO Benchmark on Longhorn Volume ---"
+              echo "Test file: $TEST_FILE"
+              echo "Test size: $TEST_SIZE"
+              echo "-------------------------------------------------"
+
+              # Test 1: Sequential Write (simulates large file copies)
+              echo "--- Running Sequential Write Test (1M block size) ---"
+              fio --name=seq-write --ioengine=libaio --iodepth=64 --rw=write --bs=1M --size=$TEST_SIZE --numjobs=1 --runtime=60 --filename=$TEST_FILE --group_reporting --direct=1
+
+              # Test 2: Sequential Read (simulates reading large files)
+              echo "--- Running Sequential Read Test (1M block size) ---"
+              fio --name=seq-read --ioengine=libaio --iodepth=64 --rw=read --bs=1M --size=$TEST_SIZE --numjobs=1 --runtime=60 --filename=$TEST_FILE --group_reporting --direct=1
+
+              # Test 3: Random Write (simulates database/VM workload)
+              echo "--- Running Random Write Test (4k block size) ---"
+              fio --name=rand-write --ioengine=libaio --iodepth=64 --rw=randwrite --bs=4k --size=$TEST_SIZE --numjobs=4 --runtime=60 --filename=$TEST_FILE --group_reporting --direct=1
+
+              # Test 4: Random Read (simulates database/VM workload)
+              echo "--- Running Random Read Test (4k block size) ---"
+              fio --name=rand-read --ioengine=libaio --iodepth=64 --rw=randread --bs=4k --size=$TEST_SIZE --numjobs=4 --runtime=60 --filename=$TEST_FILE --group_reporting --direct=1
+
+              echo "-------------------------------------------------"
+              echo "--- FIO Benchmark Complete ---"
+              echo "Cleaning up test file..."
+              rm $TEST_FILE
+          volumeMounts:
+            - name: benchmark-volume
+              mountPath: /data
+      volumes:
+        - name: benchmark-volume
+          persistentVolumeClaim:
+            claimName: longhorn-benchmark-pvc

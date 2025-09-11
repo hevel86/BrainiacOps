@@ -1,0 +1,18 @@
+---
+# This PVC will dynamically provision a new Longhorn volume specifically for this test.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: longhorn-benchmark-pvc
+  namespace: default
+spec:
+  # This should match the StorageClass you use for Longhorn.
+  # Based on your other files, 'longhorn-prod' is appropriate.
+  storageClassName: longhorn-prod
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      # A 5Gi volume is a good size for this benchmark.
+      storage: 5Gi
+---
