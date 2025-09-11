@@ -36,6 +36,11 @@ spec:
         migManager:
           enabled: false
 
+        # Increase the log level for the driver pods to assist with troubleshooting.
+        # This will provide more detailed output if the driver fails to install.
+        driver:
+          logLevel: DEBUG
+
         # Since your nodes are also control-plane/master nodes, we need to add
         # tolerations so the operator's pods (like the driver daemonset) can run on them.
         tolerations:
