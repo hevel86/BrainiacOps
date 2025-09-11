@@ -36,6 +36,11 @@ spec:
         migManager:
           enabled: false
 
+        # For k3s, the kubelet root directory is non-standard. We must specify it
+        # so that components like the device-plugin can find the kubelet socket.
+        kubelet:
+          root: /var/lib/rancher/k3s/server/agent
+
         # Increase the log level for the driver pods to assist with troubleshooting.
         # This will provide more detailed output if the driver fails to install.
         driver:
@@ -58,6 +63,8 @@ spec:
 
         # Enable GPU time-slicing to allow multiple pods to share a single GPU.
         devicePlugin:
+          # Increase log verbosity for the device-plugin to aid in debugging.
+          logLevel: "debug"
           config:
             name: time-slicing-config
             default: any
