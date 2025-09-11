@@ -65,19 +65,10 @@ spec:
         devicePlugin:
           # Increase log verbosity for the device-plugin to aid in debugging.
           logLevel: "debug"
+          # We now create the ConfigMap manually to avoid race conditions.
+          # This 'name' tells the operator to mount the existing ConfigMap.
           config:
             name: time-slicing-config
-            default: any
-            data:
-              any: |-
-                version: v1
-                flags:
-                  migStrategy: none
-                sharing:
-                  timeSlicing:
-                    resources:
-                    - name: nvidia.com/gpu
-                      replicas: 10
 
   # --- Where to deploy the operator in your cluster ---
   destination:
@@ -92,3 +83,22 @@ spec:
     syncOptions:
     - CreateNamespace=true
     - ServerSideApply=true
+---
+# --- Explicit ConfigMap for GPU Time-Slicing ---
+# By creating this resource manually, we ensure it exists before the
+# device-plugin pods start, preventing the "ConfigMap not found" error.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: time-slicing-config
+  namespace: gpu-operator # Must be in the same namespace as the operator
+data:
+  any: |-
+    version: v1
+    flags:
+      migStrategy: none
+    sharing:
+      timeSlicing:
+        resources:
+        - name: nvidia.com/gpu
+          replicas: 10
