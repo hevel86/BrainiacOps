@@ -43,6 +43,8 @@ spec:
         devicePlugin:
           config:
             name: time-slicing-config
+            # We must specify which key in the 'data' block is the default.
+            default: any
             data:
               any: |-
                 version: v1
