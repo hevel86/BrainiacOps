@@ -3,6 +3,10 @@ kind: Application
 metadata:
   name: nvidia-gpu-operator
   namespace: argocd # <-- The namespace where Argo CD is running
+  # Add an annotation to instruct Argo CD on how to handle Helm hooks.
+  # This prevents hooks from getting "stuck" during sync/upgrade operations.
+  annotations:
+    argocd.argroj.io/hook-delete-policy: "BeforeHookCreation,HookSucceeded"
 spec:
   project: default
   source:
@@ -23,6 +27,10 @@ spec:
             value: /var/lib/rancher/k3s/agent/etc/containerd/config.toml
           - name: CONTAINERD_RUNTIME_DIR
             value: /run/k3s/containerd
+          # Use 'systemd' mode and specify the 'k3s' service to ensure
+          # containerd is reliably reloaded on your control-plane nodes.
+          restartMode: systemd
+          serviceName: k3s
 
         # Disable MIG manager for non-MIG GPUs (P1000/P2000)
         migManager:
@@ -37,6 +45,27 @@ spec:
         - key: "node-role.kubernetes.io/control-plane"
           operator: "Exists"
           effect: "NoSchedule"
+
+        # By setting an empty nodeSelector, we ensure the operator's components
+        # are not restricted to a specific node. This allows the operator to run
+        # on all nodes with GPUs.
+        nodeSelector: {}
+
+        # Enable GPU time-slicing to allow multiple pods to share a single GPU.
+        devicePlugin:
+          config:
+            name: time-slicing-config
+            default: any
+            data:
+              any: |-
+                version: v1
+                flags:
+                  migStrategy: none
+                sharing:
+                  timeSlicing:
+                    resources:
+                    - name: nvidia.com/gpu
+                      replicas: 10
 
   # --- Where to deploy the operator in your cluster ---
   destination:
