@@ -61,8 +61,6 @@ spec:
               mountPath: /lily_gcs_cheers
             - name: abbie # Mounts Abbie's pictures share, now via PVC
               mountPath: /abbie
-            - name: dri # Mounts /dev/dri for direct access to GPU (for hardware transcoding)
-              mountPath: /dev/dri
           securityContext:
             # privileged: true grants the container all capabilities, similar to running
             # with --privileged in Docker. Often needed for direct hardware access like GPUs.
@@ -96,7 +94,3 @@ spec:
         - name: abbie # Links to the PersistentVolumeClaim for Abbie's share
           persistentVolumeClaim:
             claimName: plex-abbie-pvc
-        - name: dri # Local host path for direct GPU access
-          hostPath:
-            path: /dev/dri
-            type: Directory

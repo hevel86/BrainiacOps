@@ -40,8 +40,6 @@ spec:
               mountPath: /data/tv
             - name: movies
               mountPath: /data/movies
-            - name: dri
-              mountPath: /dev/dri
           resources:
             limits:
               nvidia.com/gpu: 1
@@ -57,7 +55,3 @@ spec:
         - name: movies
           persistentVolumeClaim:
             claimName: media-movies-pvc
-        - name: dri
-          hostPath:
-            path: /dev/dri
-            type: Directory
