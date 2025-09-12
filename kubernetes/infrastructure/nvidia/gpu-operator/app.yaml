@@ -40,7 +40,7 @@ spec:
         # For k3s, the kubelet root directory is non-standard. We must specify it
         # so that components like the device-plugin can find the kubelet socket.
         kubelet:
-          root: /var/lib/rancher/k3s/server/agent
+          root: /var/lib/rancher/k3s/agent
 
         # Increase the log level for the driver pods to assist with troubleshooting.
         # This will provide more detailed output if the driver fails to install.
