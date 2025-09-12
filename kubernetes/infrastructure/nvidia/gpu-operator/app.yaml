@@ -18,6 +18,11 @@ spec:
     # --- This is where you put the configuration ---
     helm:
       values: |
+        # Disable Node Feature Discovery (NFD). While NFD is useful for labeling
+        # nodes with hardware features, the GPU Operator can function without it.
+        # Disabling it simplifies the deployment by removing one component.
+        nfd:
+          enabled: false
         # This includes the critical fix we found for your k3s environment
         toolkit:
           env:
@@ -46,9 +51,6 @@ spec:
           # has had a chance to create it. Disabling it improves reliability.
           validator:
             enabled: false
-          devicePlugin:
-            config:
-              name: nvidia-device-plugin-config
 
         # For k3s, the kubelet root directory is non-standard. We must specify it
         # so that components like the device-plugin can find the kubelet socket.
