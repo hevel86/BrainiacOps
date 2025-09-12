@@ -41,6 +41,11 @@ spec:
         # device plugin's ConfigMap. This ensures all components are looking for
         # the same resource that is created by the devicePlugin.config block below.
         operator:
+          # Disable the operator validator job. This job can cause a race condition
+          # where it looks for the device-plugin ConfigMap before the operator
+          # has had a chance to create it. Disabling it improves reliability.
+          validator:
+            enabled: false
           devicePlugin:
             config:
               name: nvidia-device-plugin-config
