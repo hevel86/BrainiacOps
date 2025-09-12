@@ -37,6 +37,14 @@ spec:
           name: default-mig-parted-config
           enabled: false
 
+        # The operator's validator components also need to know the name of the
+        # device plugin's ConfigMap. This ensures all components are looking for
+        # the same resource that is created by the devicePlugin.config block below.
+        operator:
+          devicePlugin:
+            config:
+              name: nvidia-device-plugin-config
+
         # For k3s, the kubelet root directory is non-standard. We must specify it
         # so that components like the device-plugin can find the kubelet socket.
         kubelet:
