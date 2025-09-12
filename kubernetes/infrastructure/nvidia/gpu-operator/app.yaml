@@ -34,6 +34,7 @@ spec:
 
         # Disable MIG manager for non-MIG GPUs (P1000/P2000)
         migManager:
+          name: default-mig-parted-config
           enabled: false
 
         # For k3s, the kubelet root directory is non-standard. We must specify it
@@ -69,11 +70,21 @@ spec:
           # This 'name' tells the operator to mount the existing ConfigMap.
           config:
             name: time-slicing-config
+            # Explicitly set the default config to 'any', which is the key in our ConfigMap.
+            default: any
 
   # --- Where to deploy the operator in your cluster ---
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: gpu-operator # <-- The namespace for the GPU operator itself
+
+  # --- Ignore specific resources during sync ---
+  # This prevents Argo CD from pruning the manually created ConfigMap.
+  ignoreDifferences:
+  - group: "" # Core API group for ConfigMap
+    kind: "ConfigMap"
+    name: "time-slicing-config"
+    namespace: "gpu-operator"
 
   # --- Automated syncing policy ---
   syncPolicy:
