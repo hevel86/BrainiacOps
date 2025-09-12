@@ -24,7 +24,7 @@ spec:
           - name: CONTAINERD_SOCKET
             value: /run/k3s/containerd/containerd.sock
           - name: CONTAINERD_CONFIG
-            value: /var/lib/rancher/k3s/server/agent/etc/containerd/config.toml
+            value: /var/lib/rancher/k3s/agent/etc/containerd/config.toml #I had this wrong initially
           - name: CONTAINERD_RUNTIME_DIR
             value: /run/k3s/containerd
           # Use 'systemd' mode and specify the 'k3s' service to ensure
