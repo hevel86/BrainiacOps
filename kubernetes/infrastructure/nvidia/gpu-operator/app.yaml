@@ -69,6 +69,7 @@ spec:
           # Configure time-slicing using the chart's map/default structure.
           config:
             name: nvidia-device-plugin-config
+            create: true
             default: "time-sliced"
             map:
               time-sliced:
