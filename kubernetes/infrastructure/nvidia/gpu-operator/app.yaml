@@ -6,7 +6,7 @@ metadata:
   # Add an annotation to instruct Argo CD on how to handle Helm hooks.
   # This prevents hooks from getting "stuck" during sync/upgrade operations.
   annotations:
-    argocd.argoproj.io/hook-delete-policy: "BeforeHookCreation,HookSucceeded"
+    argocd.argoproj.io/hook-delete-policy: "BeforeHookCreation,HookSucceeded,HookFailed"
 spec:
   project: default
   source:
