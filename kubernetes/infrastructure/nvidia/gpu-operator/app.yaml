@@ -6,7 +6,7 @@ metadata:
   # Add an annotation to instruct Argo CD on how to handle Helm hooks.
   # This prevents hooks from getting "stuck" during sync/upgrade operations.
   annotations:
-    argocd.argroj.io/hook-delete-policy: "BeforeHookCreation,HookSucceeded"
+    argocd.argoproj.io/hook-delete-policy: "BeforeHookCreation,HookSucceeded"
 spec:
   project: default
   source:
@@ -66,19 +66,20 @@ spec:
         devicePlugin:
           # Increase log verbosity for the device-plugin to aid in debugging.
           logLevel: "debug"
-          # Define the time-slicing configuration directly here.
-          # The Helm chart will create the necessary ConfigMap from this content,
-          # avoiding race conditions and simplifying the Argo CD application.
+          # Configure time-slicing using the chart's map/default structure.
           config:
-            content: |
-              version: v1
-              flags:
-                migStrategy: none
-              sharing:
-                timeSlicing:
-                  resources:
-                  - name: nvidia.com/gpu
-                    replicas: 10
+            name: nvidia-device-plugin-config
+            default: "time-sliced"
+            map:
+              time-sliced:
+                version: v1
+                flags:
+                  migStrategy: none
+                sharing:
+                  timeSlicing:
+                    resources:
+                    - name: nvidia.com/gpu
+                      replicas: 10
 
   # --- Where to deploy the operator in your cluster ---
   destination:
