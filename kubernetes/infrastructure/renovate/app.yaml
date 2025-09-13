@@ -14,22 +14,24 @@ spec:
     targetRevision: 43.46.1 # Pin to a specific version for Renovate to manage
     helm:
       values: |
+        # Provide env and envFrom at chart top-level so the container inherits them
+        envFrom:
+          - secretRef:
+              name: renovate-secrets
+        env:
+          - name: LOG_LEVEL
+            value: info
         renovate:
-          # Use JSON/JSON5 config (not JS module.exports)
+          # Use JSON config (not JS module.exports)
           config: |
             {
               "platform": "github",
-              "logLevel": "info",
               "onboarding": false,
               "requireConfig": "optional",
               "repositories": [
                 "hevel86/BrainiacOps"
               ]
             }
-          # Expose RENOVATE_TOKEN from the secret created by Bitwarden operator
-          extraEnvFrom:
-            - secretRef:
-                name: renovate-secrets
         cronjob:
           enabled: true
           schedule: "0 * * * *"
