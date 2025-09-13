@@ -6,7 +6,7 @@ on:
       - '**/*.yml'
       - '**/*.yaml'
   push:
-    branches: [ main, master ]
+    branches: [main, master]
     paths:
       - '**/*.yml'
       - '**/*.yaml'
@@ -46,4 +46,3 @@ jobs:
       - name: No YAML changes
         if: steps.changed-files.outputs.any_changed != 'true'
         run: echo "No YAML changes detected. Skipping yamllint."
-
