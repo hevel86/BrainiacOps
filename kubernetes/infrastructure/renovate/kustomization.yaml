@@ -1,0 +1,30 @@
+# c:\Users\archa\gitstuff\BrainiacOps\kubernetes\infrastructure\renovate\kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Include the BitwardenSecret manifest
+resources:
+  - bitwarden-secrets.yaml
+
+# Define the Renovate Helm chart release
+helmCharts:
+  - name: renovate
+    repo: https://renovatebot.github.io/helm-charts
+    version: 43.46.0 # Pin to a specific version for Renovate to manage
+    releaseName: renovate
+    namespace: renovate
+    valuesInline:
+      renovate:
+        config: |
+          module.exports = {
+            platform: 'github',
+            logLevel: 'info',
+            onboarding: false,
+            requireConfig: 'optional',
+            repositories: [
+              'hevel86/BrainiacOps'
+            ],
+          };
+      cronjob:
+        enabled: true
+        schedule: "0 * * * *"
