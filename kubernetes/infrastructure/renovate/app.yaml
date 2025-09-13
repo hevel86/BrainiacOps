@@ -14,7 +14,7 @@ spec:
     targetRevision: 43.46.1 # Pin to a specific version for Renovate to manage
     helm:
       values: |
-        # Provide env and envFrom at chart top-level so the container inherits them
+        # Provide envFrom + env so the container inherits all needed values
         envFrom:
           - secretRef:
               name: renovate-secrets
