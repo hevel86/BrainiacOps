@@ -4,3 +4,5 @@ extends: default
 rules:
   # Disable the 'truthy' check, which incorrectly flags the 'on:' keyword in GitHub Actions.
   truthy: disable
+  # Increase line length limit to accommodate long URLs and comments.
+  line-length: { max: 160 }
