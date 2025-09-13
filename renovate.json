@@ -13,9 +13,10 @@
   "includePaths": [
     "kubernetes/apps/**",
     "kubernetes/games/**",
-    "kubernetes/infrastructure/**"
+    "kubernetes/infrastructure/**",
+    ".github/workflows/**"
   ],
-  "enabledManagers": ["github-actions", "dockerfile", "helm-values"],
+  "enabledManagers": ["github-actions", "dockerfile", "helm-values", "regex"],
   "labels": ["dependencies", "renovate"],
   "dependencyDashboard": true,
   "dependencyDashboardAutoclose": true,
