@@ -23,6 +23,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          # Fetch all history for all branches and tags for the tj-actions/changed-files action
+          fetch-depth: 0
       - name: Get changed Kubernetes YAML files
         id: changed-files
         uses: tj-actions/changed-files@v45
@@ -46,4 +49,3 @@ jobs:
       - name: No Kubernetes YAML changes
         if: steps.changed-files.outputs.any_changed != 'true'
         run: echo "No kubernetes YAML changes detected. Skipping kubeconform."
-
