@@ -2,7 +2,7 @@
 
 This folder contains the Argo CD application to deploy a self-hosted Renovate bot.
 
-## Authentication via External Secrets (not to be confused with ESO)
+## Authentication via Bitwarden Secrets Operator
 
 Renovate requires a secret named `renovate-secrets` in the `renovate` namespace containing a GitHub Personal Access Token (PAT). This setup uses the **Bitwarden Secrets Operator** to securely inject the token from your Bitwarden vault.
 
