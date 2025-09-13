@@ -15,7 +15,7 @@ spec:
   source:
     repoURL: https://traefik.github.io/charts
     chart: traefik
-    targetRevision: 37.*
+    targetRevision: 37.1.1
     helm:
       values: |
         # Enable the dashboard
