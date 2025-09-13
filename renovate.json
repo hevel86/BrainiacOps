@@ -39,5 +39,18 @@
       "automergeType": "pr",
       "labels": ["dependencies", "renovate", "automerge"]
     }
+  ],
+  "regexManagers": [
+    {
+      "description": "Update Docker image tags in Kubernetes manifests",
+      "fileMatch": [
+        "^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$"
+      ],
+      "matchStrings": [
+        "image:\s*['\"]?(?<depName>[a-z0-9_./-]+):(?<currentValue>[a-zA-Z0-9._-]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    }
   ]
 }
