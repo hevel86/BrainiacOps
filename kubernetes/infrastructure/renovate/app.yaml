@@ -15,16 +15,21 @@ spec:
     helm:
       values: |
         renovate:
+          # Use JSON/JSON5 config (not JS module.exports)
           config: |
-            module.exports = {
-              platform: 'github',
-              logLevel: 'info',
-              onboarding: false,
-              requireConfig: 'optional',
-              repositories: [
-                'hevel86/BrainiacOps'
-              ],
-            };
+            {
+              "platform": "github",
+              "logLevel": "info",
+              "onboarding": false,
+              "requireConfig": "optional",
+              "repositories": [
+                "hevel86/BrainiacOps"
+              ]
+            }
+          # Expose RENOVATE_TOKEN from the secret created by Bitwarden operator
+          extraEnvFrom:
+            - secretRef:
+                name: renovate-secrets
         cronjob:
           enabled: true
           schedule: "0 * * * *"
