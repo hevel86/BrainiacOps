@@ -12,6 +12,15 @@
   "timezone": "America/New_York",
   "enabledManagers": ["github-actions", "dockerfile", "helm-values"],
   "labels": ["dependencies", "renovate"],
+  "reviewers": ["hevel86"],
+  "assignees": ["hevel86"],
+  "ignorePaths": [
+    "kubernetes/testing/**",
+    "kubernetes/apps/**/_archive/**",
+    "**/*.disabled",
+    "**/vendor/**",
+    "**/charts/**"
+  ],
   "packageRules": [
     {
       "description": "Automerge safe updates for GitHub Actions",
