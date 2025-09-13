@@ -10,6 +10,11 @@
   "schedule": ["before 7am on monday"],
   "rebaseWhen": "behind-base-branch",
   "timezone": "America/New_York",
+  "includePaths": [
+    "kubernetes/apps/**",
+    "kubernetes/games/**",
+    "kubernetes/infrastructure/**"
+  ],
   "enabledManagers": ["github-actions", "dockerfile", "helm-values"],
   "labels": ["dependencies", "renovate"],
   "dependencyDashboard": true,
