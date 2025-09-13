@@ -7,7 +7,7 @@
     ":prHourlyLimit4",
     ":dependencyDashboard"
   ],
-  "schedule": ["before 7am on monday"],
+  "schedule": ["before 7am every day"],
   "rebaseWhen": "behind-base-branch",
   "timezone": "America/New_York",
   "includePaths": [
@@ -48,11 +48,10 @@
         "^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$"
       ],
       "matchStrings": [
-        "image:\\s*['\\\"]?(?<depName>[a-z0-9_./-]+):(?<currentValue>[a-zA-Z0-9._-]+)"
+        "image:\\s*['\\\"]?(?<depName>[a-zA-Z0-9_./-]+):(?<currentValue>[a-zA-Z0-9._-]+)"
       ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker"
     }
   ]
 }
-
