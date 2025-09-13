@@ -28,6 +28,9 @@ spec:
         cronjob:
           enabled: true
           schedule: "0 * * * *"
+          envFrom:
+            - secretRef:
+                name: renovate-secrets
   destination:
     server: https://kubernetes.default.svc
     namespace: renovate
