@@ -6,7 +6,7 @@ on:
       - 'kubernetes/**/*.yaml'
       - '.github/workflows/kubeconform.yml'
   push:
-    branches: [ main, master ]
+    branches: [main, master]
     paths:
       - 'kubernetes/**/*.yaml'
       - '.github/workflows/kubeconform.yml'

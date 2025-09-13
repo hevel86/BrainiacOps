@@ -1,0 +1,6 @@
+# This configuration file extends the default yamllint rules.
+extends: default
+
+rules:
+  # Disable the 'truthy' check, which incorrectly flags the 'on:' keyword in GitHub Actions.
+  truthy: disable
