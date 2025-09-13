@@ -26,11 +26,25 @@ spec:
       # hostNetwork: true allows the Pod to use the host's network namespace directly.
       # While generally not recommended for Kubernetes isolation, you've chosen this
       # for direct host access similar to Docker Compose, and it works with external DNS.
+      # Plex and Tautulli also see it as local network traffic.
       hostNetwork: true
       # Specifies a custom runtime for the container, likely for NVIDIA GPU passthrough.
       runtimeClassName: nvidia
-      # Ensures this Pod only runs on the node named 'cyborg'.
-      # We are changing this to run on any node with a GPU.
+      # Ensures this Pod only runs on specific nodes ('cyborg' or 'brainiac').
+      # This is necessary because the pod requires direct access to host resources
+      # like /dev/dri and /dev/shm, and potentially specific hardware like a GPU.
+      # I realize this isn't k8s best practice, but I'm fine with it for now until I 
+      # can wrangle gpu-operator
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - cyborg
+                      - brainiac
       containers:
         - name: plex # Name of the container within the Pod
           image: lscr.io/linuxserver/plex:1.42.1 # Docker image for Plex
@@ -61,14 +75,16 @@ spec:
               mountPath: /lily_gcs_cheers
             - name: abbie # Mounts Abbie's pictures share, now via PVC
               mountPath: /abbie
+            - name: dri # Mounts /dev/dri for direct access to GPU (for hardware transcoding)
+              mountPath: /dev/dri
           securityContext:
             privileged: true # Required for GPU access within the container
-          resources:
-            limits:
-              # This requests one GPU from the cluster. The scheduler will only place
-              # this pod on a node with an available GPU. This is the modern
-              # replacement for the nodeSelector and NVIDIA_VISIBLE_DEVICES env var.
-              nvidia.com/gpu: 1
+          # resources:
+          #   limits:
+          #     # This requests one GPU from the cluster. The scheduler will only place
+          #     # this pod on a node with an available GPU. This is the modern
+          #     # replacement for the nodeSelector and NVIDIA_VISIBLE_DEVICES env var.
+          #     nvidia.com/gpu: 1
       volumes: # Defines the actual storage volumes that are available to the Pod
         - name: config # Plex configuration on Longhorn
           persistentVolumeClaim:
@@ -92,3 +108,7 @@ spec:
         - name: abbie # Links to the PersistentVolumeClaim for Abbie's share
           persistentVolumeClaim:
             claimName: plex-abbie-pvc
+        - name: dri # Local host path for direct GPU access
+          hostPath:
+            path: /dev/dri
+            type: Directory        
