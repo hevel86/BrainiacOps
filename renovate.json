@@ -12,6 +12,10 @@
   "timezone": "America/New_York",
   "enabledManagers": ["github-actions", "dockerfile", "helm-values"],
   "labels": ["dependencies", "renovate"],
+  "dependencyDashboard": true,
+  "dependencyDashboardAutoclose": true,
+  "dependencyDashboardTitle": "Renovate Dependency Dashboard",
+  "dependencyDashboardLabels": ["dependencies", "renovate", "dashboard"],
   "reviewers": ["hevel86"],
   "assignees": ["hevel86"],
   "ignorePaths": [
