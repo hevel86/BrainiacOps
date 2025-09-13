@@ -2,22 +2,48 @@ name: Kubeconform
 
 on:
   pull_request:
+    paths:
+      - 'kubernetes/**/*.yaml'
+      - '.github/workflows/kubeconform.yml'
   push:
     branches: [ main, master ]
+    paths:
+      - 'kubernetes/**/*.yaml'
+      - '.github/workflows/kubeconform.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   kubeconform:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+      - name: Get changed Kubernetes YAML files
+        id: changed-files
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            kubernetes/**/*.yaml
       - name: Install kubeconform
         run: |
           curl -sSL -o kubeconform.tar.gz https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz
           tar -xzf kubeconform.tar.gz kubeconform
           sudo mv kubeconform /usr/local/bin/
-      - name: Validate Kubernetes manifests
+      - name: Validate changed manifests with kubeconform
+        if: steps.changed-files.outputs.any_changed == 'true'
+        env:
+          CHANGED: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
-          # Validate YAMLs under kubernetes/, ignoring Helm chart repos and CRD generators
-          find kubernetes -type f -name '*.yaml' -print0 \
-            | xargs -0 -n1 -I{} sh -c 'echo Validating {}; kubeconform -strict -ignore-missing-schemas {}'
+          for f in $CHANGED; do
+            echo "Validating $f";
+            kubeconform -strict -ignore-missing-schemas "$f";
+          done
+      - name: No Kubernetes YAML changes
+        if: steps.changed-files.outputs.any_changed != 'true'
+        run: echo "No kubernetes YAML changes detected. Skipping kubeconform."
 
