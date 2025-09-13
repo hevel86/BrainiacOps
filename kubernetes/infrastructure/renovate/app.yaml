@@ -22,12 +22,11 @@ spec:
           - name: LOG_LEVEL
             value: info
         renovate:
-          # Use JSON config (not JS module.exports)
+          # Minimal JSON config: platform + repositories to scan.
+          # Repository-local renovate.json drives behavior.
           config: |
             {
               "platform": "github",
-              "onboarding": false,
-              "requireConfig": "optional",
               "repositories": [
                 "hevel86/BrainiacOps"
               ]
@@ -35,6 +34,27 @@ spec:
         cronjob:
           enabled: true
           schedule: "0 * * * *"
+          concurrencyPolicy: Forbid
+          startingDeadlineSeconds: 600
+          successfulJobsHistoryLimit: 1
+          failedJobsHistoryLimit: 2
+          ttlSecondsAfterFinished: 3600
+        # Harden the pod/container
+        podSecurityContext:
+          runAsNonRoot: true
+        securityContext:
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
           envFrom:
             - secretRef:
                 name: renovate-secrets

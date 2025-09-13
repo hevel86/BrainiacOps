@@ -1,0 +1,16 @@
+{
+  "extends": [
+    "config:recommended",
+    "group:allNonMajor",
+    ":semanticCommits",
+    ":prConcurrentLimit10",
+    ":prHourlyLimit4",
+    ":dependencyDashboard"
+  ],
+  "schedule": ["before 7am on monday"],
+  "rebaseWhen": "behind-base-branch",
+  "timezone": "America/New_York",
+  "enabledManagers": ["github-actions"],
+  "labels": ["dependencies", "renovate"]
+}
+
