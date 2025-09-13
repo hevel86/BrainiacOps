@@ -10,7 +10,16 @@
   "schedule": ["before 7am on monday"],
   "rebaseWhen": "behind-base-branch",
   "timezone": "America/New_York",
-  "enabledManagers": ["github-actions"],
-  "labels": ["dependencies", "renovate"]
+  "enabledManagers": ["github-actions", "dockerfile", "helm-values"],
+  "labels": ["dependencies", "renovate"],
+  "packageRules": [
+    {
+      "description": "Automerge safe updates for GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "labels": ["dependencies", "renovate", "automerge"]
+    }
+  ]
 }
-
