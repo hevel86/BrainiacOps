@@ -9,7 +9,7 @@ spec:
   source:
     repoURL: https://charts.bitwarden.com
     chart: sm-operator
-    targetRevision: 0.* # Specify a version to ensure consistent deployments
+    targetRevision: 0.1.0 # Specify a version to ensure consistent deployments
   destination:
     server: https://kubernetes.default.svc
     namespace: sm-operator-system
