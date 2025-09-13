@@ -1,0 +1,23 @@
+name: Kubeconform
+
+on:
+  pull_request:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  kubeconform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kubeconform
+        run: |
+          curl -sSL -o kubeconform.tar.gz https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz
+          tar -xzf kubeconform.tar.gz kubeconform
+          sudo mv kubeconform /usr/local/bin/
+      - name: Validate Kubernetes manifests
+        run: |
+          # Validate YAMLs under kubernetes/, ignoring Helm chart repos and CRD generators
+          find kubernetes -type f -name '*.yaml' -print0 \
+            | xargs -0 -n1 -I{} sh -c 'echo Validating {}; kubeconform -strict -ignore-missing-schemas {}'
+
