@@ -5,16 +5,29 @@ metadata:
   name: renovate
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "10" # Deploy early, but after core infrastructure
+    argocd.argoproj.io/sync-wave: "10" # Deploy after the secret is created
 spec:
   project: default
   source:
-    # This application is now managed by Kustomize
-    repoURL: https://github.com/hevel86/BrainiacOps
-    targetRevision: HEAD
-    path: kubernetes/infrastructure/renovate
-    kustomize:
-      buildOptions: "--enable-helm"
+    repoURL: https://renovatebot.github.io/helm-charts
+    chart: renovate
+    targetRevision: 43.46.1 # Pin to a specific version for Renovate to manage
+    helm:
+      values: |
+        renovate:
+          config: |
+            module.exports = {
+              platform: 'github',
+              logLevel: 'info',
+              onboarding: false,
+              requireConfig: 'optional',
+              repositories: [
+                'hevel86/BrainiacOps'
+              ],
+            };
+        cronjob:
+          enabled: true
+          schedule: "0 * * * *"
   destination:
     server: https://kubernetes.default.svc
     namespace: renovate
