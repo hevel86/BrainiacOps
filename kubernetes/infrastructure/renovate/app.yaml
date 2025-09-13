@@ -13,6 +13,8 @@ spec:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
     path: kubernetes/infrastructure/renovate
+    kustomize:
+      buildOptions: "--enable-helm"
   destination:
     server: https://kubernetes.default.svc
     namespace: renovate
