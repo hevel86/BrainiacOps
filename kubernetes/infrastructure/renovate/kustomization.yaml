@@ -10,7 +10,7 @@ resources:
 helmCharts:
   - name: renovate
     repo: https://renovatebot.github.io/helm-charts
-    version: 43.46.0 # Pin to a specific version for Renovate to manage
+    version: 43.46.1 # Pin to a specific version for Renovate to manage
     releaseName: renovate
     namespace: renovate
     valuesInline:
