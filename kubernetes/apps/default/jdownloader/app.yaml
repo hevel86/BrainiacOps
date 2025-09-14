@@ -13,7 +13,7 @@ spec:
   source:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
-    path: kubernetes/apps/default/jdownloader2
+    path: kubernetes/apps/default/jdownloader
   syncPolicy:
     automated:
       prune: true
