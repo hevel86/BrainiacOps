@@ -43,16 +43,23 @@ if ! docker run --rm -v "$(pwd):/repo" ghcr.io/trufflesecurity/trufflehog:latest
     exit 1
 fi
 
-# Add missing newlines to files
-files_without_newline=$(git diff --cached --name-only --diff-filter=A | xargs -n 1 bash -c 'tail -c 1 "$1" | grep -q \'^$\' || echo "$1"' sh)
+# Ensure staged YAML files end with a newline (fixes yamllint error)
+mapfile -d '' YAML_STAGED <<<"$(git diff --cached --name-only --diff-filter=ACMR -z | grep -z -E '\.ya?ml$' || true)"
 
-if [ -n "$files_without_newline" ]; then
-    echo "Adding missing newlines to the following files:"
-    echo "$files_without_newline"
-    printf "%s\n" "$files_without_newline" | xargs -n 1 sed -i '$a\'
+if [ "${#YAML_STAGED[@]}" -gt 0 ]; then
+    echo "🧹 Ensuring final newline on YAML files..."
+    for f in "${YAML_STAGED[@]}"; do
+        # Skip if file no longer exists (renamed/deleted during staging)
+        [ -f "$f" ] || continue
 
-    # Stage the modified files
-    git add "$files_without_newline"
+        if ! tail -c 1 -- "$f" | grep -q "^$"; then
+            echo "↪ adding newline: $f"
+            # Append a single newline at EOF
+            sed -i '$a\' -- "$f"
+            # Restage the fixed file
+            git add -- "$f"
+        fi
+    done
 fi
 
 echo "✅ TruffleHog found no issues. Proceeding with commit."
