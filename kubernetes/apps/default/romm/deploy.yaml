@@ -60,7 +60,7 @@ spec:
 
         # --- ROMM Application Container ---
         - name: romm
-          image: rommapp/romm:4.2.0 # Pinned version for predictable deployments
+          image: rommapp/romm:4.1.6 # Pinned version for predictable deployments
           ports:
             - containerPort: 8080
           envFrom:
