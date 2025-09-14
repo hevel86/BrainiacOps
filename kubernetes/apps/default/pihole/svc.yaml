@@ -1,17 +1,3 @@
-# kubernetes/apps/default/pihole/pihole.yaml
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: pihole-pvc
-  namespace: default
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: longhorn
-  resources:
-    requests:
-      storage: 2Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
