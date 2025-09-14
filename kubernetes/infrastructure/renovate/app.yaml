@@ -14,6 +14,9 @@ spec:
     targetRevision: 43.46.1 # Pin to a specific version for Renovate to manage
     helm:
       values: |
+        envFrom:
+          - secretRef:
+              name: renovate-secrets
         env:
           - name: LOG_LEVEL
             value: info
