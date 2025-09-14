@@ -1,57 +1,85 @@
 {
-  "extends": [
-    "config:recommended",
-    "group:allNonMajor",
-    ":semanticCommits",
-    ":prConcurrentLimit10",
-    ":prHourlyLimit4",
-    ":dependencyDashboard"
+  extends: [
+    'config:recommended',
+    'group:allNonMajor',
+    ':semanticCommits',
+    ':prConcurrentLimit10',
+    ':prHourlyLimit4',
+    ':dependencyDashboard',
   ],
-  "schedule": ["before 7am every day"],
-  "rebaseWhen": "behind-base-branch",
-  "timezone": "America/New_York",
-  "includePaths": [
-    "kubernetes/apps/**",
-    "kubernetes/games/**",
-    "kubernetes/infrastructure/**",
-    ".github/workflows/**"
+  schedule: [
+    'before 7am',
   ],
-  "enabledManagers": ["github-actions", "dockerfile", "helm-values", "regex"],
-  "labels": ["dependencies", "renovate"],
-  "dependencyDashboard": true,
-  "dependencyDashboardAutoclose": true,
-  "dependencyDashboardTitle": "Renovate Dependency Dashboard",
-  "dependencyDashboardLabels": ["dependencies", "renovate", "dashboard"],
-  "reviewers": ["hevel86"],
-  "assignees": ["hevel86"],
-  "ignorePaths": [
-    "kubernetes/testing/**",
-    "**/_archive/**",
-    "**/*.disabled",
-    "**/vendor/**",
-    "**/charts/**"
+  rebaseWhen: 'behind-base-branch',
+  timezone: 'America/New_York',
+  includePaths: [
+    'kubernetes/apps/**',
+    'kubernetes/games/**',
+    'kubernetes/infrastructure/**',
+    '.github/workflows/**',
   ],
-  "packageRules": [
+  enabledManagers: [
+    'github-actions',
+    'dockerfile',
+    'helm-values',
+    'custom.regex',
+  ],
+  labels: [
+    'dependencies',
+    'renovate',
+  ],
+  dependencyDashboard: true,
+  dependencyDashboardAutoclose: true,
+  dependencyDashboardTitle: 'Renovate Dependency Dashboard',
+  dependencyDashboardLabels: [
+    'dependencies',
+    'renovate',
+    'dashboard',
+  ],
+  reviewers: [
+    'hevel86',
+  ],
+  assignees: [
+    'hevel86',
+  ],
+  ignorePaths: [
+    'kubernetes/testing/**',
+    '**/_archive/**',
+    '**/*.disabled',
+    '**/vendor/**',
+    '**/charts/**',
+  ],
+  packageRules: [
     {
-      "description": "Automerge safe updates for GitHub Actions",
-      "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "automerge": true,
-      "automergeType": "pr",
-      "labels": ["dependencies", "renovate", "automerge"]
-    }
+      description: 'Automerge safe updates for GitHub Actions',
+      matchManagers: [
+        'github-actions',
+      ],
+      matchUpdateTypes: [
+        'minor',
+        'patch',
+      ],
+      automerge: true,
+      automergeType: 'pr',
+      labels: [
+        'dependencies',
+        'renovate',
+        'automerge',
+      ],
+    },
   ],
-  "regexManagers": [
+  customManagers: [
     {
-      "description": "Update Docker image tags in Kubernetes manifests",
-      "fileMatch": [
-        "^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$"
+      customType: 'regex',
+      description: 'Update Docker image tags in Kubernetes manifests',
+      managerFilePatterns: [
+        '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
       ],
-      "matchStrings": [
-        "image:\\s*['\\\"]?(?<depName>[a-zA-Z0-9_./-]+):(?<currentValue>[a-zA-Z0-9._-]+)"
+      matchStrings: [
+        'image:\\s*[\'\\"]?(?<depName>[a-zA-Z0-9_./-]+):(?<currentValue>[a-zA-Z0-9._-]+)',
       ],
-      "datasourceTemplate": "docker",
-      "versioningTemplate": "docker"
-    }
-  ]
+      datasourceTemplate: 'docker',
+      versioningTemplate: 'docker',
+    },
+  ],
 }
