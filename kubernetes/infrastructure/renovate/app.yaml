@@ -52,10 +52,6 @@ spec:
           limits:
             cpu: 500m
             memory: 512Mi
-          envFrom:
-            - secretRef:
-
-                name: renovate-secrets
   destination:
     server: https://kubernetes.default.svc
     namespace: renovate
