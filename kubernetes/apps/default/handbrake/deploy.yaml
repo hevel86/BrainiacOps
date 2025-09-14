@@ -11,6 +11,8 @@ metadata:
   labels:
     app: handbrake
 spec:
+  strategy:
+    type: Recreate
   replicas: 1
   selector:
     matchLabels:
