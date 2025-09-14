@@ -47,7 +47,7 @@ jobs:
           CHANGED: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
           echo "Changed YAML files:\n$CHANGED" | tr ' ' '\n'
-          yamllint $CHANGED
+          yamllint -c .yamllint.yaml $CHANGED
       - name: No YAML changes
         if: steps.changed-files.outputs.any_changed != 'true'
         run: echo "No YAML changes detected. Skipping yamllint."
