@@ -7,6 +7,8 @@ metadata:
   name: mylar3
 spec:
   replicas: 1
+  strategy:
+    type: Recreate  
   selector:
     matchLabels:
       app: mylar3
@@ -17,7 +19,7 @@ spec:
     spec:
       containers:
         - name: mylar3
-          image: lscr.io/linuxserver/mylar3:latest
+          image: lscr.io/linuxserver/mylar3:0.8.3
           ports:
             - containerPort: 8090
           env:
@@ -53,4 +55,3 @@ spec:
         - name: mylar3-completed
           persistentVolumeClaim:
             claimName: mylar3-completed-pvc
-
