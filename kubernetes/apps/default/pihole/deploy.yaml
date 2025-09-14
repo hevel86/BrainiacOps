@@ -17,49 +17,49 @@ spec:
       # This will now work correctly without hostNetwork
       hostname: pihole-k3s
       containers:
-      - name: pihole
-        image: pihole/pihole:2025.08.0
-        imagePullPolicy: "IfNotPresent"
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        env:
-        - name: TZ
-          value: "America/New_York"
-        - name: FTLCONF_webserver_api_password
-          valueFrom:
-            secretKeyRef:
-              name: pihole-credentials
-              key: FTLCONF_webserver_api_password
-        - name: FTLCONF_dns_listeningMode
-          value: "all"
-        - name: FTLCONF_ignore_localhost
-          value: "yes"
-        ports:
-        - containerPort: 53
-          protocol: TCP
-          name: dns-tcp
-        - containerPort: 53
-          protocol: UDP
-          name: dns-udp
-        - containerPort: 80
-          protocol: TCP
-          name: http
-        securityContext:
-          capabilities:
-            add:
-              - NET_ADMIN
-        volumeMounts:
-        - name: pihole-storage
-          mountPath: /etc/pihole
-        - name: pihole-storage
-          mountPath: /etc/dnsmasq.d
-          subPath: dnsmasq.d
+        - name: pihole
+          image: pihole/pihole:2025.08.0
+          imagePullPolicy: "IfNotPresent"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          env:
+            - name: TZ
+              value: "America/New_York"
+            - name: FTLCONF_webserver_api_password
+              valueFrom:
+                secretKeyRef:
+                  name: pihole-credentials
+                  key: FTLCONF_webserver_api_password
+            - name: FTLCONF_dns_listeningMode
+              value: "all"
+            - name: FTLCONF_ignore_localhost
+              value: "yes"
+          ports:
+            - containerPort: 53
+              protocol: TCP
+              name: dns-tcp
+            - containerPort: 53
+              protocol: UDP
+              name: dns-udp
+            - containerPort: 80
+              protocol: TCP
+              name: http
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+          volumeMounts:
+            - name: pihole-storage
+              mountPath: /etc/pihole
+            - name: pihole-storage
+              mountPath: /etc/dnsmasq.d
+              subPath: dnsmasq.d
       volumes:
-      - name: pihole-storage
-        persistentVolumeClaim:
-          claimName: pihole-pvc
+        - name: pihole-storage
+          persistentVolumeClaim:
+            claimName: pihole-pvc
