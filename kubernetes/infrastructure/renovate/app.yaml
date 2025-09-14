@@ -14,6 +14,7 @@ spec:
     targetRevision: 43.46.1 # Pin to a specific version for Renovate to manage
     helm:
       values: |
+        # Provide envFrom + env so the container inherits all needed values
         envFrom:
           - secretRef:
               name: renovate-secrets
@@ -41,7 +42,7 @@ spec:
         # Harden the pod/container
         podSecurityContext:
           runAsNonRoot: true
-        containerSecurityContext:
+        securityContext:
           runAsNonRoot: true
           readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
@@ -51,10 +52,12 @@ spec:
           requests:
             cpu: 50m
             memory: 128Mi
-
           limits:
             cpu: 500m
             memory: 512Mi
+          envFrom:
+            - secretRef:
+                name: renovate-secrets
   destination:
     server: https://kubernetes.default.svc
     namespace: renovate
