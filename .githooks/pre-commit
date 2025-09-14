@@ -43,4 +43,16 @@ if ! docker run --rm -v "$(pwd):/repo" ghcr.io/trufflesecurity/trufflehog:latest
     exit 1
 fi
 
+# Add missing newlines to files
+files_without_newline=$(git diff --cached --name-only --diff-filter=A | xargs -n 1 bash -c 'tail -c 1 "$1" | grep -q \'^$\' || echo "$1"' sh)
+
+if [ -n "$files_without_newline" ]; then
+    echo "Adding missing newlines to the following files:"
+    echo "$files_without_newline"
+    printf "%s\n" "$files_without_newline" | xargs -n 1 sed -i '$a\'
+
+    # Stage the modified files
+    git add "$files_without_newline"
+fi
+
 echo "✅ TruffleHog found no issues. Proceeding with commit."
