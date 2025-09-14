@@ -9,7 +9,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: rsync
-          image: alpine:3.20
+          image: alpine:3.22
           securityContext:
             runAsUser: 0
             runAsGroup: 0

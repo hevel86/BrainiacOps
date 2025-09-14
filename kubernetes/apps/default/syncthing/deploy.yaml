@@ -22,7 +22,7 @@ spec:
       hostname: brainiac
       containers:
         - name: syncthing
-          image: lscr.io/linuxserver/syncthing:2.0.8
+          image: lscr.io/linuxserver/syncthing:2.0.9
           env:
             - name: PUID
               value: "1000"
