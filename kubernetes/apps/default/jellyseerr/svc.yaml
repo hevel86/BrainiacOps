@@ -1,0 +1,17 @@
+# --- SERVICE ---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jellyseerr
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  loadBalancerIP: 10.0.0.219
+  selector:
+    app: jellyseerr
+  ports:
+    - name: http
+      protocol: TCP
+      port: 5055
+      targetPort: 5055

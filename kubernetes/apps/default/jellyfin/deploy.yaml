@@ -20,7 +20,7 @@ spec:
       hostNetwork: true
       # When using hostNetwork, it's good practice to set the dnsPolicy.
       dnsPolicy: ClusterFirstWithHostNet
-      runtimeClassName: nvidia
+      # runtimeClassName: nvidia
       containers:
         - name: jellyfin
           image: lscr.io/linuxserver/jellyfin:10.10.7
@@ -40,9 +40,9 @@ spec:
               mountPath: /data/tv
             - name: movies
               mountPath: /data/movies
-          resources:
-            limits:
-              nvidia.com/gpu: 1
+          # resources:
+          #   limits:
+          #     nvidia.com/gpu: 1
           securityContext:
             privileged: true
       volumes:
