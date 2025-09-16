@@ -75,20 +75,16 @@
       matchPackageNames: [
         'lscr.io/linuxserver/mylar3',
       ],
-      allowedVersions: [
-        '/^v?\d+\.\d+\.\d+(?:-ls\d+)?$/',
-      ],
+      allowedVersions: '/^v?d+.d+.d+(?:-lsd+)?$/',
     },
     {
       description: 'Limit linuxserver tags to semver-style releases',
       matchDatasources: [
         'docker',
       ],
-      matchPackagePrefixes: [
-        'lscr.io/linuxserver/',
-      ],
-      allowedVersions: [
-        '/^\\d{1,3}\\.\\d+\\.\\d+(?:-[A-Za-z0-9._-]+)?$/',
+      allowedVersions: '/^\\d{1,3}\\.\\d+\\.\\d+(?:-[A-Za-z0-9._-]+)?$/',
+      matchPackageNames: [
+        'lscr.io/linuxserver/{/,}**',
       ],
     },
   ],
