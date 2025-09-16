@@ -3,7 +3,9 @@ kind: Kustomization
 resources:
   - bitwarden-secrets.yaml
   - configmap.yaml
+  - db.yaml
   - deploy.yaml
   - pvc.yaml
   - romm-configfile.yaml
   - svc.yaml
+

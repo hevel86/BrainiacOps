@@ -40,24 +40,6 @@ spec:
             - name: romm-config
               mountPath: /config
       containers:
-        # --- MariaDB Sidecar Container ---
-        - name: mariadb
-          image: mariadb:12.0.2 # Pinned version for predictable deployments
-          # No port exposure needed, communication is over localhost within the pod.
-          envFrom:
-            - secretRef:
-                name: romm-secrets
-          env:
-            - name: MARIADB_DATABASE
-              value: "romm"
-            - name: MARIADB_USER
-              value: "romm-user"
-          volumeMounts:
-            - name: mysql-data
-              mountPath: /var/lib/mysql
-          # Probes are omitted on the sidecar; the main app's liveness probe will trigger
-          # a pod restart if the DB connection fails, which is the desired outcome.
-
         # --- ROMM Application Container ---
         - name: romm
           image: rommapp/romm:4.1.6 # Pinned version for predictable deployments
@@ -105,9 +87,6 @@ spec:
             - name: romm-config
               mountPath: /romm/config
       volumes:
-        - name: mysql-data
-          persistentVolumeClaim:
-            claimName: mysql-data-pvc
         - name: romm-resources
           persistentVolumeClaim:
             claimName: romm-resources-pvc
@@ -127,3 +106,4 @@ spec:
         - name: romm-config
           persistentVolumeClaim:
             claimName: romm-config-pvc
+

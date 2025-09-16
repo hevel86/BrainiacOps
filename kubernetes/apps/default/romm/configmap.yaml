@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/name: romm
     app.kubernetes.io/instance: romm
 data:
-  DB_HOST: "127.0.0.1" # The DB is a sidecar, so it's on localhost
+  DB_HOST: "romm-db" # Points to the standalone MariaDB service
   DB_NAME: "romm"
   DB_USER: "romm-user"
   HASHEOUS_API_ENABLED: "true"
