@@ -68,7 +68,7 @@
       ],
     },
     {
-      description: 'Pin mylar3 to 0.x tags',
+      description: 'Allow mylar3 only semver ls tags',
       matchDatasources: [
         'docker',
       ],
@@ -76,7 +76,7 @@
         'lscr.io/linuxserver/mylar3',
       ],
       allowedVersions: [
-        '/^0\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9._-]+)?$/',
+        '/^v?\d+\.\d+\.\d+(?:-ls\d+)?$/',
       ],
     },
     {
