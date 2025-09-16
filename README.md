@@ -1,7 +1,5 @@
 # BrainiacOps
 
-[![YAML Lint](https://github.com/hevel86/BrainiacOps/actions/workflows/yaml-lint.yml/badge.svg?branch=main)](https://github.com/hevel86/BrainiacOps/actions/workflows/yaml-lint.yml)
-[![Kubeconform](https://github.com/hevel86/BrainiacOps/actions/workflows/kubeconform.yml/badge.svg?branch=main)](https://github.com/hevel86/BrainiacOps/actions/workflows/kubeconform.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Renovate](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://renovatebot.com)
 
