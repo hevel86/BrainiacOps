@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
       - name: transmission
-        image: lscr.io/linuxserver/transmission:latest
+        image: lscr.io/linuxserver/transmission:4.0.6
+        imagePullPolicy: IfNotPresent
         env:
         - name: PUID
           valueFrom:
