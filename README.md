@@ -9,7 +9,7 @@ Tagline: "BrainiacOps - I don't know what I'm doing (and this is why Krypton exp
 
 ## Highlights
 
-- Robust CI: YAML linting and schema validation on every push/PR.
+- Robust CI: Schema validation on every push/PR.
 - Safer commits: pre-commit TruffleHog scan blocks secrets before they land.
 - Argo CD bootstrap: declarative app-of-apps layout for infra and apps.
 - Clear separation: infrastructure, apps, games, storage, and testing trees.
@@ -30,7 +30,6 @@ Tagline: "BrainiacOps - I don't know what I'm doing (and this is why Krypton exp
 Prerequisites
 
 - Git and Docker (for the pre-commit hook container scan).
-- Optional: Python 3 with `yamllint` for local linting.
 - Optional: `kubeconform` binary for local schema checks.
 
 Setup
@@ -44,9 +43,6 @@ git config core.hooksPath .githooks
 2) Optionally run checks locally before pushing:
 
 ```
-# Lint YAML
-pip install --upgrade yamllint && yamllint kubernetes
-
 # Validate manifests (ignore missing schemas like CRDs)
 kubeconform -strict -ignore-missing-schemas $(git ls-files 'kubernetes/**/*.yaml')
 ```
@@ -58,7 +54,6 @@ Notes
 
 ## CI Workflows
 
-- `YAML Lint` - Runs `yamllint` on changed `.yml/.yaml` files.
 - `Kubeconform` - Validates changed Kubernetes manifests with `kubeconform`.
 
 See the workflow files in `.github/workflows/` for exact behavior.
@@ -72,3 +67,4 @@ See the workflow files in `.github/workflows/` for exact behavior.
 ## License
 
 MIT - see `LICENSE`.
+
