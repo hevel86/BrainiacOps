@@ -67,6 +67,16 @@
         'automerge',
       ],
     },
+    {
+      description: 'Limit linuxserver tags to semver-style releases',
+      matchDatasources: [
+        'docker',
+      ],
+      matchHost: 'lscr.io',
+      allowedVersions: [
+        '/^(?!\\d{4,}\\.)[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9._-]+)?$/',
+      ],
+    },
   ],
   customManagers: [
     {
