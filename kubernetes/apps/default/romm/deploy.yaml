@@ -32,7 +32,9 @@ spec:
           command:
             - "sh"
             - "-c"
-            - "if [ ! -f /config/config.yml ]; then cp /config-initial/config.yml /config/config.yml; echo 'Default config.yml copied.'; else echo 'config.yml already exists.'; fi"
+            - |
+              echo 'Syncing config.yml from ConfigMap.'
+              cp /config-initial/config.yml /config/config.yml
           volumeMounts:
             - name: romm-config-initial
               mountPath: /config-initial
