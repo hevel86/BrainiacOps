@@ -2,15 +2,17 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx-deployment
+  labels:
+    app: nginx-test
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nginx
+      app: nginx-test
   template:
     metadata:
       labels:
-        app: nginx
+        app: nginx-test
     spec:
       initContainers:
       - name: init-site
