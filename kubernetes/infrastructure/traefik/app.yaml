@@ -22,12 +22,12 @@ spec:
         # Use Gateway API, skip Ingress/CRD providers
         providers:
           kubernetesGateway:
-            enabled: true
+            enabled: false
           kubernetesCRD:
             enabled: true
             allowCrossNamespace: true
           kubernetesIngress:
-            enabled: true
+            enabled: false
         gateway:
           enabled: false
 
