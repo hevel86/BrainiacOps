@@ -23,3 +23,14 @@ spec:
         - kind: TraefikService
           group: traefik.io
           name: api@internal
+    - matches:
+        - path:
+            type: Exact
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            statusCode: 302
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /dashboard/
