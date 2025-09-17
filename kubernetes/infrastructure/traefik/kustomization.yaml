@@ -5,3 +5,4 @@ resources:
   - bitwarden-secrets.yaml
   - gateway.yaml
   - httproute-dashboard.yaml
+  - middleware.yaml

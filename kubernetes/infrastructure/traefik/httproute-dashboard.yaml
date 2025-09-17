@@ -19,6 +19,12 @@ spec:
         - path:
             type: PathPrefix
             value: /api
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: dashboard-basic-auth
       backendRefs:
         - kind: TraefikService
           group: traefik.io
