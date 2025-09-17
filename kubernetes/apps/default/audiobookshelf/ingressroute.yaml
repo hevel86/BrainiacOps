@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: audiobookshelf
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`audiobookshelf.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: audiobookshelf
+          namespace: default
+          port: 80
+  tls:
+    secretName: traefik-dashboard-tls
