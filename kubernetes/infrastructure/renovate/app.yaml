@@ -31,6 +31,13 @@ spec:
                 "hevel86/BrainiacOps"
               ]
             }
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - "ALL"
         cronjob:
           enabled: true
           schedule: "0 * * * *"
@@ -42,12 +49,6 @@ spec:
         # Harden the pod/container
         podSecurityContext:
           runAsNonRoot: true
-        securityContext:
-          runAsNonRoot: true
-          readOnlyRootFilesystem: true
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop: ["ALL"]
         resources:
           requests:
             cpu: 50m
@@ -55,9 +56,6 @@ spec:
           limits:
             cpu: 500m
             memory: 512Mi
-          envFrom:
-            - secretRef:
-                name: renovate-secrets
   destination:
     server: https://kubernetes.default.svc
     namespace: renovate
