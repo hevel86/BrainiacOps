@@ -17,7 +17,7 @@ spec:
         # Enable the dashboard
         additionalArguments:
           - "--api.dashboard=true"
-          - "--api.insecure=true"
+          - "--api.insecure=false"
 
         env:
           - name: TRAEFIK_ENTRYPOINTS_TRAEFIK_AUTH_BASIC_USERS
