@@ -1,0 +1,17 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nginx-test
+  namespace: default
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`nginx-test.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: nginx-test
+          namespace: default
+          port: 80
+  tls:
+    secretName: traefik-dashboard-tls
