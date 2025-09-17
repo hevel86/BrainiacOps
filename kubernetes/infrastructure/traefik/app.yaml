@@ -27,7 +27,7 @@ spec:
             enabled: true
             allowCrossNamespace: true
           kubernetesIngress:
-            enabled: false
+            enabled: true
         gateway:
           enabled: false
 
