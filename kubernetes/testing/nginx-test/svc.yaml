@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-test
+  labels:
+    app: nginx-test
+spec:
+  selector:
+    app: nginx-test # This matches the label on the Plex pods 
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.220
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
