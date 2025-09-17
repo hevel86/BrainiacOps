@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: jellyseerr
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`jellyseerr.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: jellyseerr
+          namespace: default
+          port: 5055
+  tls:
+    secretName: traefik-dashboard-tls
