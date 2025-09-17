@@ -1,4 +1,4 @@
-﻿apiVersion: argoproj.io/v1alpha1
+apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: traefik
@@ -17,7 +17,13 @@ spec:
         # Enable the dashboard
         additionalArguments:
           - "--api.dashboard=true"
-          - "--api.insecure=true"   # don't do this in production
+
+        env:
+          - name: TRAEFIK_ENTRYPOINTS_TRAEFIK_AUTH_BASIC_USERS
+            valueFrom:
+              secretKeyRef:
+                name: traefik-dashboard-auth
+                key: users
         # Use Gateway API, skip Ingress/CRD providers
         providers:
           kubernetesGateway:
