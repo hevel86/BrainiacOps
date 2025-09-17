@@ -32,7 +32,7 @@ spec:
             - name: TZ
               value: "America/New_York"
           ports:
-            - containerPort: 8080
+            - containerPort: 25600
           volumeMounts:
             - name: komga-config
               mountPath: /config
@@ -45,5 +45,3 @@ spec:
         - name: komga-comics
           persistentVolumeClaim:
             claimName: media-comics-pvc
-
-

@@ -12,6 +12,6 @@ spec:
       services:
         - name: komga
           namespace: default
-          port: 8080
+          port: 25600
   tls:
     secretName: traefik-dashboard-tls
