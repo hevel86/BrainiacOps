@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: jellyfin
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`jellyfin.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: jellyfin
+          namespace: default
+          port: 8096
+  tls:
+    secretName: traefik-dashboard-tls
