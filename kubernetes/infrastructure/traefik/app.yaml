@@ -38,6 +38,8 @@ spec:
             enabled: false
           kubernetesIngress:
             enabled: false
+        gateway:
+          enabled: false
 
         # Expose ports
         ports:
