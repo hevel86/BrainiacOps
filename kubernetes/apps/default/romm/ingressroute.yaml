@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: romm
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`romm.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: romm
+          namespace: default
+          port: 8080
+  tls:
+    secretName: traefik-dashboard-tls

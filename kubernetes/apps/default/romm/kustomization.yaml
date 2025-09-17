@@ -5,7 +5,7 @@ resources:
   - configmap.yaml
   - db.yaml
   - deploy.yaml
+  - ingressroute.yaml
   - pvc.yaml
   - romm-configfile.yaml
   - svc.yaml
-
