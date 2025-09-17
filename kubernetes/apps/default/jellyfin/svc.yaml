@@ -12,7 +12,6 @@ spec:
   loadBalancerIP: 10.0.0.218
   # This preserves the client's source IP and avoids a second hop for network traffic.
   # It's important for services with pods using hostNetwork: true.
-  externalTrafficPolicy: Local
   selector:
     app: jellyfin # This matches the label on the Jellyfin pods
   ports:
