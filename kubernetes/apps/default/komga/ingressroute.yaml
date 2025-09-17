@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: komga
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`komga.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: komga
+          namespace: default
+          port: 8080
+  tls:
+    secretName: traefik-dashboard-tls
