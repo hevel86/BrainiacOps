@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: plex
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`plex.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: plex
+          namespace: default
+          port: 32400
+  tls:
+    secretName: traefik-dashboard-tls
