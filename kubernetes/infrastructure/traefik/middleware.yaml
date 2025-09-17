@@ -1,9 +1,0 @@
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: dashboard-basic-auth
-  namespace: kube-system
-spec:
-  basicAuth:
-    secret: traefik-dashboard-auth
-    removeHeader: false
