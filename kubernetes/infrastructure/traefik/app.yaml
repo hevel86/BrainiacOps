@@ -48,13 +48,13 @@ spec:
             exposedPort: 8080
             # nodePort: 32081  # uncomment to use NodePort instead of LoadBalancer
           web:
-            port: 8000
+            port: 80
             expose:
               default: true
             exposedPort: 80
             # nodePort: 32080   # uncomment to use NodePort instead of LoadBalancer
           websecure:
-            port: 8443
+            port: 443
             expose:
               default: true
             exposedPort: 443
