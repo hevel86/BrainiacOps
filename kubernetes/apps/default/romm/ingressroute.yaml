@@ -10,8 +10,8 @@ spec:
     - match: Host(`romm.torquasmvo.com`)
       kind: Rule
       services:
-        - name: romm
+        - name: romm-svc
           namespace: default
-          port: 8080
+          port: 80
   tls:
     secretName: traefik-dashboard-tls
