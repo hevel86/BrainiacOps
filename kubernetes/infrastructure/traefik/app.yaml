@@ -1,4 +1,4 @@
-apiVersion: argoproj.io/v1alpha1
+﻿apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: traefik
@@ -30,17 +30,23 @@ spec:
         # Expose ports
         ports:
           traefik:
-            port: 80
+            port: 8080
+            expose:
+              default: true
+            exposedPort: 8080
+            # nodePort: 32081  # uncomment to use NodePort instead of LoadBalancer
+          web:
+            port: 8000
+            expose:
+              default: true
             exposedPort: 80
             # nodePort: 32080   # uncomment to use NodePort instead of LoadBalancer
           websecure:
-            port: 443
+            port: 8443
+            expose:
+              default: true
             exposedPort: 443
             # nodePort: 32443  # uncomment to use NodePort instead of LoadBalancer
-          admin:
-            port: 8080
-            exposedPort: 8080
-            # nodePort: 32081  # uncomment to use NodePort instead of LoadBalancer  
 
         # Expose Traefik via MetalLB
         service:
