@@ -7,6 +7,10 @@ spec:
   parentRefs:
     - name: traefik-public
       sectionName: traefik
+    - name: traefik-public
+      sectionName: websecure
+  hostnames:
+    - traefik.torquasmvo.com
   rules:
     - matches:
         - path:

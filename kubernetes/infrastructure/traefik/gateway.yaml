@@ -17,9 +17,13 @@ spec:
           from: All
     - name: websecure
       protocol: HTTPS
+      hostname: traefik.torquasmvo.com
       port: 443
       tls:
-        mode: Passthrough
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: traefik-dashboard-tls
       allowedRoutes:
         namespaces:
           from: All
