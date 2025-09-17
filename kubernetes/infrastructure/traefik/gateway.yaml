@@ -1,0 +1,31 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: traefik-public
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: traefik
+    app.kubernetes.io/instance: traefik-public
+spec:
+  gatewayClassName: traefik
+  listeners:
+    - name: web
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: websecure
+      protocol: HTTPS
+      port: 443
+      tls:
+        mode: Passthrough
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: traefik
+      protocol: HTTP
+      port: 8080
+      allowedRoutes:
+        namespaces:
+          from: Same
