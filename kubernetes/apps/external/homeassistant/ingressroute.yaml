@@ -13,7 +13,5 @@ spec:
         - name: homeassistant
           namespace: default
           port: 8123
-          scheme: http
-          passHostHeader: true
   tls:
     secretName: traefik-dashboard-tls
