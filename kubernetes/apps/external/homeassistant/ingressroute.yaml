@@ -11,9 +11,6 @@ spec:
       kind: Rule
       services:
         - name: homeassistant
-          namespace: default
-          port: http
-          scheme: http
-          passHostHeader: true
+          kind: TraefikService
   tls:
     secretName: traefik-dashboard-tls
