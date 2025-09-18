@@ -4,5 +4,8 @@ metadata:
   name: homeassistant
   namespace: default
 spec:
-  type: ExternalName
-  externalName: homeassistant.torquasmvo.internal
+  clusterIP: None
+  ports:
+    - name: http
+      port: 8123
+      protocol: TCP
