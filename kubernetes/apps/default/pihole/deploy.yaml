@@ -58,9 +58,6 @@ spec:
           volumeMounts:
             - name: pihole-storage
               mountPath: /etc/pihole
-            - name: pihole-storage
-              mountPath: /etc/dnsmasq.d
-              subPath: dnsmasq.d
       volumes:
         - name: pihole-storage
           persistentVolumeClaim:
