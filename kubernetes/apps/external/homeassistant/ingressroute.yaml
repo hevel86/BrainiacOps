@@ -1,0 +1,19 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: homeassistant
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`homeassistant.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: homeassistant
+          namespace: default
+          port: 8123
+          scheme: http
+          passHostHeader: true
+  tls:
+    secretName: traefik-dashboard-tls
