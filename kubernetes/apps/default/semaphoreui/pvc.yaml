@@ -1,0 +1,16 @@
+# kubernetes/apps/default/semaphoreui/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: semaphoreui-data-lh
+  namespace: default
+  labels:
+    app: semaphoreui
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: longhorn-prod
+  volumeMode: Filesystem

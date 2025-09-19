@@ -1,0 +1,38 @@
+# kubernetes/apps/default/semaphoreui/deploy.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: semaphoreui
+  namespace: default
+  labels:
+    app: semaphoreui
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: semaphoreui
+  template:
+    metadata:
+      labels:
+        app: semaphoreui
+    spec:
+      containers:
+        - name: semaphoreui
+          image: semaphoreui/semaphore:v2.16.31
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: semaphoreui-config
+            - secretRef:
+                name: semaphoreui-secrets
+          volumeMounts:
+            - name: semaphoreui-data
+              mountPath: /etc/semaphore
+      volumes:
+        - name: semaphoreui-data
+          persistentVolumeClaim:
+            claimName: semaphoreui-data-lh

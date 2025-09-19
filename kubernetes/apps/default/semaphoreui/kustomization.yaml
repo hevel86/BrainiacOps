@@ -1,0 +1,10 @@
+# kubernetes/apps/default/semaphoreui/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - bitwarden-secrets.yaml
+  - configmap.yaml
+  - deploy.yaml
+  - pvc.yaml
+  - svc.yaml
+  #- ingressroute.yaml

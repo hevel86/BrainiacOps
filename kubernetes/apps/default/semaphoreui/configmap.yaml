@@ -1,0 +1,17 @@
+# kubernetes/apps/default/semaphoreui/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: semaphoreui-config
+  namespace: default
+  labels:
+    app: semaphoreui
+data:
+  TZ: "America/New_York"
+  SEMAPHORE_DB_DIALECT: sqlite
+  SEMAPHORE_DB: /etc/semaphore/semaphore.sqlite
+  SEMAPHORE_PLAYBOOK_PATH: /etc/semaphore/playbooks
+  SEMAPHORE_ADMIN: admin
+  SEMAPHORE_ADMIN_NAME: "Cluster Admin"
+  SEMAPHORE_ADMIN_EMAIL: admin@example.com
+  SEMAPHORE_LDAP_ACTIVATED: "no"
