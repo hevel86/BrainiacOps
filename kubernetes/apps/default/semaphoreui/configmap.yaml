@@ -8,6 +8,7 @@ metadata:
     app: semaphoreui
 data:
   TZ: "America/New_York"
+  SEMAPHORE_CONFIG_PATH: /etc/semaphore
   SEMAPHORE_DB_DIALECT: sqlite
   SEMAPHORE_DB: /etc/semaphore/semaphore.sqlite
   SEMAPHORE_PLAYBOOK_PATH: /etc/semaphore/playbooks
