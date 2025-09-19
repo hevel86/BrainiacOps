@@ -16,6 +16,7 @@ spec:
     path: kubernetes/infrastructure/longhorn/nodes
     directory:
       recurse: true
+      exclude: "app.yaml"
       include: "*.yaml"
   syncPolicy:
     automated:
