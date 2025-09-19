@@ -1,0 +1,63 @@
+# kubernetes/testing/windows/deploy.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: windows
+  namespace: default
+  labels:
+    app: windows
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: windows
+  template:
+    metadata:
+      labels:
+        app: windows
+    spec:
+      terminationGracePeriodSeconds: 120
+      containers:
+        - name: windows
+          image: dockurr/windows
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: windows-config
+          ports:
+            - name: mgmt
+              containerPort: 8006
+              protocol: TCP
+            - name: rdp-tcp
+              containerPort: 3389
+              protocol: TCP
+            - name: rdp-udp
+              containerPort: 3389
+              protocol: UDP
+          securityContext:
+            privileged: true
+            allowPrivilegeEscalation: true
+            capabilities:
+              add:
+                - NET_ADMIN
+          volumeMounts:
+            - name: windows-storage
+              mountPath: /storage
+            - name: dev-kvm
+              mountPath: /dev/kvm
+            - name: dev-net-tun
+              mountPath: /dev/net/tun
+      volumes:
+        - name: windows-storage
+          persistentVolumeClaim:
+            claimName: windows-storage-lh
+        - name: dev-kvm
+          hostPath:
+            path: /dev/kvm
+            type: CharDevice
+        - name: dev-net-tun
+          hostPath:
+            path: /dev/net/tun
+            type: CharDevice

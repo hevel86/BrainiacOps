@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: windows-config
+  labels:
+    app: windows
+    app.kubernetes.io/name: windows
+    app.kubernetes.io/instance: windows
+data:
+  VERSION: "11"
+  DISK_SIZE: "120G"
+  RAM_SIZE: "8G"
+  CPU_CORES: "4"
+  LANGUAGE: "English"
+  REGION: "en-US"
+  KEYBOARD: "en-US"
+  DHCP: "N"

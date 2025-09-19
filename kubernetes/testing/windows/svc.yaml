@@ -1,0 +1,26 @@
+# kubernetes/apps/default/windows/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: windows
+  namespace: default
+  labels:
+    app: windows
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.222  # Reserve a free MetalLB IP for the VM console/RDP
+  selector:
+    app: windows
+  ports:
+    - name: mgmt
+      protocol: TCP
+      port: 8006
+      targetPort: 8006
+    - name: rdp-tcp
+      protocol: TCP
+      port: 3389
+      targetPort: 3389
+    - name: rdp-udp
+      protocol: UDP
+      port: 3389
+      targetPort: 3389

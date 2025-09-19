@@ -1,0 +1,16 @@
+# kubernetes/apps/default/windows/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: windows-storage-lh
+  namespace: default
+  labels:
+    app: windows
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 120Gi
+  storageClassName: longhorn-prod
+  volumeMode: Filesystem
