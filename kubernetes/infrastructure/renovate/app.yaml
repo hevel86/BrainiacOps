@@ -38,6 +38,13 @@ spec:
             capabilities:
               drop:
                 - "ALL"
+        # Writable scratch space for Renovate cache downloads
+        extraVolumes:
+          - name: renovate-tmp
+            emptyDir: {}
+        extraVolumeMounts:
+          - name: renovate-tmp
+            mountPath: /tmp
         cronjob:
           enabled: true
           schedule: "0 * * * *"
