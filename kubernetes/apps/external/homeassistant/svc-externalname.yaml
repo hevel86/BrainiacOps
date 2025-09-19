@@ -6,4 +6,3 @@ metadata:
 spec:
   type: ExternalName
   externalName: homeassistant.torquasmvo.internal
-
