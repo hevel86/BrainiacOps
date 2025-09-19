@@ -23,3 +23,17 @@ spec:
   concurrency: 1
   groups:
     - prod
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: daily-trim
+  namespace: longhorn-system
+spec:
+  task: filesystem-trim
+  cron: "0 0 * * *"
+  concurrency: 1
+  groups:
+    - prod
+    - default
+---
