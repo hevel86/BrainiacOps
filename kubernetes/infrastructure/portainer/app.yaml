@@ -11,10 +11,6 @@ spec:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
     path: kubernetes/infrastructure/portainer
-    directory:
-      recurse: true
-      include: "*.yaml"
-      exclude: "app.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: portainer
