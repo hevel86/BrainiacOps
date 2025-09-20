@@ -5,7 +5,8 @@ metadata:
   name: prowlarr
   namespace: default
 spec:
-  type: NodePort
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.214  # Reserve a free MetalLB IP
   selector:
     app: prowlarr
   ports:
@@ -13,4 +14,3 @@ spec:
       protocol: TCP
       port: 9696
       targetPort: 9696
-      nodePort: 30969
