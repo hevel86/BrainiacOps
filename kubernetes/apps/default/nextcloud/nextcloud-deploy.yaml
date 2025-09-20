@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextcloud
+  namespace: default
+  labels:
+    app: nextcloud
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: nextcloud
+  template:
+    metadata:
+      labels:
+        app: nextcloud
+    spec:
+      containers:
+        - name: nextcloud
+          image: lscr.io/linuxserver/nextcloud:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 443
+              name: https
+          envFrom:
+            - configMapRef:
+                name: nextcloud-env
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-db-secrets
+                  key: MYSQL_DATABASE
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-db-secrets
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-db-secrets
+                  key: MYSQL_PASSWORD
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            tcpSocket:
+              port: https
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: https
+            initialDelaySeconds: 60
+            periodSeconds: 20
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: nextcloud-config-pvc
+        - name: data
+          persistentVolumeClaim:
+            claimName: nextcloud-data-pvc

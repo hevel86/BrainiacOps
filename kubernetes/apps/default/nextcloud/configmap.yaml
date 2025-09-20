@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nextcloud-env
+  namespace: default
+data:
+  PUID: "1000"
+  PGID: "1000"
+  TZ: "America/New_York"
+  OVERWRITEPROTOCOL: https
+  MYSQL_HOST: nextcloud-mariadb
