@@ -9,3 +9,5 @@ data:
   TZ: "America/New_York"
   OVERWRITEPROTOCOL: https
   MYSQL_HOST: nextcloud-mariadb
+  MYSQL_DATABASE: nextcloud
+  MYSQL_USER: nextcloud

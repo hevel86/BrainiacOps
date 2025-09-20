@@ -28,16 +28,6 @@ spec:
             - configMapRef:
                 name: nextcloud-env
           env:
-            - name: MYSQL_DATABASE
-              valueFrom:
-                secretKeyRef:
-                  name: nextcloud-db-secrets
-                  key: MYSQL_DATABASE
-            - name: MYSQL_USER
-              valueFrom:
-                secretKeyRef:
-                  name: nextcloud-db-secrets
-                  key: MYSQL_USER
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -48,6 +38,10 @@ spec:
               mountPath: /config
             - name: data
               mountPath: /data
+            - name: shared
+              mountPath: /shared
+            - name: temp
+              mountPath: /big_temp_file
           readinessProbe:
             tcpSocket:
               port: https
@@ -65,3 +59,8 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: nextcloud-data-pvc
+        - name: shared
+          persistentVolumeClaim:
+            claimName: nextcloud-shared-pvc
+        - name: temp
+          emptyDir: {}
