@@ -38,10 +38,6 @@ spec:
               mountPath: /config
             - name: data
               mountPath: /data
-            - name: shared
-              mountPath: /shared
-            - name: temp
-              mountPath: /big_temp_file
           readinessProbe:
             tcpSocket:
               port: https
@@ -59,8 +55,3 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: nextcloud-data-pvc
-        - name: shared
-          persistentVolumeClaim:
-            claimName: nextcloud-shared-pvc
-        - name: temp
-          emptyDir: {}
