@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: transmission-vpn-env
+  namespace: default
+data:
+  CREATE_TUN_DEVICE: "true"
+  HEALTH_CHECK_HOST: "github.com"
+  LOCAL_NETWORK: "192.168.1.0/24,10.0.0.0/24"
+  NORDVPN_COUNTRY: "US"
+  NORDVPN_PROTOCOL: "udp"
+  OPENVPN_OPTS: "--inactive 3600 --ping 10 --ping-exit 60"
+  OPENVPN_PROVIDER: "NORDVPN"
+  PGID: "1000"
+  PUID: "1000"
+  TRANSMISSION_BLOCKLIST_ENABLED: "true"
+  TRANSMISSION_BLOCKLIST_URL: "https://github.com/Naunter/BT_BlockLists/raw/master/bt_blocklists.gz"
+  TRANSMISSION_RATIO_LIMIT: "1"
+  TRANSMISSION_RATIO_LIMIT_ENABLED: "true"
+  TRANSMISSION_RPC_AUTHENTICATION_REQUIRED: "true"
+  TRANSMISSION_RPC_ENABLED: "true"
+  TRANSMISSION_RPC_HOST_WHITELIST: "127.0.0.1,192.168.*.*/24"
+  TRANSMISSION_RPC_HOST_WHITELIST_ENABLED: "true"
+  TRANSMISSION_RPC_PORT: "9091"
+  TRANSMISSION_UMASK: "002"
+  TRANSMISSION_WEB_UI: "flood-for-transmission"
+  TZ: "America/New_York"
+  WEBPROXY_ENABLED: "false"

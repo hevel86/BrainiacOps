@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transmission-vpn
+  namespace: default
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: transmission-vpn
+  template:
+    metadata:
+      labels:
+        app: transmission-vpn
+    spec:
+      dnsPolicy: None
+      dnsConfig:
+        nameservers:
+          - 1.1.1.1
+          - 1.0.0.1
+      containers:
+        - name: transmission-vpn
+          image: haugene/transmission-openvpn:latest
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - NET_ADMIN
+          envFrom:
+            - configMapRef:
+                name: transmission-vpn-env
+            - secretRef:
+                name: transmission-vpn-secret
+          ports:
+            - name: web
+              containerPort: 9091
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: data
+              mountPath: /data
+            - name: localtime
+              mountPath: /etc/localtime
+              readOnly: true
+            - name: tun-device
+              mountPath: /dev/net/tun
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: transmission-vpn-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: transmission-vpn-data
+        - name: localtime
+          hostPath:
+            path: /etc/localtime
+            type: File
+        - name: tun-device
+          hostPath:
+            path: /dev/net/tun
+            type: CharDevice

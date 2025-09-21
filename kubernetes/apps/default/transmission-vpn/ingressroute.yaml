@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: transmission-vpn
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`transmission-vpn.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: transmission-vpn
+          namespace: default
+          port: 9091
+  tls:
+    secretName: traefik-dashboard-tls
