@@ -30,7 +30,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: transmission-vpn-data
 spec:
-  storageClassName: "nfs-brainiac"
+  storageClassName: ""
   volumeMode: Filesystem
   accessModes:
     - ReadWriteMany
