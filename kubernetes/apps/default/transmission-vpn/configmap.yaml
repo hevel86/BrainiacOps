@@ -4,7 +4,7 @@ metadata:
   name: transmission-vpn-env
   namespace: default
 data:
-  CREATE_TUN_DEVICE: "true"
+  CREATE_TUN_DEVICE: "false"
   HEALTH_CHECK_HOST: "github.com"
   LOCAL_NETWORK: "192.168.1.0/24,10.0.0.0/24"
   NORDVPN_COUNTRY: "US"
