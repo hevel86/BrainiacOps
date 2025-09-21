@@ -26,3 +26,4 @@ data:
   TRANSMISSION_WEB_UI: "flood-for-transmission"
   TZ: "America/New_York"
   WEBPROXY_ENABLED: "false"
+  DROP_DEFAULT_ROUTE: "true"
