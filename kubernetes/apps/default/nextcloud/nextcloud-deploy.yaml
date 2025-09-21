@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: nextcloud
-          image: lscr.io/linuxserver/nextcloud:latest
+          image: lscr.io/linuxserver/nextcloud:31.0.9
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 443
