@@ -47,7 +47,7 @@ spec:
                       - brainiac
       containers:
         - name: plex # Name of the container within the Pod
-          image: lscr.io/linuxserver/plex:1.42.1 # Docker image for Plex
+          image: lscr.io/linuxserver/plex:1.42.2 # Docker image for Plex
           imagePullPolicy: IfNotPresent # More efficient when not using a ':latest' tag
           env: # Environment variables passed to the Plex container
             - name: TZ # Timezone setting for Plex
