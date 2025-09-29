@@ -19,10 +19,8 @@ spec:
           - secretRef:
               name: renovate-secrets
         env:
-          - name: LOG_LEVEL
-            value: info
-          - name: RENOVATE_NODE_OPTIONS
-            value: --max-old-space-size=1024
+          LOG_LEVEL: info
+          RENOVATE_NODE_OPTIONS: --max-old-space-size=1024
         renovate:
           # Minimal JSON config: platform + repositories to scan.
           # Repository-local renovate.json drives behavior.
@@ -76,5 +74,6 @@ spec:
       - CreateNamespace=true
       - ServerSideApply=true
       - Replace=true
+
 
 
