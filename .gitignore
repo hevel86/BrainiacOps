@@ -54,3 +54,4 @@ kubernetes/infrastructure/nvidia/nvidia-smi-test.yaml
 # Ignore logs
 **/*.log
 logs/
+*.log
