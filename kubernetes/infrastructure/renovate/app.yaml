@@ -29,6 +29,14 @@ spec:
               "platform": "github",
               "repositories": [
                 "hevel86/BrainiacOps"
+              ],
+              "hostRules": [
+                {
+                  "matchHost": "index.docker.io",
+                  "hostType": "docker",
+                  "username": "{{ env \"DOCKERHUB_USERNAME\" }}",
+                  "password": "{{ env \"DOCKERHUB_PASSWORD\" }}"
+                }
               ]
             }
           securityContext:
@@ -74,3 +82,4 @@ spec:
       - CreateNamespace=true
       - ServerSideApply=true
       #- Replace=true
+
