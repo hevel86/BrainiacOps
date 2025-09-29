@@ -14,7 +14,7 @@ spec:
     # Specify the chart name
     chart: volsync
     # Specify the chart version that corresponds to the operator version you want
-    targetRevision: 0.13.0
+    targetRevision: 0.13.1
     helm:
       values: |
         crds:
