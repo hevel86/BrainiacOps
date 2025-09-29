@@ -17,9 +17,18 @@ spec:
       initContainers:
       - name: init-site
         image: busybox:1.36
-        # This command creates a default index.html ONLY if one doesn't already exist.
-        # This is ideal for testing restores, as it won't overwrite restored data.
-        command: ['sh', '-c', 'if [ ! -f /usr/share/nginx/html/index.html ]; then echo "<h1>Ready to Edit!</h1>" > /usr/share/nginx/html/index.html; fi']
+        env:
+        - name: TEST_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: nginx-test-secrets
+              key: test-secret
+        # Write the Bitwarden-provided secret to the default index page so it is shown as plain text.
+        command:
+        - sh
+        - -c
+        - |
+          printf "%s\n" "$TEST_SECRET" > /usr/share/nginx/html/index.html
         volumeMounts:
         - name: nginx-storage
           mountPath: /usr/share/nginx/html
@@ -41,11 +50,10 @@ spec:
           mountPath: /usr/share/nginx/html
       - name: toolbox
         image: alpine:latest
-        # Installs nano and sleeps forever, keeping the container running for you to exec into.
         command: ["sh", "-c", "apk add --no-cache nano && sleep infinity"]
         volumeMounts:
         - name: nginx-storage
-          mountPath: /data # Mount the shared volume at /data for easy access.
+          mountPath: /data
       volumes:
       - name: nginx-storage
         persistentVolumeClaim:
