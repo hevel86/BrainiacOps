@@ -50,3 +50,6 @@ tmp/
 *.orig
 *.tmp
 kubernetes/infrastructure/nvidia/nvidia-smi-test.yaml
+
+# Ignore logs
+*.log
