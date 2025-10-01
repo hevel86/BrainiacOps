@@ -32,6 +32,7 @@ spec:
           defaultReplicaCount: '3'
           defaultDataPath: /mnt/longhorn-storage
           createDefaultDiskLabeledNodes: true
+          podDeletionPolicy: delete-both-statefulset-and-deployment-pod
   syncPolicy:
     automated:
       prune: true
