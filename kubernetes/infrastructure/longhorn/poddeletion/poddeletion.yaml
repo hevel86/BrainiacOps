@@ -2,6 +2,6 @@ apiVersion: longhorn.io/v1beta2
 kind: Setting
 metadata:
   # The name of the resource must match the setting's ID
-  name: pod-deletion-policy
+  name: node-down-pod-deletion-policy
   namespace: longhorn-system
 value: "delete-both-statefulset-and-deployment-pod"
