@@ -3,6 +3,8 @@ kind: Plan
 metadata:
   name: k3s-server-plan
   namespace: system-upgrade
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   concurrency: 1
   cordon: true
@@ -20,6 +22,8 @@ kind: Plan
 metadata:
   name: k3s-agent-plan
   namespace: system-upgrade
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   concurrency: 1
   drain:
