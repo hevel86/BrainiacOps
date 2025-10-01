@@ -8,7 +8,7 @@ metadata:
 spec:
   concurrency: 1
   cordon: true
-  channel: stable
+  channel: https://update.k3s.io/v1-release/channels/stable
   nodeSelector:
     matchExpressions:
       - key: node-role.kubernetes.io/control-plane
@@ -26,7 +26,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "1"
 spec:
   concurrency: 1
-  channel: stable
+  channel: https://update.k3s.io/v1-release/channels/stable
   drain:
     force: true
     skipWaitForDeleteTimeout: 60
