@@ -7,7 +7,8 @@ metadata:
     app.kubernetes.io/name: gatus
     app.kubernetes.io/part-of: monitoring
 spec:
-  type: ClusterIP
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.223
   selector:
     app.kubernetes.io/name: gatus
     app.kubernetes.io/component: web

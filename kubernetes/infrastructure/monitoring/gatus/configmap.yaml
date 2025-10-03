@@ -14,10 +14,12 @@ data:
       - name: argocd
         group: platform
         description: GitOps control plane should be reachable
-        url: http://argocd-server.argocd.svc.cluster.local:80/healthz
+        url: https://argocd-server.argocd.svc.cluster.local:443/healthz
         interval: 1m
         conditions:
           - "[STATUS] == 200"
+        client:
+          insecure: true
       - name: portainer
         group: platform
         description: Portainer agent API for cluster management
