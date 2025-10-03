@@ -14,7 +14,7 @@ data:
       - name: argocd
         group: platform
         description: GitOps control plane should be reachable
-        url: http://argocd-server.argocd.svc.cluster.local:8080/healthz
+        url: http://argo-cd-argocd-server.argocd.svc.cluster.local:80/healthz
         interval: 1m
         conditions:
           - "[STATUS] == 200"
