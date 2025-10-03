@@ -34,8 +34,8 @@ data:
           - "[STATUS] == 200"
       - name: longhorn
         group: storage
-        description: Longhorn dashboard API healthz
-        url: http://longhorn-frontend.longhorn-system.svc.cluster.local/v1/healthz
+        description: Longhorn UI root responds
+        url: http://longhorn-frontend.longhorn-system.svc.cluster.local/
         interval: 1m
         conditions:
           - "[STATUS] == 200"
