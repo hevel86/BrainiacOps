@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gatus-config
+  namespace: monitoring
+data:
+  config.yaml: |
+    metrics: true
+    ui:
+      title: BrainiacOps Status
+      header: Core services health
+      logo: ""
+    endpoints:
+      - name: argocd
+        group: platform
+        description: GitOps control plane should be reachable
+        url: http://argocd-server.argocd.svc.cluster.local:80/healthz
+        interval: 1m
+        conditions:
+          - "[STATUS] == 200"
+      - name: portainer
+        group: platform
+        description: Portainer agent API for cluster management
+        url: http://portainer.portainer.svc.cluster.local:9000/api/status
+        interval: 1m
+        conditions:
+          - "[STATUS] == 200"
+      - name: prometheus
+        group: monitoring
+        description: Prometheus /-/healthy endpoint
+        url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/-/healthy
+        interval: 1m
+        conditions:
+          - "[STATUS] == 200"
+      - name: traefik-edge
+        group: networking
+        description: TCP availability of the Traefik websecure entrypoint
+        url: tcp://traefik.kube-system.svc.cluster.local:443
+        interval: 1m
+        conditions:
+          - "[CONNECTED] == true"

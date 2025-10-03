@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: gatus
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`status.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: gatus
+          namespace: monitoring
+          port: 80
+  tls:
+    secretName: traefik-dashboard-tls
