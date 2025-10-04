@@ -19,7 +19,7 @@ spec:
         cpu.cores: "8plus"
       containers:
         - name: minecraft
-          image: itzg/minecraft-server:2025.9.2
+          image: itzg/minecraft-server:2025.10.0
           ports:
             - containerPort: 25565
               protocol: TCP
@@ -71,7 +71,7 @@ spec:
         cpu.cores: "8plus"
       containers:
         - name: minecraft
-          image: itzg/minecraft-server:2025.9.2
+          image: itzg/minecraft-server:2025.10.0
           ports:
             - containerPort: 25565
               protocol: TCP
