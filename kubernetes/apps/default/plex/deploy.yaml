@@ -44,7 +44,6 @@ spec:
                     operator: In
                     values:
                       - cyborg
-                      - brainiac
       containers:
         - name: plex # Name of the container within the Pod
           image: lscr.io/linuxserver/plex:1.42.2 # Docker image for Plex
