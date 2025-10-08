@@ -45,8 +45,8 @@ spec:
                 CONFIG_PATH="${CONFIG_PATH%/}/config.json"
               fi
               if [ ! -f "${CONFIG_PATH}" ]; then
-                echo "Config file ${CONFIG_PATH} not found" >&2
-                exit 1
+                echo "Config file ${CONFIG_PATH} not found; skipping password sync on this boot"
+                exit 0
               fi
               echo "Ensuring admin user ${SEMAPHORE_ADMIN} exists in Semaphore"
               if semaphore --config "${CONFIG_PATH}" users change-by-login --login "${SEMAPHORE_ADMIN}" --password "${SEMAPHORE_ADMIN_PASSWORD}"; then
