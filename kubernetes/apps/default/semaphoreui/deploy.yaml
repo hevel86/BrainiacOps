@@ -39,7 +39,7 @@ spec:
             - sh
             - -c
             - |
-              semaphore user change-password --login "${SEMAPHORE_ADMIN}" --password "${SEMAPHORE_ADMIN_PASSWORD}"
+              semaphore users change-by-login --login "${SEMAPHORE_ADMIN}" --password "${SEMAPHORE_ADMIN_PASSWORD}"
           envFrom:
             - configMapRef:
                 name: semaphoreui-config
