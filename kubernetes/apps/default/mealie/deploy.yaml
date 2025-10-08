@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mealie
+  namespace: default
+  labels:
+    app: mealie
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: mealie
+  template:
+    metadata:
+      labels:
+        app: mealie
+    spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: mealie
+          image: ghcr.io/mealie-recipes/mealie:v3.3.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9000
+              name: http
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "America/New_York"
+            - name: BASE_URL
+              value: "https://mealie.torquasmvo.com"
+            - name: ALLOW_SIGNUP
+              value: "false"
+            - name: LOG_LEVEL
+              value: "info"
+            - name: DB_ENGINE
+              value: "sqlite"
+            - name: DEFAULT_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: mealie-secrets
+                  key: DEFAULT_EMAIL
+            - name: DEFAULT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mealie-secrets
+                  key: DEFAULT_PASSWORD
+            - name: DEFAULT_GROUP
+              value: "Home"
+            - name: DEFAULT_HOUSEHOLD
+              value: "Family"
+          readinessProbe:
+            httpGet:
+              path: /api/app/about
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/app/about
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          volumeMounts:
+            - name: mealie-data
+              mountPath: /app/data
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+      volumes:
+        - name: mealie-data
+          persistentVolumeClaim:
+            claimName: mealie-data-pvc-lh
+
