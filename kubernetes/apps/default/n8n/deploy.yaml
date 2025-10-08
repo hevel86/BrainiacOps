@@ -61,7 +61,9 @@ spec:
             - name: N8N_PROTOCOL
               value: "https"
             - name: N8N_PORT
-              value: "443"
+              value: "5678"
+            - name: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
+              value: "true"
             - name: N8N_ENCRYPTION_KEY
               valueFrom:
                 secretKeyRef:
