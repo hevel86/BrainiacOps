@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: n8n
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`n8n.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: n8n-service
+          namespace: default
+          port: 5678
+  tls:
+    secretName: traefik-dashboard-tls

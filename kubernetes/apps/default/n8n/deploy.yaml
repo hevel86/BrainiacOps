@@ -17,12 +17,24 @@ spec:
     spec:
       containers:
         - name: n8n
-          image: n8nio/n8n:latest
+          image: n8nio/n8n:1.115.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5678
               name: http
           env:
+            - name: N8N_BASIC_AUTH_ACTIVE
+              value: "true"
+            - name: N8N_BASIC_AUTH_USER
+              valueFrom:
+                secretKeyRef:
+                  name: n8n-secrets
+                  key: N8N_BASIC_AUTH_USER
+            - name: N8N_BASIC_AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: n8n-secrets
+                  key: N8N_BASIC_AUTH_PASSWORD
             - name: TZ
               value: America/New_York
             - name: GENERIC_TIMEZONE
@@ -30,15 +42,22 @@ spec:
             - name: N8N_DIAGNOSTICS_ENABLED
               value: "false"
             - name: N8N_VERSION_NOTIFICATIONS_ENABLED
-              value: "false"
-            - name: N8N_SECURE_COOKIE
-              value: "false"
-            - name: N8N_RUNNERS_ENABLED
               value: "true"
+            - name: N8N_SECURE_COOKIE
+              value: "true"
+            - name: N8N_RUNNERS_ENABLED
+              value: "false"
             - name: N8N_HOST
               value: "n8n.torquasmvo.com"
             - name: N8N_PROTOCOL
-              value: "http" 
+              value: "https"
+            - name: N8N_PORT
+              value: "443"
+            - name: N8N_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: n8n-secrets
+                  key: N8N_ENCRYPTION_KEY
             # Optional: set this once you know the external URL (without Traefik it's fine to omit)
             - name: WEBHOOK_URL
               value: "https://n8n.torquasmvo.com" #using traefik

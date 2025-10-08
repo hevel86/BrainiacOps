@@ -6,7 +6,7 @@ metadata:
   labels:
     app: n8n
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: n8n
   ports:
@@ -14,5 +14,3 @@ spec:
       port: 5678
       targetPort: http
       protocol: TCP
-  # Optional: pin a MetalLB IP you like
-  loadBalancerIP: 10.0.0.210
