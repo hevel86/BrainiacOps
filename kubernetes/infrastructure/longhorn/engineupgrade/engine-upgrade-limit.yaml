@@ -1,0 +1,7 @@
+apiVersion: longhorn.io/v1beta2
+kind: Setting
+metadata:
+  # The name of the resource must match the setting's ID
+  name: concurrent-automatic-engine-upgrade-per-node-limit
+  namespace: longhorn-system
+value: "2"
