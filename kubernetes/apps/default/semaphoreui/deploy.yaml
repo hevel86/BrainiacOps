@@ -39,6 +39,7 @@ spec:
             - sh
             - -c
             - |
+              set -euo pipefail
               CONFIG_PATH="${SEMAPHORE_CONFIG_PATH}"
               if [ -d "${CONFIG_PATH}" ]; then
                 CONFIG_PATH="${CONFIG_PATH%/}/config.json"
@@ -47,7 +48,18 @@ spec:
                 echo "Config file ${CONFIG_PATH} not found" >&2
                 exit 1
               fi
-              semaphore --config "${CONFIG_PATH}" users change-by-login --login "${SEMAPHORE_ADMIN}" --password "${SEMAPHORE_ADMIN_PASSWORD}"
+              echo "Ensuring admin user ${SEMAPHORE_ADMIN} exists in Semaphore"
+              if semaphore --config "${CONFIG_PATH}" users change-by-login --login "${SEMAPHORE_ADMIN}" --password "${SEMAPHORE_ADMIN_PASSWORD}"; then
+                echo "Password updated for existing admin user"
+                exit 0
+              fi
+              echo "Admin user not found; attempting to create it"
+              semaphore --config "${CONFIG_PATH}" users add \
+                --admin \
+                --login "${SEMAPHORE_ADMIN}" \
+                --name "${SEMAPHORE_ADMIN_NAME}" \
+                --email "${SEMAPHORE_ADMIN_EMAIL}" \
+                --password "${SEMAPHORE_ADMIN_PASSWORD}"
           envFrom:
             - configMapRef:
                 name: semaphoreui-config
