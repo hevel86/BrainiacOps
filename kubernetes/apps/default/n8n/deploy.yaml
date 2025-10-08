@@ -15,6 +15,9 @@ spec:
       labels:
         app: n8n
     spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: n8n
           image: n8nio/n8n:1.115.1
