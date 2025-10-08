@@ -33,6 +33,21 @@ spec:
           volumeMounts:
             - name: semaphoreui-data
               mountPath: /etc/semaphore
+        - name: init-admin-password
+          image: semaphoreui/semaphore:v2.16.31
+          command:
+            - sh
+            - -c
+            - |
+              semaphore user change-password --login "${SEMAPHORE_ADMIN}" --password "${SEMAPHORE_ADMIN_PASSWORD}"
+          envFrom:
+            - configMapRef:
+                name: semaphoreui-config
+            - secretRef:
+                name: semaphoreui-secrets
+          volumeMounts:
+            - name: semaphoreui-data
+              mountPath: /etc/semaphore
       containers:
         - name: semaphoreui
           image: semaphoreui/semaphore:v2.16.31
