@@ -28,20 +28,6 @@ spec:
       # for direct host access similar to Docker Compose, and it works with external DNS.
       # Plex and Tautulli also see it as local network traffic.
       hostNetwork: true
-      # Ensures this Pod only runs on specific nodes ('cyborg' or 'brainiac').
-      # This is necessary because the pod requires direct access to host resources
-      # like /dev/dri and /dev/shm, and potentially specific hardware like a GPU.
-      # I realize this isn't k8s best practice, but I'm fine with it for now until I 
-      # can wrangle gpu-operator
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/hostname
-                    operator: In
-                    values:
-                      - cyborg
       containers:
         - name: plex # Name of the container within the Pod
           image: lscr.io/linuxserver/plex:1.42.2 # Docker image for Plex
