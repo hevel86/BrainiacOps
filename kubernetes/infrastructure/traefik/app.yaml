@@ -14,6 +14,9 @@ spec:
     targetRevision: 37.1.2
     helm:
       values: |
+        deployment:
+          replicas: 3
+
         # Enable the dashboard
         additionalArguments:
           - "--api.dashboard=true"

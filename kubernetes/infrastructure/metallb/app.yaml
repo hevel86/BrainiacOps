@@ -21,6 +21,8 @@ spec:
       values: |
         crds:
           enabled: true
+        controller:
+          replicaCount: 3
   syncPolicy:
     automated:
       prune: true

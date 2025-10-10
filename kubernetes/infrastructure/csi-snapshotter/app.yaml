@@ -13,6 +13,9 @@ spec:
     repoURL: https://piraeusdatastore.github.io/helm-charts
     chart: snapshot-controller
     targetRevision: 4.1.0
+    helm:
+      values: |
+        replicaCount: 3
   destination:
     server: https://kubernetes.default.svc
     # It's good practice to install this in the kube-system namespace
