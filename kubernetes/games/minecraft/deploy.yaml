@@ -15,8 +15,7 @@ spec:
       labels:
         app.kubernetes.io/name: minecraft-survival
     spec:
-      nodeSelector:
-        cpu.cores: "8plus"
+      nodeName: brainiac
       containers:
         - name: minecraft
           image: itzg/minecraft-server:2025.10.1
@@ -67,8 +66,7 @@ spec:
       labels:
         app.kubernetes.io/name: minecraft-creative
     spec:
-      nodeSelector:
-        cpu.cores: "8plus"
+      nodeName: brainiac
       containers:
         - name: minecraft
           image: itzg/minecraft-server:2025.10.1
