@@ -50,8 +50,7 @@ spec:
           image: tailscale/tailscale:stable
           imagePullPolicy: Always
           securityContext:
-            runAsUser: 1000
-            runAsGroup: 1000
+            privileged: true
             capabilities:
               add:
                 - NET_ADMIN
