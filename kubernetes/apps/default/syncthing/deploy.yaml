@@ -48,13 +48,14 @@ spec:
         - name: tailscale
           image: tailscale/tailscale:stable
           securityContext:
-            runAsUser: 1000
-            runAsGroup: 1000
+            privileged: true
             capabilities:
               add:
                 - NET_ADMIN
                 - NET_RAW
           env:
+            - name: TS_USERSPACE
+              value: "false"
             - name: TS_STATE_DIR
               value: "/var/lib/tailscale"
             - name: TS_AUTHKEY
@@ -63,7 +64,7 @@ spec:
                   name: tailscale
                   key: TS_AUTHKEY
             - name: TS_EXTRA_ARGS
-              value: "--hostname=syncthing-sidecar"
+              value: "--hostname=syncthing-sidecar --accept-routes=true --accept-dns=true"
           volumeMounts:
             - mountPath: /dev/net/tun
               name: dev-net-tun
@@ -79,6 +80,7 @@ spec:
         - name: dev-net-tun
           hostPath:
             path: /dev/net/tun
+            type: CharDevice
         - name: tailscale-state
           emptyDir: {}
 ---
