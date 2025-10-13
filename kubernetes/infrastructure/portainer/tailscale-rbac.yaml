@@ -25,7 +25,7 @@ metadata:
 rules:
   - apiGroups: [""]
     resources: ["secrets"]
-    resourceNames: ["tailscale-auth"]
+    resourceNames: ["tailscale"]
     verbs: ["get", "create", "update", "patch"]
   - apiGroups: [""]
     resources: ["events"]
