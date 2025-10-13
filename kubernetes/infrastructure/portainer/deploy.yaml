@@ -18,11 +18,7 @@ spec:
         app.kubernetes.io/name: portainer
         app.kubernetes.io/instance: portainer
     spec:
-      serviceAccountName: portainer-sa-clusteradmin
-      volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: portainer
+      serviceAccountName: portainer-tailscale
       containers:
         - name: portainer
           image: portainer/portainer-ce:2.34.0
@@ -50,3 +46,37 @@ spec:
               path: /
               port: 9443
               scheme: HTTPS
+        - name: tailscale
+          image: tailscale/tailscale:stable
+          imagePullPolicy: Always
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+          env:
+            - name: TS_STATE_DIR
+              value: /var/lib/tailscale
+            - name: TS_AUTHKEY
+              valueFrom:
+                secretKeyRef:
+                  name: tailscale-auth
+                  key: TS_AUTHKEY
+            - name: TS_EXTRA_ARGS
+              value: --hostname=portainer-sidecar
+          volumeMounts:
+            - name: dev-net-tun
+              mountPath: /dev/net/tun
+            - name: tailscale-state
+              mountPath: /var/lib/tailscale
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: portainer
+        - name: dev-net-tun
+          hostPath:
+            path: /dev/net/tun
+        - name: tailscale-state
+          emptyDir: {}

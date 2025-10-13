@@ -4,3 +4,5 @@ resources:
   - deploy.yaml
   - pvc.yaml
   - svc.yaml
+  - bitwarden-secrets.yaml
+  - tailscale-rbac.yaml
