@@ -56,6 +56,8 @@ spec:
                 - NET_ADMIN
                 - NET_RAW
           env:
+            - name: TS_USERSPACE
+              value: "false"
             - name: TS_STATE_DIR
               value: /var/lib/tailscale
             - name: TS_AUTHKEY
