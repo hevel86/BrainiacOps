@@ -21,7 +21,7 @@ data:
       - name: portainer
         group: platform
         description: Portainer agent API for cluster management
-        url: http://portainer.portainer.svc.cluster.local:9000/api/status
+        url: http://portainer.portainer.svc.cluster.local:9000/api/system/status
         interval: 1m
         conditions:
           - "[STATUS] == 200"
