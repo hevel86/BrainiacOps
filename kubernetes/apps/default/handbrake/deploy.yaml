@@ -28,7 +28,7 @@ spec:
         cpu.cores: "8plus"
       containers:
         - name: handbrake
-          image: jlesage/handbrake:v25.09.2
+          image: jlesage/handbrake:v25.10.1
           imagePullPolicy: IfNotPresent
           ports:
             - name: web
