@@ -30,7 +30,7 @@ spec:
           defaultClassReplicaCount: 3
         defaultSettings:
           defaultReplicaCount: '3'
-          defaultDataPath: /mnt/longhorn-storage
+          defaultDataPath: /var/mnt/longhorn
           createDefaultDiskLabeledNodes: true
         longhornUI:
           replicas: 3
