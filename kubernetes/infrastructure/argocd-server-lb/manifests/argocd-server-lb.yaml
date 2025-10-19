@@ -4,11 +4,10 @@ metadata:
   name: argocd-server-lb
   namespace: argocd
   annotations:
-    # If you use named pools in MetalLB, uncomment and set:
-    # metallb.universe.tf/address-pool: default
+    metallb.universe.tf/address-pool: default
+    metallb.universe.tf/loadBalancerIPs: 10.0.0.209
 spec:
   type: LoadBalancer
-  loadBalancerIP: 10.0.0.209
   selector:
     app.kubernetes.io/name: argocd-server
     app.kubernetes.io/part-of: argocd
