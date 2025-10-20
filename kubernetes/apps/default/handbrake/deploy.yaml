@@ -1,5 +1,5 @@
 # =========================
-# HandBrake - Full Manifest (CPU-only, MetalLB, NodeSelector)
+# HandBrake - Full Manifest (CPU-only, MetalLB)
 # =========================
 # --- Deployment ---
 ---
@@ -24,8 +24,6 @@ spec:
       labels:
         app: handbrake
     spec:
-      nodeSelector:
-        cpu.cores: "8plus"
       containers:
         - name: handbrake
           image: jlesage/handbrake:v25.10.1
