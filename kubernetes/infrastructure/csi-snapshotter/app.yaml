@@ -15,7 +15,7 @@ spec:
     targetRevision: 4.1.1
     helm:
       values: |
-        replicaCount: 3
+        replicaCount: 1
   destination:
     server: https://kubernetes.default.svc
     # It's good practice to install this in the kube-system namespace

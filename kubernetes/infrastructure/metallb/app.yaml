@@ -22,7 +22,7 @@ spec:
         crds:
           enabled: true
         controller:
-          replicaCount: 3
+          replicaCount: 1
   syncPolicy:
     automated:
       prune: true

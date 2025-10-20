@@ -18,11 +18,11 @@ spec:
         global:
           leaderElection:
             namespace: cert-manager
-        replicaCount: 3
+        replicaCount: 1
         cainjector:
-          replicaCount: 3
+          replicaCount: 1
         webhook:
-          replicaCount: 3
+          replicaCount: 1
         extraArgs:
         - --dns01-recursive-nameservers-only
         - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53

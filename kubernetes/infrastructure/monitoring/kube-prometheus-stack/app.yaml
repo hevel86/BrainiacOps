@@ -13,15 +13,15 @@ spec:
     helm:
       values: |
         prometheusOperator:
-          replicas: 3
+          replicas: 1
         prometheus:
           prometheusSpec:
-            replicas: 3
+            replicas: 1
         alertmanager:
           alertmanagerSpec:
-            replicas: 3
+            replicas: 1
         grafana:
-          replicas: 3
+          replicas: 1
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
