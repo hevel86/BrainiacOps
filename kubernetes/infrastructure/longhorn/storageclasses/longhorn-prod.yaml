@@ -4,7 +4,7 @@ metadata:
   name: longhorn-prod
 provisioner: driver.longhorn.io
 parameters:
-  numberOfReplicas: "3"
+  numberOfReplicas: "1"
   recurringJobSelector: |
     [
       { "name": "prod", "isGroup": true }
