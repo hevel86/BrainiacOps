@@ -19,7 +19,6 @@ spec:
         app: syncthing
     spec:
       serviceAccountName: syncthing-tailscale
-      hostname: brainiac
       containers:
         - name: syncthing
           image: lscr.io/linuxserver/syncthing:2.0.10
