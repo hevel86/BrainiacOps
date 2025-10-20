@@ -66,7 +66,7 @@ metadata:
           "name": "disk-1",
           "path": "/var/mnt/longhorn",
           "allowScheduling": true,
-          "storageReserved": 0,
+          "storageReserved": 30Gi,
           "tags": ["nvme"]
         }
       ]
