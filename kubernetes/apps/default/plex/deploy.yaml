@@ -48,16 +48,16 @@ spec:
               mountPath: /data/movies
             - name: tv # Mounts the TV shows library, now via PVC
               mountPath: /data/tv
-            - name: ramtranscode # Mounts /dev/shm for RAM-based transcoding cache
-              mountPath: /dev/shm
+            # - name: ramtranscode # Mounts /dev/shm for RAM-based transcoding cache
+            #   mountPath: /dev/shm
             - name: zfstranscode # Mounts the ZFS transcode scratch directory, now via PVC
               mountPath: /scratch
             - name: lily # Mounts Lily's media share, now via PVC
               mountPath: /lily_gcs_cheers
             - name: abbie # Mounts Abbie's pictures share, now via PVC
               mountPath: /abbie
-            - name: dri # Mounts /dev/dri for direct access to GPU (for hardware transcoding)
-              mountPath: /dev/dri
+            # - name: dri # Mounts /dev/dri for direct access to GPU (for hardware transcoding)
+            #   mountPath: /dev/dri
           securityContext:
             privileged: true # Required for hardware acceleration and host device mounts
       volumes: # Defines the actual storage volumes that are available to the Pod
@@ -70,10 +70,10 @@ spec:
         - name: tv # Links to the PersistentVolumeClaim for TV shows
           persistentVolumeClaim:
             claimName: media-tv-pvc
-        - name: ramtranscode # Local host path for /dev/shm (RAM-based temp)
-          hostPath:
-            path: /dev/shm
-            type: Directory
+        # - name: ramtranscode # Local host path for /dev/shm (RAM-based temp)
+        #   hostPath:
+        #     path: /dev/shm
+        #     type: Directory
         - name: zfstranscode # Links to the PersistentVolumeClaim for ZFS transcode
           persistentVolumeClaim:
             claimName: plex-zfstranscode-pvc
@@ -83,7 +83,7 @@ spec:
         - name: abbie # Links to the PersistentVolumeClaim for Abbie's share
           persistentVolumeClaim:
             claimName: plex-abbie-pvc
-        - name: dri # Local host path for direct GPU access
-          hostPath:
-            path: /dev/dri
-            type: Directory        
+        # - name: dri # Local host path for direct GPU access
+        #   hostPath:
+        #     path: /dev/dri
+        #     type: Directory        
