@@ -41,6 +41,13 @@ spec:
               value: "1000"
             - name: UMASK # File creation mask for permissions
               value: "022"
+          resources:
+            requests:
+              gpu.intel.com/i915: "1"
+              cpu: 1000m
+              memory: "7.5Gi"
+            limits:
+              gpu.intel.com/i915: "1"
           volumeMounts: # Defines where volumes are mounted inside the container
             - name: config # Mounts the Plex configuration directory
               mountPath: /config
@@ -86,4 +93,4 @@ spec:
         # - name: dri # Local host path for direct GPU access
         #   hostPath:
         #     path: /dev/dri
-        #     type: Directory        
+        #     type: Directory
