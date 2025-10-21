@@ -1,0 +1,7 @@
+apiVersion: longhorn.io/v1beta2
+kind: Setting
+metadata:
+  # Enable restoring volumes with their recurring job assignments intact
+  name: restore-volume-recurring-job
+  namespace: longhorn-system
+value: "true"
