@@ -7,11 +7,11 @@ metadata:
   labels:
     app: tautulli
 spec:
-  type: NodePort
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.207
   selector:
     app: tautulli
   ports:
     - name: http
       port: 8181
       targetPort: 8181
-      nodePort: 30181
