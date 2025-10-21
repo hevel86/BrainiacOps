@@ -27,6 +27,13 @@ spec:
               value: "1000"
             - name: TZ
               value: "America/New_York"
+          resources:
+            requests:
+              gpu.intel.com/i915: "1"
+              cpu: 1000m
+              memory: "6Gi"
+            limits:
+              gpu.intel.com/i915: "1"
           volumeMounts:
             - name: config
               mountPath: /config
