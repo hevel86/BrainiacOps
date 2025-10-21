@@ -7,9 +7,7 @@ spec:
   type: LoadBalancer
   loadBalancerIP: 10.0.0.209
   selector:
-    app: argocd-server
-    #app.kubernetes.io/name: argocd-server
-    #app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/name: argocd-server
   ports:
     - name: https
       port: 443
