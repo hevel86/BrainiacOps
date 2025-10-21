@@ -1,0 +1,25 @@
+# kubernetes/infrastructure/media-pvc/app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: media-pvc
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"  # ensure PVCs follow the PVs
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  source:
+    repoURL: https://github.com/hevel86/BrainiacOps
+    targetRevision: HEAD
+    path: kubernetes/infrastructure/media-pvc
+    directory:
+      exclude: "app.yaml"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true

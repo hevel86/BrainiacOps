@@ -1,5 +1,5 @@
 ---
-# kubernetes/apps/default/bazarr/pvc-movies.yaml
+# kubernetes/infrastructure/media-pvc/pvc.yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -14,7 +14,6 @@ spec:
   storageClassName: ""
   volumeMode: Filesystem
 ---
-# kubernetes/apps/default/bazarr/pvc-tv.yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -29,7 +28,6 @@ spec:
   storageClassName: ""
   volumeMode: Filesystem
 ---
-# kubernetes/apps/default/_shared/pvc-downloads.yaml
 # apiVersion: v1
 # kind: PersistentVolumeClaim
 # metadata:
@@ -44,7 +42,6 @@ spec:
 #   storageClassName: ""
 #   volumeMode: Filesystem
 ---
-# kubernetes/apps/default/_shared/pvc-comics.yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -59,7 +56,6 @@ spec:
   storageClassName: ""
   volumeMode: Filesystem
 ---
-# kubernetes/apps/default/sabnzbd/pvc-downloads.yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
