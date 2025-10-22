@@ -43,9 +43,9 @@ spec:
               mountPath: /config
             - name: data
               mountPath: /data
-            - name: localtime
-              mountPath: /etc/localtime
-              readOnly: true
+            # - name: localtime
+            #   mountPath: /etc/localtime
+            #   readOnly: true
             - name: tun-device
               mountPath: /dev/net/tun
       volumes:
@@ -55,10 +55,10 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: transmission-vpn-data
-        - name: localtime
-          hostPath:
-            path: /etc/localtime
-            type: File
+        # - name: localtime
+        #   hostPath:
+        #     path: /etc/localtime
+        #     type: File
         - name: tun-device
           hostPath:
             path: /dev/net/tun
