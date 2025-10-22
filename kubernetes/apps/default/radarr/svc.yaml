@@ -7,11 +7,11 @@ metadata:
   labels:
     app: radarr
 spec:
-  type: NodePort   # switch to ClusterIP if you use Ingress
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.225
   selector:
     app: radarr
   ports:
     - name: http
       port: 7878
       targetPort: 7878
-      nodePort: 30787

@@ -7,7 +7,8 @@ metadata:
   labels:
     app: bazarr
 spec:
-  type: NodePort
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.226
   selector:
     app: bazarr
   ports:
@@ -15,4 +16,3 @@ spec:
       protocol: TCP
       port: 6767
       targetPort: 6767
-      nodePort: 30676

@@ -7,11 +7,11 @@ metadata:
   labels:
     app: sonarr
 spec:
-  type: NodePort   # switch to ClusterIP if you front with Ingress
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.228
   selector:
     app: sonarr
   ports:
     - name: http
       port: 8989
       targetPort: 8989
-      nodePort: 30989

@@ -7,11 +7,11 @@ metadata:
   labels:
     app: sabnzbd
 spec:
-  type: NodePort
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.227
   selector:
     app: sabnzbd
   ports:
     - name: http
       port: 8080
       targetPort: 8080
-      nodePort: 30008
