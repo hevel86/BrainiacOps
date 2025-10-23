@@ -14,8 +14,6 @@ spec:
   strategy:
     type: Recreate
   replicas: 1
-  strategy:
-    type: Recreate  
   selector:
     matchLabels:
       app: handbrake
