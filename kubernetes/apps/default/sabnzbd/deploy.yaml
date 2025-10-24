@@ -22,7 +22,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: sabnzbd
-          image: lscr.io/linuxserver/sabnzbd:4.5.4
+          image: lscr.io/linuxserver/sabnzbd:4.5.5
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
