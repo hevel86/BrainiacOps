@@ -16,7 +16,7 @@ spec:
     namespace: kube-system
   syncPolicy:
     automated:
-      prune: true
+      prune: false
       selfHeal: true
     syncOptions:
       - ServerSideApply=true
