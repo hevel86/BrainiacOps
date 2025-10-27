@@ -33,6 +33,9 @@ spec:
           effect: NoExecute
       containers:
         - name: intel-gpu-plugin
+          args:
+            - "-shared-dev-num=4"
+            - "-allocation-policy=balanced"
           env:
             - name: NODE_NAME
               valueFrom:
