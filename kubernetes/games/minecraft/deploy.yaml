@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: minecraft
-          image: itzg/minecraft-server:2025.10.2
+          image: itzg/minecraft-server:2025.10.5
           ports:
             - containerPort: 25565
               protocol: TCP
@@ -67,7 +67,7 @@ spec:
     spec:
       containers:
         - name: minecraft
-          image: itzg/minecraft-server:2025.10.2
+          image: itzg/minecraft-server:2025.10.5
           ports:
             - containerPort: 25565
               protocol: TCP
