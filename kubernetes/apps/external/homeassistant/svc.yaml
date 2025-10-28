@@ -5,7 +5,6 @@ metadata:
   namespace: default
 spec:
   # No selector: we supply endpoints via EndpointSlice
-  selector: {}
   ports:
     - name: http
       port: 8123
