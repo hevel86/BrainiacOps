@@ -1,22 +1,22 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cert-manager-config
+  name: cert-manager-cloudflare-token
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   project: default
   source:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
-    path: kubernetes/infrastructure/cert-manager/config/manifests
+    path: kubernetes/infrastructure/cert-manager/cloudflare-secret/manifests
   destination:
     server: https://kubernetes.default.svc
-    namespace: kube-system
+    namespace: cert-manager
   syncPolicy:
     automated:
-      prune: true
+      prune: false
       selfHeal: true
     syncOptions:
       - ServerSideApply=true
