@@ -4,7 +4,7 @@ metadata:
   name: homeassistant
   namespace: default
 spec:
-  # No selector: we supply endpoints via EndpointSlice
+  # No selector: endpoints are provided manually via EndpointSlice
   ports:
     - name: http
       port: 8123
