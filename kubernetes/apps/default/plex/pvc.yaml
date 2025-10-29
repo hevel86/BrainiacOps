@@ -27,6 +27,7 @@ spec:
   resources:
     requests:
       storage: 500Gi # IMPORTANT: Match or be less than plex-zfstranscode-pv capacity
+  volumeName: plex-zfstranscode-pv # Explicitly bind to the PV defined above
   storageClassName: "" # Explicitly bind to static PV
 ---
 # --- PersistentVolume for Lily's GCS Cheers (assuming this is a media share) ---
@@ -58,6 +59,7 @@ spec:
   resources:
     requests:
       storage: 5Ti # IMPORTANT: Match or be less than plex-lily-pv capacity
+  volumeName: plex-lily-pv # Explicitly bind to the PV defined above
   storageClassName: "" # Explicitly bind to static PV
 ---
 # --- PersistentVolume for Abbie's Pictures ---
@@ -89,6 +91,7 @@ spec:
   resources:
     requests:
       storage: 2Ti # IMPORTANT: Match or be less than plex-abbie-pv capacity
+  volumeName: plex-abbie-pv # Explicitly bind to the PV defined above
   storageClassName: "" # Explicitly bind to static PV
 ---
 # --- PersistentVolumeClaim for Plex Configuration (Longhorn) ---
