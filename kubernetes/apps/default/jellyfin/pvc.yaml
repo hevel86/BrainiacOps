@@ -11,3 +11,35 @@ spec:
       storage: 50Gi
   storageClassName: longhorn-prod
   volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: jellyfin-zfstranscode-pv # Unique name for this PersistentVolume
+spec:
+  capacity:
+    storage: 500Gi # IMPORTANT: Adjust to your actual storage size for transcode scratch
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    path: /mnt/media/jellyfin_transcode # Exact path for jellyfin transcode scratch space
+    server: truenas1-nfs.torquasmvo.internal
+  mountOptions:
+    - nfsvers=4.1
+    - noatime
+---
+# --- PersistentVolumeClaim for Jellyfin ZFS Transcode Scratch Space ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jellyfin-zfstranscode-pvc # Unique name for this PersistentVolumeClaim
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 500Gi # IMPORTANT: Match or be less than jellyfin-zfstranscode-pv capacity
+  volumeName: jellyfin-zfstranscode-pv # Explicitly bind to the PV defined above
+  storageClassName: "" # Explicitly bind to static PV
+---

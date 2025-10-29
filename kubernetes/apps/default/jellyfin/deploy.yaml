@@ -41,6 +41,8 @@ spec:
               mountPath: /data/tv
             - name: movies
               mountPath: /data/movies
+            - name: jellyfin-transcode
+              mountPath: /transcode
           # resources:
           #   limits:
           #     nvidia.com/gpu: 1
@@ -56,3 +58,6 @@ spec:
         - name: movies
           persistentVolumeClaim:
             claimName: media-movies-pvc
+        - name: jellyfin-transcode
+          persistentVolumeClaim:
+            claimName: jellyfin-zfstranscode-pvc
