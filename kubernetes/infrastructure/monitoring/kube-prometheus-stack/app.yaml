@@ -17,11 +17,20 @@ spec:
         prometheus:
           prometheusSpec:
             replicas: 1
+          service:
+            type: LoadBalancer
+            loadBalancerIP: 10.0.0.230
         alertmanager:
           alertmanagerSpec:
             replicas: 1
+          service:
+            type: LoadBalancer
+            loadBalancerIP: 10.0.0.231
         grafana:
           replicas: 1
+          service:
+            type: LoadBalancer
+            loadBalancerIP: 10.0.0.232
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
