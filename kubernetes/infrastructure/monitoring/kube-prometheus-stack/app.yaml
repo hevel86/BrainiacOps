@@ -4,6 +4,8 @@ kind: Application
 metadata:
   name: kube-prometheus-stack
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "50"
 spec:
   project: default
   source:
@@ -28,6 +30,10 @@ spec:
             loadBalancerIP: 10.0.0.231
         grafana:
           replicas: 1
+          admin:
+            existingSecret: grafana-admin
+            userKey: admin-user
+            passwordKey: admin-password
           service:
             type: LoadBalancer
             loadBalancerIP: 10.0.0.232
