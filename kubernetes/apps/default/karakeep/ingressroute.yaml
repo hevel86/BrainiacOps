@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: karakeep
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`karakeep.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: karakeep
+          namespace: default
+          port: 3000
+  tls:
+    secretName: traefik-dashboard-tls

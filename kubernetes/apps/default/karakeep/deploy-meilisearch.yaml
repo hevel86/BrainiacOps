@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: karakeep-meilisearch
+  namespace: default
+  labels:
+    app: karakeep
+    component: meilisearch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: karakeep
+      component: meilisearch
+  template:
+    metadata:
+      labels:
+        app: karakeep
+        component: meilisearch
+    spec:
+      containers:
+        - name: meilisearch
+          image: getmeili/meilisearch:v1.11.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 7700
+              name: http
+          env:
+            - name: MEILI_NO_ANALYTICS
+              value: "true"
+          envFrom:
+            - secretRef:
+                name: karakeep-secrets
+            - configMapRef:
+                name: karakeep-config
+          volumeMounts:
+            - name: karakeep-meilisearch-data
+              mountPath: /meili_data
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+      volumes:
+        - name: karakeep-meilisearch-data
+          persistentVolumeClaim:
+            claimName: karakeep-meilisearch-pvc-lh

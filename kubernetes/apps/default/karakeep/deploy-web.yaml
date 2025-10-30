@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: karakeep-web
+  namespace: default
+  labels:
+    app: karakeep
+    component: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: karakeep
+      component: web
+  template:
+    metadata:
+      labels:
+        app: karakeep
+        component: web
+    spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: web
+          image: ghcr.io/karakeep-app/karakeep:release
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: MEILI_ADDR
+              value: http://karakeep-meilisearch:7700
+            - name: BROWSER_WEB_URL
+              value: http://karakeep-chrome:9222
+            - name: DATA_DIR
+              value: /data
+          envFrom:
+            - secretRef:
+                name: karakeep-secrets
+            - configMapRef:
+                name: karakeep-config
+          volumeMounts:
+            - name: karakeep-data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+      volumes:
+        - name: karakeep-data
+          persistentVolumeClaim:
+            claimName: karakeep-data-pvc-lh

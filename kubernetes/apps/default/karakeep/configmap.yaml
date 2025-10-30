@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: karakeep-config
+  namespace: default
+  labels:
+    app: karakeep
+data:
+  NEXTAUTH_URL: https://karakeep.torquasmvo.com
+  KARAKEEP_VERSION: release
