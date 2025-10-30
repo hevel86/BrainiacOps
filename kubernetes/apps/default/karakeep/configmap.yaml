@@ -7,4 +7,4 @@ metadata:
     app: karakeep
 data:
   NEXTAUTH_URL: https://karakeep.torquasmvo.com
-  KARAKEEP_VERSION: release
+  KARAKEEP_VERSION: 0.27.1
