@@ -9,7 +9,7 @@ spec:
   source:
     repoURL: https://charts.bitwarden.com
     chart: sm-operator
-    targetRevision: 1.0.0 # Specify a version to ensure consistent deployments
+    targetRevision: 1.1.0 # Specify a version to ensure consistent deployments
     helm:
       values: |
         replicaCount: 1
