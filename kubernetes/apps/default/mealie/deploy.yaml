@@ -52,6 +52,11 @@ spec:
                 secretKeyRef:
                   name: mealie-secrets
                   key: DEFAULT_PASSWORD
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mealie-secrets
+                  key: OPENAI_API_KEY
             - name: DEFAULT_GROUP
               value: "Home"
             - name: DEFAULT_HOUSEHOLD
