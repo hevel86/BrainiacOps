@@ -34,7 +34,7 @@ spec:
             - name: semaphoreui-data
               mountPath: /etc/semaphore
         - name: init-admin-password
-          image: semaphoreui/semaphore:v2.16.36
+          image: semaphoreui/semaphore:v2.16.37
           command:
             - sh
             - -c
@@ -70,7 +70,7 @@ spec:
               mountPath: /etc/semaphore
       containers:
         - name: semaphoreui
-          image: semaphoreui/semaphore:v2.16.36
+          image: semaphoreui/semaphore:v2.16.37
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
