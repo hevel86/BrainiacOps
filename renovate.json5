@@ -1,7 +1,6 @@
 {
   extends: [
     'config:recommended',
-    'group:allNonMajor',
     ':semanticCommits',
     ':prConcurrentLimit10',
     ':prHourlyLimit4',
@@ -50,6 +49,14 @@
     '**/charts/**',
   ],
   packageRules: [
+    {
+      description: 'Group all patch updates',
+      matchUpdateTypes: [
+        'patch',
+      ],
+      groupName: 'Patch updates',
+      groupSlug: 'patch-updates',
+    },
     {
       description: 'Automerge safe updates for GitHub Actions',
       matchManagers: [
