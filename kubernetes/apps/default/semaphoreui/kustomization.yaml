@@ -3,8 +3,11 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - bitwarden-secrets.yaml
-  - configmap.yaml
-  - deploy.yaml
   - pvc.yaml
-  - svc.yaml
-  #- ingressroute.yaml
+helmCharts:
+  - name: semaphore
+    repo: https://semaphoreui.github.io/charts
+    version: 16.0.6
+    releaseName: semaphoreui
+    namespace: default
+    valuesFile: values.yaml
