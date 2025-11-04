@@ -1,0 +1,194 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opencloud
+  namespace: default
+  labels:
+    app: opencloud
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: opencloud
+  template:
+    metadata:
+      labels:
+        app: opencloud
+    spec:
+      initContainers:
+        - name: opencloud-init
+          image: opencloudeu/opencloud-rolling:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: America/New_York
+            - name: OC_URL
+              value: https://opencloud.torquasmvo.com
+            - name: OC_DOMAIN
+              value: opencloud.torquasmvo.com
+            - name: OC_LOG_LEVEL
+              value: info
+            - name: OC_LOG_COLOR
+              value: "false"
+            - name: OC_LOG_PRETTY
+              value: "false"
+            - name: PROXY_TLS
+              value: "false"
+            - name: OC_INSECURE
+              value: "false"
+            - name: PROXY_ENABLE_BASIC_AUTH
+              value: "false"
+            - name: IDM_CREATE_DEMO_USERS
+              value: "false"
+            - name: FRONTEND_ARCHIVER_MAX_SIZE
+              value: "10000000000"
+            - name: PROXY_CSP_CONFIG_FILE_LOCATION
+              value: /etc/opencloud/csp.yaml
+            - name: OC_PASSWORD_POLICY_BANNED_PASSWORDS_LIST
+              value: banned-password-list.txt
+            - name: OC_SHARING_PUBLIC_SHARE_MUST_HAVE_PASSWORD
+              value: "true"
+            - name: OC_SHARING_PUBLIC_WRITEABLE_SHARE_MUST_HAVE_PASSWORD
+              value: "true"
+            - name: OC_PASSWORD_POLICY_DISABLED
+              value: "false"
+            - name: OC_PASSWORD_POLICY_MIN_CHARACTERS
+              value: "8"
+            - name: OC_PASSWORD_POLICY_MIN_LOWERCASE_CHARACTERS
+              value: "1"
+            - name: OC_PASSWORD_POLICY_MIN_UPPERCASE_CHARACTERS
+              value: "1"
+            - name: OC_PASSWORD_POLICY_MIN_DIGITS
+              value: "1"
+            - name: OC_PASSWORD_POLICY_MIN_SPECIAL_CHARACTERS
+              value: "1"
+            - name: INITIAL_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: opencloud-secrets
+                  key: INITIAL_ADMIN_PASSWORD
+            - name: IDM_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: opencloud-secrets
+                  key: INITIAL_ADMIN_PASSWORD
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              opencloud init || true
+          volumeMounts:
+            - name: opencloud-config
+              mountPath: /etc/opencloud
+            - name: opencloud-data
+              mountPath: /var/lib/opencloud
+            - name: opencloud-config-files
+              mountPath: /etc/opencloud/csp.yaml
+              subPath: csp.yaml
+            - name: opencloud-config-files
+              mountPath: /etc/opencloud/banned-password-list.txt
+              subPath: banned-password-list.txt
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: opencloud
+          image: opencloudeu/opencloud-rolling:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9200
+              name: http
+          env:
+            - name: TZ
+              value: America/New_York
+            - name: OC_URL
+              value: https://opencloud.torquasmvo.com
+            - name: OC_DOMAIN
+              value: opencloud.torquasmvo.com
+            - name: OC_LOG_LEVEL
+              value: info
+            - name: OC_LOG_COLOR
+              value: "false"
+            - name: OC_LOG_PRETTY
+              value: "false"
+            - name: PROXY_TLS
+              value: "false"
+            - name: OC_INSECURE
+              value: "false"
+            - name: PROXY_ENABLE_BASIC_AUTH
+              value: "false"
+            - name: IDM_CREATE_DEMO_USERS
+              value: "false"
+            - name: FRONTEND_ARCHIVER_MAX_SIZE
+              value: "10000000000"
+            - name: PROXY_CSP_CONFIG_FILE_LOCATION
+              value: /etc/opencloud/csp.yaml
+            - name: OC_PASSWORD_POLICY_BANNED_PASSWORDS_LIST
+              value: banned-password-list.txt
+            - name: OC_SHARING_PUBLIC_SHARE_MUST_HAVE_PASSWORD
+              value: "true"
+            - name: OC_SHARING_PUBLIC_WRITEABLE_SHARE_MUST_HAVE_PASSWORD
+              value: "true"
+            - name: OC_PASSWORD_POLICY_DISABLED
+              value: "false"
+            - name: OC_PASSWORD_POLICY_MIN_CHARACTERS
+              value: "8"
+            - name: OC_PASSWORD_POLICY_MIN_LOWERCASE_CHARACTERS
+              value: "1"
+            - name: OC_PASSWORD_POLICY_MIN_UPPERCASE_CHARACTERS
+              value: "1"
+            - name: OC_PASSWORD_POLICY_MIN_DIGITS
+              value: "1"
+            - name: OC_PASSWORD_POLICY_MIN_SPECIAL_CHARACTERS
+              value: "1"
+            - name: INITIAL_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: opencloud-secrets
+                  key: INITIAL_ADMIN_PASSWORD
+            - name: IDM_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: opencloud-secrets
+                  key: INITIAL_ADMIN_PASSWORD
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          volumeMounts:
+            - name: opencloud-config
+              mountPath: /etc/opencloud
+            - name: opencloud-data
+              mountPath: /var/lib/opencloud
+            - name: opencloud-config-files
+              mountPath: /etc/opencloud/csp.yaml
+              subPath: csp.yaml
+            - name: opencloud-config-files
+              mountPath: /etc/opencloud/banned-password-list.txt
+              subPath: banned-password-list.txt
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+      volumes:
+        - name: opencloud-config
+          persistentVolumeClaim:
+            claimName: opencloud-config-pvc-lh
+        - name: opencloud-data
+          persistentVolumeClaim:
+            claimName: opencloud-data-pvc-lh
+        - name: opencloud-config-files
+          configMap:
+            name: opencloud-config-files

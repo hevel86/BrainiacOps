@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: opencloud
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`opencloud.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: opencloud
+          namespace: default
+          port: 9200
+  tls:
+    secretName: traefik-dashboard-tls
+
