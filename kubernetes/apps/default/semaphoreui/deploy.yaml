@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: semaphore-deployment
+  labels:
+    app: semaphore
+spec:
+  strategy:
+    type: Recreate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: semaphore
+  template:
+    metadata:
+      labels:
+        app: semaphore
+    spec:
+      containers:
+        - name: semaphore
+          image: semaphoreui/semaphore:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: SEMAPHORE_DB_DIALECT
+              valueFrom:
+                configMapKeyRef:
+                  name: semaphore-configmap
+                  key: SEMAPHORE_DB_DIALECT
+            - name: SEMAPHORE_DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: semaphore-configmap
+                  key: SEMAPHORE_DB_HOST
+            - name: SEMAPHORE_DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: semaphore-configmap
+                  key: SEMAPHORE_DB_PORT
+            - name: SEMAPHORE_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: semaphore-configmap
+                  key: SEMAPHORE_DB_NAME
+            - name: SEMAPHORE_DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: semaphore-configmap
+                  key: SEMAPHORE_DB_USER
+            - name: SEMAPHORE_ADMIN_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: semaphore-configmap
+                  key: SEMAPHORE_ADMIN_NAME
+            - name: SEMAPHORE_ADMIN_EMAIL
+              valueFrom:
+                configMapKeyRef:
+                  name: semaphore-configmap
+                  key: SEMAPHORE_ADMIN_EMAIL
+            - name: SEMAPHORE_DB_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: semaphore-configmap
+                  key: SEMAPHORE_DB_PATH
+            - name: SEMAPHORE_CONFIG_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: semaphore-configmap
+                  key: SEMAPHORE_CONFIG_PATH
+            - name: SEMAPHORE_TMP_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: semaphore-configmap
+                  key: SEMAPHORE_TMP_PATH
+            - name: SEMAPHORE_DB_OPTIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: semaphore-configmap
+                  key: SEMAPHORE_DB_OPTIONS
+            - name: SEMAPHORE_ADMIN
+              value: "admin"
+            - name: SEMAPHORE_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: semaphore-secrets
+                  key: SEMAPHORE_ADMIN_PASSWORD
+            - name: SEMAPHORE_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: semaphore-secrets
+                  key: SEMAPHORE_DB_PASS
+          volumeMounts:
+            - name: semaphore-config-storage
+              mountPath: /etc/semaphore
+            - name: semaphore-static-storage
+              mountPath: /tmp/semaphore
+      volumes:
+        - name: semaphore-config-storage
+          persistentVolumeClaim:
+            claimName: semaphore-config-pvc-lh
+        - name: semaphore-static-storage
+          persistentVolumeClaim:
+            claimName: semaphore-static-pvc-lh
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      restartPolicy: Always

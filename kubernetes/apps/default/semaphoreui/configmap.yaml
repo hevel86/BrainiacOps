@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: semaphore-configmap
+  namespace: default
+data:
+  SEMAPHORE_DB_DIALECT: "postgres"
+  SEMAPHORE_DB_HOST: "postgres-service"
+  SEMAPHORE_DB_PORT: "5432"
+  SEMAPHORE_DB_NAME: "semaphore"
+  SEMAPHORE_DB_USER: "semaphore"
+  SEMAPHORE_ADMIN_NAME: "admin"
+  SEMAPHORE_ADMIN_EMAIL: "admin@localhost"
+  SEMAPHORE_DB_PATH: "/var/lib/semaphore/"
+  SEMAPHORE_CONFIG_PATH: "/etc/semaphore"
+  SEMAPHORE_TMP_PATH: "/tmp/semaphore"
+  SEMAPHORE_DB_OPTIONS: '{"sslmode":"disable"}'
