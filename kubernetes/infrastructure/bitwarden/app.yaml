@@ -12,13 +12,7 @@ spec:
     targetRevision: 1.1.0 # Specify a version to ensure consistent deployments
     helm:
       values: |
-        settings:
-          replicas: 1
-        containers:
-          manager:
-            image:
-              repository: ghcr.io/bitwarden/sm-operator
-              tag: 1.1.0
+        replicaCount: 1
   destination:
     server: https://kubernetes.default.svc
     namespace: sm-operator-system

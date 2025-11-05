@@ -110,18 +110,6 @@
     },
     {
       customType: 'regex',
-      description: 'Update Docker image tags inside Helm values blocks',
-      managerFilePatterns: [
-        '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
-      ],
-      matchStrings: [
-        'repository:\\s*[\'"]?(?<depName>[a-zA-Z0-9_./-]+)[\'"]?\\s*\\n\\s*tag:\\s*[\'"]?(?<currentValue>[a-zA-Z0-9._-]+)',
-      ],
-      datasourceTemplate: 'docker',
-      versioningTemplate: 'docker',
-    },
-    {
-      customType: 'regex',
       description: 'Update Helm chart releases in Argo CD Applications',
       managerFilePatterns: [
         '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
