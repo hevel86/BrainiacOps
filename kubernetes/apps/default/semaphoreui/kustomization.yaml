@@ -7,5 +7,5 @@ resources:
   - pvc.yaml
   - configmap.yaml
   - bitwarden-secrets.yaml
-  - postgres-pvc.yaml
-  - postgres-deploy.yaml
+  - semaphore-postgres-pvc.yaml
+  - semaphore-postgres-deploy.yaml

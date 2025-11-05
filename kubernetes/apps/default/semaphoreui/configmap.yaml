@@ -5,7 +5,7 @@ metadata:
   namespace: default
 data:
   SEMAPHORE_DB_DIALECT: "postgres"
-  SEMAPHORE_DB_HOST: "postgres-service"
+  SEMAPHORE_DB_HOST: "semaphore-postgres-service"
   SEMAPHORE_DB_PORT: "5432"
   SEMAPHORE_DB_NAME: "semaphore"
   SEMAPHORE_DB_USER: "semaphore"

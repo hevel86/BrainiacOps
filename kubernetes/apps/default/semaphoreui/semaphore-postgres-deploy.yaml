@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: postgres-deployment
+  name: semaphore-postgres-deployment
   labels:
-    app: postgres
+    app: semaphore-postgres
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: postgres
+      app: semaphore-postgres
   template:
     metadata:
       labels:
-        app: postgres
+        app: semaphore-postgres
     spec:
       containers:
-        - name: postgres
+        - name: semaphore-postgres
           image: postgres:15
           ports:
             - containerPort: 5432
@@ -43,16 +43,16 @@ spec:
       volumes:
         - name: postgres-storage
           persistentVolumeClaim:
-            claimName: postgres-pvc-lh
+            claimName: semaphore-postgres-pvc-lh
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres-service
+  name: semaphore-postgres-service
 spec:
   type: ClusterIP
   selector:
-    app: postgres
+    app: semaphore-postgres
   ports:
     - protocol: TCP
       port: 5432
