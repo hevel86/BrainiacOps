@@ -19,7 +19,7 @@ spec:
     spec:
       initContainers:
         - name: opencloud-init
-          image: opencloudeu/opencloud-rolling:latest
+          image: opencloudeu/opencloud-rolling:3.7.0
           imagePullPolicy: IfNotPresent
           env:
             - name: TZ
