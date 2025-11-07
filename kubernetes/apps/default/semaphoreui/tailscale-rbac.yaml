@@ -1,0 +1,30 @@
+# kubernetes/apps/default/semaphoreui/tailscale-rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: semaphoreui-tailscale
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: semaphoreui-tailscale-role
+  namespace: default
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: semaphoreui-tailscale-rb
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: semaphoreui-tailscale
+    namespace: default
+roleRef:
+  kind: Role
+  name: semaphoreui-tailscale-role
+  apiGroup: rbac.authorization.k8s.io

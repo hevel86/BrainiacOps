@@ -16,6 +16,7 @@ spec:
       labels:
         app: semaphore
     spec:
+      serviceAccountName: semaphoreui-tailscale
       containers:
         - name: semaphore
           image: semaphoreui/semaphore:v2.16.43
@@ -90,11 +91,44 @@ spec:
                 secretKeyRef:
                   name: semaphore-secrets
                   key: SEMAPHORE_DB_PASS
+            - name: SEMAPHORE_ACCESS_KEY_ENCRYPTION
+              valueFrom:
+                secretKeyRef:
+                  name: semaphore-secrets
+                  key: SEMAPHORE_ACCESS_KEY_ENCRYPTION
           volumeMounts:
             - name: semaphore-config-storage
               mountPath: /etc/semaphore
             - name: semaphore-static-storage
               mountPath: /tmp/semaphore
+          securityContext:
+            runAsUser: 1001
+            runAsGroup: 1001
+        - name: tailscale
+          image: tailscale/tailscale:stable
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+          env:
+            - name: TS_USERSPACE
+              value: "false"
+            - name: TS_KUBE_SECRET
+              value: "semaphoreui-tailscale-state"
+            - name: TS_AUTHKEY
+              valueFrom:
+                secretKeyRef:
+                  name: tailscale
+                  key: TS_AUTHKEY
+            - name: TS_EXTRA_ARGS
+              value: "--hostname=semaphoreui-sidecar --accept-routes=true"
+          volumeMounts:
+            - mountPath: /dev/net/tun
+              name: dev-net-tun
+            - mountPath: /var/lib/tailscale
+              name: tailscale-state
       volumes:
         - name: semaphore-config-storage
           persistentVolumeClaim:
@@ -102,8 +136,12 @@ spec:
         - name: semaphore-static-storage
           persistentVolumeClaim:
             claimName: semaphore-static-pvc-lh
+        - name: dev-net-tun
+          hostPath:
+            path: /dev/net/tun
+            type: CharDevice
+        - name: tailscale-state
+          emptyDir: {}
       securityContext:
-        runAsUser: 1001
-        runAsGroup: 1001
         fsGroup: 1001
       restartPolicy: Always
