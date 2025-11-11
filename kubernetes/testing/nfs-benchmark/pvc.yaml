@@ -18,7 +18,7 @@ spec:
   volumeMode: Filesystem
   nfs:
     server: truenas1-nfs.torquasmvo.internal
-    path: /mnt/media/nas
+    path: /mnt/fast/nas
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

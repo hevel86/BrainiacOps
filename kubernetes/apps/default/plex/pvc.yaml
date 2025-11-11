@@ -42,7 +42,7 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   nfs:
-    path: /mnt/media/nas/lily_gcs_cheers # Exact path for Lily's GCS Cheers share
+    path: /mnt/fast/nas/lily_gcs_cheers # Exact path for Lily's GCS Cheers share
     server: truenas1-nfs.torquasmvo.internal
   mountOptions:
     - nfsvers=4.1
@@ -74,7 +74,7 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   nfs:
-    path: /mnt/media/pictures/Abbie # Exact path for Abbie's pictures share
+    path: /mnt/fast/pictures/Abbie # Exact path for Abbie's pictures share
     server: truenas1-nfs.torquasmvo.internal
   mountOptions:
     - nfsvers=4.1
