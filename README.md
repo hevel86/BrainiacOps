@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Renovate](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://renovatebot.com)
-[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/user/repo/kubeconform.yml?branch=main)](https://github.com/user/repo/actions/workflows/kubeconform.yml)
+[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/hevel86/BrainiacOps/kubeconform.yml?branch=main)](https://github.com/hevel86/BrainiacOps/actions/workflows/kubeconform.yml)
 
 > GitOps home lab running Argo CD, media automation, and self-hosted infrastructure on Kubernetes.
 
