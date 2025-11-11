@@ -5,4 +5,4 @@ metadata:
   name: default                 # singleton name used by Longhorn
   namespace: longhorn-system
 spec:
-  backupTargetURL: nfs://truenas1-nfs.torquasmvo.internal:/mnt/media/longhorn-backup
+  backupTargetURL: nfs://truenas1-nfs.torquasmvo.internal:/mnt/fast/longhorn-backup
