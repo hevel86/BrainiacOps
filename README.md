@@ -2,48 +2,66 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Renovate](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://renovatebot.com)
+[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/user/repo/kubeconform.yml?branch=main)](https://github.com/user/repo/actions/workflows/kubeconform.yml)
 
-> GitOps home lab running Argo CD, media automation, and self-hosted infrastructure.
+> GitOps home lab running Argo CD, media automation, and self-hosted infrastructure on Kubernetes.
 
 ---
 
 ## Overview
 
-BrainiacOps is the single source of truth for my homelab Kubernetes cluster. Argo CD continuously reconciles everything in this repository—ingress, storage, media workloads, monitoring, and supporting services—using a Kustomize-first app-of-apps layout. Renovate and GitHub Actions keep dependencies fresh while pre-commit hooks guard the supply chain.
+BrainiacOps is the single source of truth for my homelab Kubernetes cluster. It uses a GitOps approach with Argo CD to declaratively manage the entire stack, from infrastructure and networking to a comprehensive suite of self-hosted applications. The repository follows an "app-of-apps" pattern with Kustomize to keep configurations DRY and maintainable.
+
+Automation is a core principle, with Renovate for dependency updates, GitHub Actions for CI/CD, and pre-commit hooks for code quality and security.
 
 ## Key Capabilities
 
-- **GitOps-first operations**: Argo CD bootstraps itself, then syncs infrastructure, media apps, and game servers from declarative manifests.
-- **Opinionated platform services**: Traefik, MetalLB, Tailscale, cert-manager, Portainer, Longhorn, and Intel GPU plugins are managed as first-class infrastructure.
-- **Media & automation stack**: Jellyfin, Radarr/Sonarr, Plex, Transmission (with VPN), Handbrake, Mealie, and more run under `kubernetes/apps`.
-- **Observability**: Kube Prometheus Stack, Gatus, metrics-server, and supporting secrets live in `kubernetes/infrastructure/monitoring`.
-- **Security guardrails**: Bitwarden Secrets Operator injects credentials, pre-commit TruffleHog scans staged YAML/ENV/JSON, and Renovate patches stay grouped for fast reviews.
-- **Testing sandboxes**: `kubernetes/testing` holds throwaway workloads, benchmarks, and repro environments without polluting prod namespaces.
+- **GitOps-first Operations**: Argo CD bootstraps itself and then syncs all resources, including infrastructure, media applications, and game servers, from declarative manifests in this repository.
+- **Opinionated Platform Services**: A robust set of platform services are managed as first-class infrastructure, including:
+    - **Ingress & Networking**: Traefik, MetalLB, and Tailscale.
+    - **Storage**: Longhorn for distributed block storage and CSI snapshotting.
+    - **Security**: cert-manager for automated TLS certificates and Bitwarden Secrets Operator for secret injection.
+    - **Hardware Acceleration**: Intel GPU device plugins for video transcoding.
+    - **Management**: Portainer for a GUI-based overview of the cluster.
+- **Comprehensive Media & Automation Stack**: A wide range of applications for media management and automation are deployed, including:
+    - **Media Servers**: Plex, Jellyfin, Audiobookshelf.
+    - **Content Automation**: Radarr, Sonarr, Bazarr, Prowlarr, Mylar3.
+    - **Download Clients**: SABnzbd, Transmission (with and without VPN).
+    - **Request Management**: Jellyseerr, Ombi.
+    - **Utilities**: Handbrake for video transcoding, Tautulli for Plex monitoring, and more.
+- **Observability**: A full monitoring stack provides insights into the cluster's health, featuring:
+    - Kube Prometheus Stack for metrics and alerting.
+    - Gatus for endpoint health checking.
+    - metrics-server for resource metrics.
+- **Security Guardrails**:
+    - **Secret Management**: Bitwarden Secrets Operator injects credentials securely, keeping sensitive data out of Git.
+    - **Supply Chain Security**: Pre-commit hooks with TruffleHog scan for secrets, and Renovate keeps dependencies up-to-date.
+- **Testing Sandboxes**: The `kubernetes/testing` directory provides a space for temporary workloads, benchmarks, and experiments without affecting production namespaces.
 
 ## Repository Layout
 
-- `kubernetes/bootstrap/` – Minimal manifests to install Argo CD and seed the app-of-apps controller.
-- `kubernetes/infrastructure/` – Cluster services (ingress, storage, monitoring, secrets, Renovate, tooling).
-- `kubernetes/apps/` – User-facing workloads. `default/` is the primary namespace; `external/` tracks remotely managed installs; `_shared/` holds common Kustomize pieces.
-- `kubernetes/games/` – Game server workloads such as Minecraft.
-- `kubernetes/storage/` – PersistentVolume definitions and storage glue for the media stack.
-- `kubernetes/testing/` – Temporary experiments, benchmark jobs, and validation manifests.
-- `.github/workflows/` – CI pipelines (currently kubeconform schema validation).
-- `.githooks/` – Custom Git hooks (TruffleHog scan and YAML hygiene).
-- `renovate.json5` – Renovate configuration, including patch-only grouping rules and custom managers for YAML updates.
+- `kubernetes/bootstrap/`: Contains the minimal manifests to install Argo CD and seed the app-of-apps controller, kicking off the GitOps process.
+- `kubernetes/infrastructure/`: Manages all cluster-level services, such as ingress, storage, monitoring, secrets management, and the Renovate bot itself.
+- `kubernetes/apps/`: Contains all user-facing workloads. `default/` is the primary namespace for most applications, while `external/` is used for tracking remotely managed installs. `_shared/` holds common Kustomize bases to reduce duplication.
+- `kubernetes/games/`: Holds configurations for game servers, such as Minecraft.
+- `kubernetes/storage/`: Defines PersistentVolumes for the media stack, ensuring data persistence across pod restarts.
+- `kubernetes/testing/`: A sandbox for temporary experiments, benchmark jobs, and validation manifests.
+- `.github/workflows/`: Contains CI pipelines, including a `kubeconform` workflow to validate all Kubernetes manifests against their schemas.
+- `.githooks/`: Includes custom Git hooks that run on pre-commit to scan for secrets with TruffleHog and enforce YAML linting rules.
+- `renovate.json5`: The configuration for the Renovate bot, defining how dependencies are updated, grouped, and managed.
 
 ## GitOps Bootstrap
 
-Spin up a new cluster with the Argo CD app-of-apps flow:
+To bootstrap a new cluster with this GitOps setup, follow these steps:
 
 ```bash
 # 1. Create the Argo CD namespace
 kubectl apply -f kubernetes/bootstrap/argocd-namespace.yaml
 
-# 2. Install Argo CD from the vendored manifest
+# 2. Install Argo CD
 kubectl apply -k kubernetes/bootstrap/argocd-install
 
-# 3. Seed the infrastructure app-of-apps once Argo CD is healthy
+# 3. Seed the infrastructure app-of-apps
 kubectl apply -f kubernetes/bootstrap/infrastructure-app.yaml
 
 # 4. (Optional) Enable application trees
@@ -51,40 +69,24 @@ kubectl apply -f kubernetes/bootstrap/apps-app.yaml
 kubectl apply -f kubernetes/bootstrap/apps-external-app.yaml
 ```
 
-Argo CD will take over reconciliation from there, applying infrastructure first and then layering applications.
+Once these steps are completed, Argo CD will take over and continuously reconcile the state of the cluster with the manifests in this repository.
 
-## Automation & Quality Gates
+## Development Conventions
 
-- **GitHub Actions**: `.github/workflows/kubeconform.yml` validates changed Kubernetes manifests on every PR with `kubeconform`.
-- **Renovate**: A self-hosted Renovate bot (deployed via `kubernetes/infrastructure/renovate`) keeps images, charts, and GitHub Actions updated. All patch bumps are grouped for quick merges; minors and majors ship individually.
-- **Pre-commit hooks**: `.githooks/pre-commit` runs TruffleHog inside Docker against staged YAML/ENV/JSON and fixes missing trailing newlines to keep yamllint happy.
-- **Linting**: `.yamllint.yaml` customizes yamllint for long lines, GitHub Actions keys, and templated files.
+This project follows a set of conventions to maintain code quality and consistency:
 
-## Local Workflow
-
-1. Enable repo-provided hooks so secret scanning runs before each commit:
-   ```bash
-   git config core.hooksPath .githooks
-   ```
-2. Optional checks before pushing:
-   ```bash
-   # Skip CRDs while validating manifests against upstream schemas
-   kubeconform -strict -ignore-missing-schemas $(git ls-files 'kubernetes/**/*.ya?ml')
-   ```
-3. Need to bypass TruffleHog for a specific commit? Export `SKIP_TRUFFLEHOG=1` (use sparingly).
-
-## Secrets & Sensitive Data
-
-- Bitwarden Secrets Operator (under `kubernetes/infrastructure/bitwarden`) syncs credentials into namespaces.
-- Renovate’s GitHub token is provisioned via the operator—see `kubernetes/infrastructure/renovate/README.md` for the Bitwarden workflow and required fine-grained PAT scopes.
-- Additional secrets are managed through the same pattern so the Git repo stays scrubbed.
-
-## Contributing
-
-- Favor Kustomize overlays and `_shared` bases to avoid copy/paste drift.
-- Keep manifests schema-valid; when adding new CRDs, update kubeconform ignores if necessary.
-- Document notable app folders with a short `README.md` when extra setup is required.
+- **Kustomize:** Used extensively to manage Kubernetes configurations, with a preference for overlays and shared bases (`_shared` directory) to reduce duplication.
+- **Pre-commit Hooks:** Before committing any changes, a pre-commit hook runs to:
+    - Scan for secrets using `TruffleHog`.
+    - Ensure YAML files have a trailing newline to comply with `yamllint` rules.
+    To enable the hooks, run:
+    ```bash
+    git config core.hooksPath .githooks
+    ```
+- **Manifest Validation:** All Kubernetes manifests are validated against their schemas using `kubeconform`. This is enforced in the CI pipeline.
+- **Linting:** `yamllint` is used to enforce YAML best practices, with a custom configuration defined in `.yamllint.yaml`.
+- **Secrets Management:** Secrets are managed outside of the repository using the Bitwarden Secrets Operator.
 
 ## License
 
-MIT – see `LICENSE`.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
