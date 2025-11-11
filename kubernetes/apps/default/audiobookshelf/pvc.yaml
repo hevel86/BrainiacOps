@@ -35,7 +35,7 @@ spec:
   volumeMode: Filesystem
   nfs:
     server: truenas1-nfs.torquasmvo.internal
-    path: /mnt/media/audiobooks/books
+    path: /mnt/fast/audiobooks/books
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
