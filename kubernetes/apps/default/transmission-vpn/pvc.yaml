@@ -23,7 +23,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   nfs:
     server: truenas1-nfs.torquasmvo.internal
-    path: "/mnt/media/downloaders/transmission"
+    path: "/mnt/fast/downloaders/transmission"
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

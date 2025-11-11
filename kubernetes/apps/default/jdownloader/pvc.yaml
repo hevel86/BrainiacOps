@@ -23,7 +23,7 @@ spec:
   storageClassName: "" # Use "" for static provisioning without a StorageClass
   nfs:
     server: truenas1-nfs.torquasmvo.internal
-    path: /mnt/media/downloaders/jdownloader
+    path: /mnt/fast/downloaders/jdownloader
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
