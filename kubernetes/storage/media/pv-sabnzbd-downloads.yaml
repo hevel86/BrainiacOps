@@ -10,7 +10,7 @@ spec:
   volumeMode: Filesystem
   nfs:
     server: truenas1-nfs.torquasmvo.internal
-    path: /mnt/media/downloaders/sabnzbd/downloads
+    path: /mnt/fast/downloaders/sabnzbd/downloads
   mountOptions:
     - nfsvers=4.1
     - rsize=1048576

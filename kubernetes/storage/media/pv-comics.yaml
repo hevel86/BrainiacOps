@@ -11,4 +11,4 @@ spec:
   volumeMode: Filesystem
   nfs:
     server: truenas1-nfs.torquasmvo.internal
-    path: /mnt/media/nas/comics
+    path: /mnt/fast/nas/comics
