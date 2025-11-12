@@ -9,11 +9,13 @@
 !**/*bitwarden-volsync-secret.yaml
 
 # Allow specific SOPS encrypted secret files
-!**/talos-secrets.sops.yaml
+!**talsecret.sops.yaml
 
 # Specifically deny particular files
-**/talos/controlplane.yaml
-**/talos/talos-secrets.yaml
+/talos/controlplane.yaml
+/talos/talos-secrets.yaml
+talos/machineconfig.yaml
+
 
 # Ignore sensitive config files
 **/*.env

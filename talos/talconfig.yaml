@@ -1,148 +1,73 @@
-# talconfig.yaml
-# This file is used by talhelper to generate Talos machine configurations.
-# Secrets are referenced from talos-secrets.yaml and will be injected during generation.
-
 clusterName: talos-rao
 endpoint: https://10.0.0.34:6443
-talosVersion: v1.11.3 # Ensure this matches your Talos version
-kubernetesVersion: v1.30.1 # Ensure this matches your Kubernetes version
-
+talosVersion: v1.11.3
+kubernetesVersion: v1.34.1
+domain: cluster.local
+allowSchedulingOnControlPlanes: true
+clusterPodNets:
+  - 10.244.0.0/16
+clusterSvcNets:
+  - 10.96.0.0/12
+additionalApiServerCertSans:
+  - 10.0.0.34
 nodes:
-  - hostname: brainiac-00 # Replace with your actual controlplane hostname
-    ipAddress: 10.0.0.34 # Replace with your actual controlplane IP address
+  - hostname: brainiac-00
+    ipAddress: 10.0.0.30
     controlPlane: true
     installDisk: /dev/nvme1n1
-    userVolumes:
-      - name: longhorn
-        path: /dev/nvme0n1
-        format: true
-    network:
-      interfaces:
-        - interface: enp2s0f1np1
-          dhcp: true
-          vip:
-            ip: 10.0.0.30
-    kubelet:
-      image: ghcr.io/siderolabs/kubelet:{{ .kubernetesVersion }}
-      defaultRuntimeSeccompProfileEnabled: true
-      disableManifestsDirectory: true
-      extraMounts:
-        - destination: /var/mnt/longhorn
-          type: bind
-          source: /var/mnt/longhorn
-          options:
-            - bind
-            - rshared
-            - rw
-    features:
-      rbac: true
-      stableHostname: true
-      apidCheckExtKeyUsage: true
-      diskQuotaSupport: true
-      kubePrism:
-        enabled: true
-        port: 7445
-      hostDNS:
-        enabled: true
-        forwardKubeDNSToHost: true
-    nodeLabels: {} # Add any node labels here if needed
-    install:
-      disk: /dev/nvme1n1
-      image: ghcr.io/siderolabs/installer:v1.11.3
-      wipe: false
-    registries: {}
-    # API server specific configuration options.
-    apiServer:
-        image: registry.k8s.io/kube-apiserver:{{ .kubernetesVersion }}
-        # Extra certificate subject alternative names for the API server's certificate.
-        certSANs:
-            - 10.0.0.34
-        disablePodSecurityPolicy: true
-        # Configure the API server admission plugins.
-        admissionControl:
-            - name: PodSecurity
-              # Configuration is an embedded configuration object to be used as the plugin's
-              configuration:
-                apiVersion: pod-security.admission.config.k8s.io/v1alpha1
-                defaults:
-                    audit: restricted
-                    audit-version: latest
-                    enforce: privileged
-                    enforce-version: latest
-                    warn: restricted
-                    warn-version: latest
-                exemptions:
-                    namespaces:
-                        - kube-system
-                    runtimeClasses: []
-                    usernames: []
-                kind: PodSecurityConfiguration
-        # Configure the API server audit policy.
-        auditPolicy:
-            apiVersion: audit.k8s.io/v1
-            kind: Policy
-            rules:
-                - level: Metadata
-    # Controller manager server specific configuration options.
-    controllerManager:
-        image: registry.k8s.io/kube-controller-manager:{{ .kubernetesVersion }}
-    # Kube-proxy server-specific configuration options
-    proxy:
-        image: registry.k8s.io/kube-proxy:{{ .kubernetesVersion }}
-    # Scheduler server specific configuration options.
-    scheduler:
-        image: registry.k8s.io/kube-scheduler:{{ .kubernetesVersion }}
-    # Configures cluster member discovery.
-    discovery:
-        enabled: true
-        # Configure registries used for cluster member discovery.
-        registries:
-            # Kubernetes registry uses Kubernetes API server to discover cluster members and stores additional information
-            kubernetes:
-                disabled: true
-            # Service registry is using an external service to push and pull information about cluster members.
-            service: {}
-    # Etcd specific configuration options.
-    etcd: {} # No secrets here, so keeping it simple
-    # A list of urls that point to additional manifests.
-    extraManifests: []
-    # A list of inline Kubernetes manifests.
-    inlineManifests: []
-    allowSchedulingOnControlPlanes: true
-
-# Secrets are pulled from talos-secrets.yaml
-secrets:
-  clusterID: "{{ .talos.cluster_id }}"
-  clusterSecret: "{{ .talos.cluster_secret }}"
-  clusterToken: "{{ .talos.cluster_token }}"
-  secretboxEncryptionSecret: "{{ .talos.cluster_secretboxEncryptionSecret }}"
-  ca:
-    crt: "{{ .talos.cluster_ca_crt }}"
-    key: "{{ .talos.cluster_ca_key }}"
-  aggregatorCA:
-    crt: "{{ .talos.cluster_aggregatorCA_crt }}"
-    key: "{{ .talos.cluster_aggregatorCA_key }}"
-  serviceAccount:
-    key: "{{ .talos.cluster_serviceAccount_key }}"
-  machineCA:
-    crt: "{{ .talos.machine_ca_crt }}"
-    key: "{{ .talos.machine_ca_key }}"
-
-# UserVolumeConfig and ExtensionServiceConfig are not secrets, so they are included directly
-# If these were in a separate file, you could use `talhelper` to include them.
-# For simplicity, I'm including them directly in talconfig.yaml for now.
-userVolumeConfig:
-  - name: longhorn
-    provisioning:
-      diskSelector:
-        match: disk.dev_path == '/dev/nvme0n1' && !system_disk
-      maxSize: 2TB
-      grow: true
-
-extensionServiceConfig:
-  - name: nut-client
-    configFiles:
-      - content: |-
+controlPlane:
+  talosImageURL: ghcr.io/siderolabs/installer:v1.11.3
+  networkInterfaces:
+    - interface: enp2s0f1np1
+      dhcp: true
+      vip:
+        ip: 10.0.0.30
+  userVolumes:
+    - name: longhorn
+      provisioning:
+        diskSelector:
+          match: "disk.dev_path == '/dev/nvme0n1' && !system_disk"
+        grow: true
+        maxSize: 2TB
+  extensionServices:
+    - name: nut-client
+      configFiles:
+        - mountPath: /usr/local/etc/nut/upsmon.conf
+          content: |
             MONITOR ups1500@batterypi.torquasmvo.internal 1 upsmon_remote hunter2 secondary
             SHUTDOWNCMD "/sbin/poweroff"
-        mountPath: /usr/local/etc/nut/upsmon.conf
+  patches:
+    - |-
+        machine:
+          kubelet:
+            image: ghcr.io/siderolabs/kubelet:v1.34.1
+            extraMounts:
+              - destination: /var/mnt/longhorn
+                type: bind
+                source: /var/mnt/longhorn
+                options:
+                  - bind
+                  - rshared
+                  - rw
+            defaultRuntimeSeccompProfileEnabled: true
+            disableManifestsDirectory: true
+          features:
+            rbac: true
+            stableHostname: true
+            apidCheckExtKeyUsage: true
+            diskQuotaSupport: true
+            kubePrism:
+              enabled: true
+              port: 7445
+            hostDNS:
+              enabled: true
+              forwardKubeDNSToHost: true
+          install:
+            wipe: false
+        cluster:
+          discovery:
+            enabled: true
+            registries:
+              kubernetes:
+                disabled: true
+              service: {}
