@@ -8,6 +8,10 @@
 !**/*bitwarden-secrets.yaml
 !**/*bitwarden-volsync-secret.yaml
 
+# Specifically deny particular files
+**/talos/controlplane.yaml
+**/talos/talos-secrets.yaml
+
 # Ignore sensitive config files
 **/*.env
 **/.env
@@ -55,4 +59,3 @@ kubernetes/infrastructure/nvidia/nvidia-smi-test.yaml
 **/*.log
 logs/
 *.log
-talos/controlplane.yaml
