@@ -1,0 +1,5 @@
+creation_rules:
+  - path_regex: talos-secrets.yaml$
+#    encrypted_regex: ^(data|stringData)$
+    age:
+      - age1z904lquz4tsq00zvh4h8fs8znxkdv2plg67upssssylurxa4u33sjygfuv
