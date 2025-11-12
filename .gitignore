@@ -11,11 +11,11 @@
 # Allow specific SOPS encrypted secret files
 !**talsecret.sops.yaml
 
-# Specifically deny particular files
-/talos/controlplane.yaml
-/talos/talos-secrets.yaml
+# Specifically deny particular talos files
+talos/controlplane.yaml
+talos/talos-secrets.yaml
 talos/machineconfig.yaml
-
+talos/talconfig-schema.json 
 
 # Ignore sensitive config files
 **/*.env
