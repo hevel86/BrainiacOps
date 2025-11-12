@@ -4,15 +4,15 @@
 
 clusterName: talos-rao
 endpoint: https://10.0.0.34:6443
-talosVersion: v1.7.0 # Ensure this matches your Talos version
-kubernetesVersion: v1.34.1 # Ensure this matches your Kubernetes version
+talosVersion: v1.11.3 # Ensure this matches your Talos version
+kubernetesVersion: v1.30.1 # Ensure this matches your Kubernetes version
 
 nodes:
-  - hostname: controlplane-1 # Replace with your actual controlplane hostname
+  - hostname: brainiac-00 # Replace with your actual controlplane hostname
     ipAddress: 10.0.0.34 # Replace with your actual controlplane IP address
     controlPlane: true
     installDisk: /dev/nvme1n1
-    machineDisks:
+    userVolumes:
       - name: longhorn
         path: /dev/nvme0n1
         format: true
