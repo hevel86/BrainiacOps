@@ -17,6 +17,19 @@ nodes:
     installDisk: /dev/nvme1n1
 controlPlane:
   talosImageURL: ghcr.io/siderolabs/installer:v1.11.3
+  schematic:
+    customization:
+      systemExtensions:
+        officialExtensions:
+          - siderolabs/i915
+          - siderolabs/intel-ice-firmware
+          - siderolabs/intel-ucode
+          - siderolabs/iscsi-tools
+          - siderolabs/mei
+          - siderolabs/nut-client
+          - siderolabs/nvme-cli
+          - siderolabs/thunderbolt
+          - siderolabs/util-linux-tools
   networkInterfaces:
     - interface: enp2s0f1np1
       dhcp: true
