@@ -55,3 +55,4 @@ kubernetes/infrastructure/nvidia/nvidia-smi-test.yaml
 **/*.log
 logs/
 *.log
+talos/controlplane.yaml
