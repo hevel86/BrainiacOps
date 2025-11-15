@@ -4,7 +4,7 @@ metadata:
   name: jdownloader-service
 spec:
   type: LoadBalancer
-  loadBalancerIP: 10.0.0.230
+  loadBalancerIP: 10.0.0.233
   selector:
     app: jdownloader # This must match the 'app' label in your Deployment's Pod template
   ports:
