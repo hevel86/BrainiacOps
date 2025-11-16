@@ -20,7 +20,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: n8n
-          image: n8nio/n8n:1.120.1
+          image: n8nio/n8n:1.120.3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5678
