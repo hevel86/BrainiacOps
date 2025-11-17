@@ -71,10 +71,26 @@ kubectl apply -f kubernetes/bootstrap/apps-external-app.yaml
 
 Once these steps are completed, Argo CD will take over and continuously reconcile the state of the cluster with the manifests in this repository.
 
+## Mise En Place Tooling
+
+The repository ships with a [mise](https://mise.jdx.dev/) configuration (`.mise.toml`) that relies on the built-in [aquaproj/aqua](https://aquaproj.github.io/) backend for static CLI downloads—`kubectl`, `kustomize`, `helm`, `talhelper`, `talosctl`, `kubeconform`, `sops`, and `age`—plus `yamllint` via `pipx`. No manual plugin installs are required. It also wires environment variables for:
+
+- `KUBECONFIG`: points to `~/.kube/config`.
+- `TALOSCONFIG`: points to `~/.talos/config`.
+- `SOPS_AGE_KEY_FILE`: defaults to `~/.config/sops/age/keys.txt`, matching the standard sops location.
+
+1. Install mise (see the [mise docs](https://mise.jdx.dev/getting-started.html)).
+2. Trust the repo configuration once so aqua-backed installs can run: `mise trust .mise.toml`.
+3. Install the pinned toolchain: `mise install`.
+4. Use `mise shell` or `mise exec` to run commands with the managed tools.
+
+Tool versions in `.mise.toml` are tracked and updated automatically by Renovate via regex managers, so you’ll receive pull requests when new releases are available.
+
 ## Development Conventions
 
 This project follows a set of conventions to maintain code quality and consistency:
 
+- **Mise En Place**: Use `.mise.toml` to install and pin CLI dependencies (via aqua + pipx) and to provide consistent environment configuration for `KUBECONFIG`, `TALOSCONFIG`, and `SOPS_AGE_KEY_FILE`.
 - **Kustomize:** Used extensively to manage Kubernetes configurations, with a preference for overlays and shared bases (`_shared` directory) to reduce duplication.
 - **Pre-commit Hooks:** Before committing any changes, a pre-commit hook runs to:
     - Scan for secrets using `TruffleHog`.

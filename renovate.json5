@@ -120,5 +120,112 @@
       datasourceTemplate: 'helm',
       registryUrlTemplate: '{{registryUrl}}',
     },
+    {
+      customType: 'regex',
+      description: 'Update aqua-managed CLI versions in .mise.toml',
+      fileMatch: [
+        '^\\.mise\\.toml$',
+      ],
+      matchStrings: [
+        '"aqua:kubernetes/kubectl" = "(?<currentValue>[^"]+)"',
+      ],
+      datasourceTemplate: 'github-tags',
+      depNameTemplate: 'kubernetes/kubernetes',
+    },
+    {
+      customType: 'regex',
+      description: 'Update aqua-managed CLI versions in .mise.toml',
+      fileMatch: [
+        '^\\.mise\\.toml$',
+      ],
+      matchStrings: [
+        '"aqua:kubernetes-sigs/kustomize" = "(?<currentValue>[^"]+)"',
+      ],
+      datasourceTemplate: 'github-tags',
+      depNameTemplate: 'kubernetes-sigs/kustomize',
+    },
+    {
+      customType: 'regex',
+      description: 'Update aqua-managed CLI versions in .mise.toml',
+      fileMatch: [
+        '^\\.mise\\.toml$',
+      ],
+      matchStrings: [
+        '"aqua:helm/helm" = "(?<currentValue>[^"]+)"',
+      ],
+      datasourceTemplate: 'github-tags',
+      depNameTemplate: 'helm/helm',
+    },
+    {
+      customType: 'regex',
+      description: 'Update aqua-managed CLI versions in .mise.toml',
+      fileMatch: [
+        '^\\.mise\\.toml$',
+      ],
+      matchStrings: [
+        '"aqua:budimanjojo/talhelper" = "(?<currentValue>[^"]+)"',
+      ],
+      datasourceTemplate: 'github-tags',
+      depNameTemplate: 'budimanjojo/talhelper',
+    },
+    {
+      customType: 'regex',
+      description: 'Update aqua-managed CLI versions in .mise.toml',
+      fileMatch: [
+        '^\\.mise\\.toml$',
+      ],
+      matchStrings: [
+        '"aqua:siderolabs/talos" = "(?<currentValue>[^"]+)"',
+      ],
+      datasourceTemplate: 'github-tags',
+      depNameTemplate: 'siderolabs/talos',
+    },
+    {
+      customType: 'regex',
+      description: 'Update aqua-managed CLI versions in .mise.toml',
+      fileMatch: [
+        '^\\.mise\\.toml$',
+      ],
+      matchStrings: [
+        '"aqua:yannh/kubeconform" = "(?<currentValue>[^"]+)"',
+      ],
+      datasourceTemplate: 'github-tags',
+      depNameTemplate: 'yannh/kubeconform',
+    },
+    {
+      customType: 'regex',
+      description: 'Update aqua-managed CLI versions in .mise.toml',
+      fileMatch: [
+        '^\\.mise\\.toml$',
+      ],
+      matchStrings: [
+        '"aqua:getsops/sops" = "(?<currentValue>[^"]+)"',
+      ],
+      datasourceTemplate: 'github-tags',
+      depNameTemplate: 'getsops/sops',
+    },
+    {
+      customType: 'regex',
+      description: 'Update aqua-managed CLI versions in .mise.toml',
+      fileMatch: [
+        '^\\.mise\\.toml$',
+      ],
+      matchStrings: [
+        '"aqua:FiloSottile/age" = "(?<currentValue>[^"]+)"',
+      ],
+      datasourceTemplate: 'github-tags',
+      depNameTemplate: 'FiloSottile/age',
+    },
+    {
+      customType: 'regex',
+      description: 'Update pipx-managed CLI versions in .mise.toml',
+      fileMatch: [
+        '^\\.mise\\.toml$',
+      ],
+      matchStrings: [
+        '"pipx:(?<depName>[^"]+)" = "(?<currentValue>[^"]+)"',
+      ],
+      datasourceTemplate: 'pypi',
+    },
   ],
 }
