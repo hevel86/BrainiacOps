@@ -1,0 +1,55 @@
+---
+# --- DEPLOYMENT ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: obsidian
+  namespace: default
+  labels:
+    app: obsidian
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: obsidian
+  template:
+    metadata:
+      labels:
+        app: obsidian
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: obsidian
+          image: lscr.io/linuxserver/obsidian:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "America/New_York"
+          ports:
+            - name: http
+              containerPort: 3000
+            - name: https
+              containerPort: 3001
+          volumeMounts:
+            - name: obsidian-config
+              mountPath: /config
+            - name: obsidian-shm
+              mountPath: /dev/shm
+      volumes:
+        - name: obsidian-config
+          persistentVolumeClaim:
+            claimName: obsidian-config-lh
+        - name: obsidian-shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi

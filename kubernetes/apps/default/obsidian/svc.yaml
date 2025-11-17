@@ -1,0 +1,21 @@
+---
+# --- SERVICE (ClusterIP) ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: obsidian
+  namespace: default
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.234   # Reserve a free IP from your MetalLB pool
+  selector:
+    app: obsidian
+  ports:
+    - name: http
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
+    - name: https
+      protocol: TCP
+      port: 3001
+      targetPort: 3001
