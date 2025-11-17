@@ -16,6 +16,8 @@ talos/controlplane.yaml
 talos/talos-secrets.yaml
 talos/machineconfig.yaml
 talos/talconfig-schema.json 
+talos/talosconfig
+talos/age.key
 
 # Ignore sensitive config files
 **/*.env
