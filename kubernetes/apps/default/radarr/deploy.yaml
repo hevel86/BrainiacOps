@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: radarr
-          image: lscr.io/linuxserver/radarr:5.28.0
+          image: lscr.io/linuxserver/radarr:6.0.4
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 7878
