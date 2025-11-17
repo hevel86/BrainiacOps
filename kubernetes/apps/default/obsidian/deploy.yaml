@@ -26,7 +26,7 @@ spec:
         fsGroupChangePolicy: "OnRootMismatch"
       containers:
         - name: obsidian
-          image: lscr.io/linuxserver/obsidian:latest
+          image: lscr.io/linuxserver/obsidian:1.10.3
           imagePullPolicy: IfNotPresent
           env:
             - name: PUID
