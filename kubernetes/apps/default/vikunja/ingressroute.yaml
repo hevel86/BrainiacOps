@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: vikunja
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`vikunja.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: vikunja
+          namespace: default
+          port: 3456
+  tls:
+    secretName: traefik-dashboard-tls

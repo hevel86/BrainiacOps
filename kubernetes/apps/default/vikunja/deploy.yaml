@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vikunja
+  namespace: default
+  labels:
+    app: vikunja
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: vikunja
+  template:
+    metadata:
+      labels:
+        app: vikunja
+    spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: vikunja
+          image: vikunja/vikunja:0.24.6
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: America/New_York
+            - name: VIKUNJA_SERVICE_PUBLICURL
+              value: https://vikunja.torquasmvo.com
+            - name: VIKUNJA_DATABASE_TYPE
+              value: sqlite
+            - name: VIKUNJA_DATABASE_PATH
+              value: /db/vikunja.db
+            - name: VIKUNJA_SERVICE_JWTSECRET
+              valueFrom:
+                secretKeyRef:
+                  name: vikunja-secrets
+                  key: VIKUNJA_SERVICE_JWTSECRET
+          ports:
+            - name: http
+              containerPort: 3456
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /api/v1/info
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v1/info
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: vikunja-data
+              mountPath: /db
+              subPath: db
+            - name: vikunja-data
+              mountPath: /app/vikunja/files
+              subPath: files
+      volumes:
+        - name: vikunja-data
+          persistentVolumeClaim:
+            claimName: vikunja-data-pvc-lh
