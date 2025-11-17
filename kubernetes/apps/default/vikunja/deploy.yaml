@@ -33,6 +33,8 @@ spec:
               value: sqlite
             - name: VIKUNJA_DATABASE_PATH
               value: /db/vikunja.db
+            - name: VIKUNJA_SERVICE_ENABLEREGISTRATION
+              value: "false"
             - name: VIKUNJA_SERVICE_JWTSECRET
               valueFrom:
                 secretKeyRef:
