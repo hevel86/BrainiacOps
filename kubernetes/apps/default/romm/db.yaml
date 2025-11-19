@@ -44,10 +44,9 @@ spec:
           livenessProbe:
             exec:
               command:
-                - mysqladmin
-                - ping
-                - -h
-                - 127.0.0.1
+                - /usr/local/bin/healthcheck.sh
+                - --connect
+                - --innodb_initialized
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
