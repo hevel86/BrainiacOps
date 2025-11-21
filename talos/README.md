@@ -6,9 +6,12 @@ This directory contains the configuration for the `talos-rao` Kubernetes cluster
 
 - **Cluster Name**: talos-rao
 - **Kubernetes Version**: v1.34.1
-- **Talos Version**: v1.11.3
-- **Control Plane Endpoint**: https://10.0.0.34:6443
-- **Node**: brainiac-00 (10.0.0.30) - Control Plane
+- **Talos Version**: v1.11.5
+- **Control Plane Endpoint (VIP)**: https://10.0.0.30:6443
+- **Nodes**:
+  - brainiac-00 (10.0.0.34) - Control Plane
+  - brainiac-01 (10.0.0.35) - Control Plane
+  - brainiac-02 (10.0.0.36) - Control Plane
 
 ## Prerequisites
 
@@ -113,7 +116,7 @@ talhelper genurl --config-file talconfig.yaml
 
 The generated URL will look like:
 ```
-factory.talos.dev/installer/<schematic-id>:v1.11.3
+factory.talos.dev/installer/<schematic-id>:v1.11.5
 ```
 
 **Important**: Use this generated URL (not the default `ghcr.io/siderolabs/installer`) when:
@@ -169,16 +172,16 @@ talhelper genconfig
 # 3. Apply config to control plane node (insecure mode for initial setup)
 # Note: Make sure to install Talos using the URL from step 1, not the default installer
 talosctl apply-config --insecure \
-  --nodes 10.0.0.30 \
+  --nodes 10.0.0.34 \
   --file controlplane.yaml
 
 # 4. Wait for node to be ready, then bootstrap the cluster
-talosctl bootstrap --nodes 10.0.0.30 \
+talosctl bootstrap --nodes 10.0.0.34 \
   --endpoints 10.0.0.30 \
   --talosconfig talosconfig
 
 # 5. Retrieve kubeconfig
-talosctl kubeconfig --nodes 10.0.0.30 \
+talosctl kubeconfig --nodes 10.0.0.34 \
   --endpoints 10.0.0.30 \
   --talosconfig talosconfig
 ```
@@ -191,7 +194,7 @@ talhelper genconfig
 
 # Apply to control plane (uses talosconfig for auth)
 talosctl apply-config \
-  --nodes 10.0.0.30 \
+  --nodes 10.0.0.34 \
   --file controlplane.yaml \
   --talosconfig talosconfig
 ```
@@ -205,15 +208,15 @@ vim talconfig.yaml
 
 # 2. Generate new installer URL with extensions
 talhelper genurl --config-file talconfig.yaml
-# Note the generated URL (factory.talos.dev/installer/<schematic-id>:v1.11.3)
+# Note the generated URL (factory.talos.dev/installer/<schematic-id>:v1.11.5)
 
 # 3. Regenerate configs
 talhelper genconfig
 
 # 4. Upgrade the node using the generated URL
 talosctl upgrade \
-  --nodes 10.0.0.30 \
-  --image factory.talos.dev/installer/<schematic-id>:v1.11.3 \
+  --nodes 10.0.0.34 \
+  --image factory.talos.dev/installer/<schematic-id>:v1.11.5 \
   --talosconfig talosconfig
 
 # 5. Wait for node to complete upgrade
@@ -234,13 +237,13 @@ talhelper genconfig
 
 # 3. Apply updated config
 talosctl apply-config \
-  --nodes 10.0.0.30 \
+  --nodes 10.0.0.34 \
   --file controlplane.yaml \
   --talosconfig talosconfig
 
 # 4. Upgrade Kubernetes
 talosctl upgrade-k8s \
-  --nodes 10.0.0.30 \
+  --nodes 10.0.0.34 \
   --to v1.34.1 \
   --talosconfig talosconfig
 ```
@@ -280,7 +283,7 @@ talosctl health --talosconfig talosconfig
 talosctl get members --talosconfig talosconfig
 
 # View logs
-talosctl logs --talosconfig talosconfig -n 10.0.0.30
+talosctl logs --talosconfig talosconfig -n 10.0.0.34
 
 # Access dashboard
 talosctl dashboard --talosconfig talosconfig
@@ -293,19 +296,19 @@ talosctl kubeconfig --talosconfig talosconfig
 
 ```bash
 # Check service status
-talosctl services --talosconfig talosconfig -n 10.0.0.30
+talosctl services --talosconfig talosconfig -n 10.0.0.34
 
 # Get detailed machine config
-talosctl get machineconfig --talosconfig talosconfig -n 10.0.0.30
+talosctl get machineconfig --talosconfig talosconfig -n 10.0.0.34
 
 # Check disk usage
-talosctl df --talosconfig talosconfig -n 10.0.0.30
+talosctl df --talosconfig talosconfig -n 10.0.0.34
 
 # Interactive shell (for debugging)
-talosctl shell --talosconfig talosconfig -n 10.0.0.30
+talosctl shell --talosconfig talosconfig -n 10.0.0.34
 
 # Reset a node (WARNING: destructive)
-talosctl reset --nodes 10.0.0.30 --talosconfig talosconfig
+talosctl reset --nodes 10.0.0.34 --talosconfig talosconfig
 ```
 
 ## Best Practices
