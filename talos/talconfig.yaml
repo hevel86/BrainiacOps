@@ -16,15 +16,21 @@ nodes:
   - hostname: brainiac-00
     ipAddress: 10.0.0.34
     controlPlane: true
-    installDisk: /dev/nvme1n1
+    installDiskSelector:
+      size: "<= 600GB"
+      type: "nvme"
   - hostname: brainiac-01
     ipAddress: 10.0.0.35
     controlPlane: true
-    installDisk: /dev/nvme1n1
+    installDiskSelector:
+      size: "<= 600GB"
+      type: "nvme"
   - hostname: brainiac-02
     ipAddress: 10.0.0.36
     controlPlane: true
-    installDisk: /dev/nvme1n1
+    installDiskSelector:
+      size: "<= 600GB"
+      type: "nvme"
 controlPlane:
   talosImageURL: ghcr.io/siderolabs/installer
   schematic:
@@ -49,7 +55,7 @@ controlPlane:
     - name: longhorn
       provisioning:
         diskSelector:
-          match: "disk.dev_path == '/dev/nvme0n1' && !system_disk"
+          match: "disk.size >= 1500000000000u && !system_disk"
         grow: true
         maxSize: 2TB
   extensionServices:
@@ -86,7 +92,7 @@ controlPlane:
               enabled: true
               forwardKubeDNSToHost: true
           install:
-            wipe: false
+            wipe: true
         cluster:
           discovery:
             enabled: true
