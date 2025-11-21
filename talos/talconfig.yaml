@@ -55,6 +55,7 @@ controlPlane:
     - name: longhorn
       provisioning:
         diskSelector:
+          # 1500000000000u = 1.5TB in bytes (u suffix for unsigned integer to match disk.size type)
           match: "disk.size >= 1500000000000u && !system_disk"
         grow: true
         maxSize: 2TB
