@@ -1,5 +1,5 @@
 clusterName: talos-rao
-endpoint: https://10.0.0.34:6443
+endpoint: https://10.0.0.30:6443
 talosVersion: v1.11.5
 kubernetesVersion: v1.34.1
 domain: cluster.local
@@ -10,13 +10,23 @@ clusterSvcNets:
   - 10.96.0.0/12
 additionalApiServerCertSans:
   - 10.0.0.34
+  - 10.0.0.35
+  - 10.0.0.36
 nodes:
   - hostname: brainiac-00
-    ipAddress: 10.0.0.30
+    ipAddress: 10.0.0.34
+    controlPlane: true
+    installDisk: /dev/nvme1n1
+  - hostname: brainiac-01
+    ipAddress: 10.0.0.35
+    controlPlane: true
+    installDisk: /dev/nvme1n1
+  - hostname: brainiac-02
+    ipAddress: 10.0.0.36
     controlPlane: true
     installDisk: /dev/nvme1n1
 controlPlane:
-  talosImageURL: ghcr.io/siderolabs/installer:v1.11.5
+  talosImageURL: ghcr.io/siderolabs/installer
   schematic:
     customization:
       systemExtensions:
