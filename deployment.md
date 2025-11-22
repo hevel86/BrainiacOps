@@ -735,6 +735,62 @@ kubectl port-forward -n <namespace> svc/<service-name> 8080:80
 curl http://localhost:8080
 ```
 
+### LoadBalancer Services Not Accessible
+
+**Symptom:** LoadBalancer services have external IPs assigned but can't be accessed from external machines (e.g., Longhorn UI, Portainer, ArgoCD)
+
+**Diagnosis:**
+```bash
+# Check if services have LoadBalancer IPs
+kubectl get svc -A --field-selector spec.type=LoadBalancer
+
+# Check for node exclusion label (critical!)
+kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.metadata.labels.node\.kubernetes\.io/exclude-from-external-load-balancers}{"\n"}{end}'
+
+# Check MetalLB speaker pods
+kubectl get pods -n metallb-system -l app.kubernetes.io/component=speaker
+
+# Check MetalLB logs for announcements
+kubectl logs -n metallb-system daemonset/metallb-speaker --tail=50 | grep serviceAnnounced
+```
+
+**Common causes:**
+
+1. **Node exclusion label present** ⚠️ Most common issue
+   - **Symptom:** Services get IPs but aren't accessible, MetalLB shows "serviceAnnounced" but no ARP on network
+   - **Cause:** Talos adds `node.kubernetes.io/exclude-from-external-load-balancers` label to control plane nodes
+   - **Fix:** Remove the label from all nodes:
+     ```bash
+     kubectl label node brainiac-00 brainiac-01 brainiac-02 node.kubernetes.io/exclude-from-external-load-balancers-
+     ```
+   - **Prevention:** When applying Talos configs, comment out the `nodeLabels` section in generated configs (see `talos/README.md` Step 4b)
+
+2. **ARP cache issues**
+   - **Symptom:** Services worked before but stopped after config change
+   - **Fix:** Clear ARP cache on your machine:
+     ```bash
+     sudo ip -s -s neigh flush all  # Linux
+     arp -d                          # Windows
+     ```
+
+3. **MetalLB speakers not running**
+   - **Fix:** Check speaker DaemonSet, ensure privileged namespace label:
+     ```bash
+     kubectl label namespace metallb-system pod-security.kubernetes.io/enforce=privileged --overwrite
+     kubectl rollout restart daemonset/metallb-speaker -n metallb-system
+     ```
+
+4. **L2 network segmentation**
+   - **Symptom:** Works from cluster/nodes but not from your machine
+   - **Cause:** Your machine and cluster nodes are on different VLANs or behind router
+   - **Fix:** Ensure L2 adjacency or use NodePort as workaround
+
+**Verify from cluster:**
+```bash
+# Test LoadBalancer IP works from inside cluster
+kubectl run -it --rm test --image=nicolaka/netshoot --restart=Never --overrides='{"spec":{"hostNetwork":true}}' -- curl -s http://10.0.0.215
+```
+
 ---
 
 ## Common Operations

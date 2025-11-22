@@ -307,6 +307,26 @@ less clusterconfig/talos-rao-brainiac-02.yaml
    nvme2n1   2.0 TB    Samsung SSD 990 PRO   ← Will be used for Longhorn
    ```
 
+### Step 4b: Remove MetalLB-Blocking Node Label (IMPORTANT)
+
+**⚠️ Critical for LoadBalancer Services**: Talos automatically adds the `node.kubernetes.io/exclude-from-external-load-balancers` label to control plane nodes in the generated configs. This label prevents MetalLB from using these nodes to announce LoadBalancer IPs, breaking external access to services.
+
+Since this cluster uses `allowSchedulingOnControlPlanes: true` and has no dedicated worker nodes, you **must** comment out this label before applying the configuration.
+
+**Edit the generated config** (`clusterconfig/talos-rao-brainiac-02.yaml`) and find the `nodeLabels` section (around line 48):
+
+```yaml
+machine:
+  nodeLabels:
+    # node.kubernetes.io/exclude-from-external-load-balancers: ""  ← COMMENT THIS OUT
+```
+
+**Why this is necessary**:
+- MetalLB L2 mode uses nodes to announce LoadBalancer IPs via ARP
+- The exclusion label tells MetalLB not to use these nodes
+- Without this change, LoadBalancer services (Portainer, ArgoCD, Longhorn UI, etc.) won't be accessible via their external IPs
+- This label is added by default for control plane nodes but doesn't apply to clusters where control planes also run workloads
+
 ### Step 5: Apply the Machine Configuration
 
 Apply the generated configuration to the new node. Since this is a fresh install, use the `--insecure` flag (the node doesn't trust the cluster CA yet):
@@ -662,6 +682,37 @@ Common issues when adding nodes and their solutions.
    ```bash
    talosctl -n 10.0.0.36 top
    ```
+
+### LoadBalancer Services Not Accessible
+
+**Symptoms**: MetalLB LoadBalancer IPs are assigned but not accessible from external machines (Longhorn UI, Portainer, ArgoCD, etc.)
+
+**Cause**: The `node.kubernetes.io/exclude-from-external-load-balancers` label on control plane nodes prevents MetalLB from announcing IPs via ARP.
+
+**Solutions**:
+
+1. Check if the label exists on nodes:
+   ```bash
+   kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.metadata.labels.node\.kubernetes\.io/exclude-from-external-load-balancers}{"\n"}{end}'
+   ```
+
+2. If the label is present (shows empty value), remove it:
+   ```bash
+   kubectl label node brainiac-00 brainiac-01 brainiac-02 node.kubernetes.io/exclude-from-external-load-balancers-
+   ```
+
+3. Verify MetalLB is announcing services:
+   ```bash
+   kubectl logs -n metallb-system daemonset/metallb-speaker --tail=50 | grep serviceAnnounced
+   ```
+
+4. Clear ARP cache on your machine to pick up new announcements:
+   ```bash
+   sudo ip -s -s neigh flush all  # Linux
+   arp -d  # Windows
+   ```
+
+**Prevention**: When applying new Talos configs or adding nodes, always comment out the `nodeLabels` section in the generated configs before applying (see Step 4b in Adding a New Control Plane Node).
 
 ## Upgrading a Node
 
