@@ -62,3 +62,17 @@ This project follows a set of conventions to maintain code quality and consisten
 *   **Manifest Validation:** All Kubernetes manifests are validated against their schemas using `kubeconform`. This is enforced in the CI pipeline.
 *   **Linting:** `yamllint` is used to enforce YAML best practices, with a custom configuration defined in `.yamllint.yaml`.
 *   **Secrets Management:** Secrets are managed outside of the repository using the Bitwarden Secrets Operator.
+
+## Current Cluster Status (as of 2025-11-21)
+
+The Talos cluster is currently undergoing maintenance.
+
+1.  **Objective:** Upgrade the Talos OS on the control plane nodes.
+2.  **Blocker:** An attempt to upgrade `brainiac-01` (10.0.0.35) was halted because it would cause the cluster to lose quorum.
+3.  **Resolution:** A new control plane node, `brainiac-02` (10.0.0.36), is being added to the cluster to ensure quorum is maintained during the rolling upgrade.
+4.  **Next Steps:**
+    *   Apply the machine configuration for `brainiac-02`. A configuration file exists at `talos/clusterconfig/talos-rao-brainiac-02.yaml`.
+    *   After `brainiac-02` joins the cluster, proceed with the upgrade of the other control plane nodes one at a time.
+5.  **Known Issue:** There is a recurring TLS certificate error when connecting to `brainiac-01` (`x509: certificate signed by unknown authority`). The `--insecure` flag for `talosctl` is being used as a temporary workaround.
+
+A detailed guide for these steps has been created in `talos/README.md`.

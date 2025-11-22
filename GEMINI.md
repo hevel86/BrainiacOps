@@ -1,64 +1,56 @@
-# Gemini Project: BrainiacOps
+# Gemini Code Assistant Context
+
+This document provides context for the Gemini Code Assistant to understand the `BrainiacOps` project.
 
 ## Project Overview
 
-This repository, BrainiacOps, is a GitOps-managed home lab running on a Kubernetes cluster. It uses an "app-of-apps" pattern with Argo CD to declaratively manage infrastructure, self-hosted applications, and media automation services.
+This is a GitOps repository for a home lab Kubernetes cluster. It uses a declarative, "app-of-apps" approach with Argo CD to manage the entire stack, from the underlying OS to a comprehensive suite of self-hosted applications.
 
-The core of the project is the `kubernetes` directory, which is organized into several subdirectories:
+- **Orchestration**: Kubernetes
+- **GitOps Controller**: Argo CD
+- **Operating System**: Talos
+- **Persistent Storage**: Longhorn
+- **Ingress**: Traefik
+- **Dependency Automation**: Renovate
+- **Secrets Management**: Bitwarden (via Bitwarden Secrets Operator)
+- **CI/CD**: GitHub Actions
+- **Tool Version Management**: mise + aqua
 
-*   `bootstrap`: Contains the initial manifests to install Argo CD and seed the app-of-apps controller.
-*   `infrastructure`: Manages cluster-level services such as Traefik for ingress, MetalLB for load balancing, Longhorn for persistent storage, and cert-manager for TLS certificates. It also includes monitoring tools like Kube Prometheus Stack and Gatus.
-*   `apps`: Contains user-facing applications, primarily for media automation. This includes popular services like Jellyfin, Plex, Radarr, Sonarr, and Transmission.
-*   `games`:  Holds configurations for game servers, such as Minecraft.
-*   `storage`: Defines PersistentVolumes for the media stack.
-*   `testing`: A sandbox for temporary experiments and benchmarks.
+The repository is structured into several key directories:
 
-The project emphasizes automation and security with tools like:
-
-*   **Renovate:** A self-hosted bot that automatically updates dependencies.
-*   **GitHub Actions:** Used for continuous integration to validate Kubernetes manifests with `kubeconform`.
-*   **Pre-commit hooks:** Enforce code quality and security by running `TruffleHog` to scan for secrets and `yamllint` to check for style issues.
-*   **Bitwarden Secrets Operator:** Injects secrets into the cluster, keeping sensitive data out of the Git repository.
+- `kubernetes/bootstrap`: Contains the initial Argo CD manifests to kickstart the GitOps process.
+- `kubernetes/infrastructure`: Manages all cluster-level services like storage (Longhorn), networking (Traefik, MetalLB), and monitoring.
+- `kubernetes/apps`: Contains all user-facing applications, primarily in the `default` namespace.
+- `kubernetes/games`: Holds configurations for game servers.
+- `talos`: Defines the immutable OS configuration for the Kubernetes nodes.
 
 ## Building and Running
 
-To bootstrap a new cluster with this GitOps setup, follow these steps:
+This is a GitOps repository, so there is no traditional "build" process. Changes are applied by pushing commits to the main branch of this repository. Argo CD monitors the repository and automatically syncs any changes to the Kubernetes cluster.
 
-1.  **Create the Argo CD namespace:**
-    ```bash
-    kubectl apply -f kubernetes/bootstrap/argocd-namespace.yaml
-    ```
-
-2.  **Install Argo CD:**
-    ```bash
-    kubectl apply -k kubernetes/bootstrap/argocd-install
-    ```
-
-3.  **Seed the infrastructure app-of-apps:**
-    ```bash
-    kubectl apply -f kubernetes/bootstrap/infrastructure-app.yaml
-    ```
-
-4.  **(Optional) Enable application trees:**
-    ```bash
-    kubectl apply -f kubernetes/bootstrap/apps-app.yaml
-    kubectl apply -f kubernetes/bootstrap/apps-external-app.yaml
-    ```
-
-Once these steps are completed, Argo CD will take over and continuously reconcile the state of the cluster with the manifests in this repository.
+A GitHub Actions workflow (`.github/workflows/kubeconform.yml`) validates all Kubernetes manifests against their schemas using `kubeconform` on every push and pull request.
 
 ## Development Conventions
 
-This project follows a set of conventions to maintain code quality and consistency:
+- **Configuration Management**: Kubernetes manifests are managed using Kustomize. The "app-of-apps" pattern is used extensively, with parent Argo CD `Application` resources that recursively manage child applications.
+- **Dependency Updates**: Renovate (`renovate.json5`) is configured to automatically create pull requests for updates to:
+    - Docker image tags in Kubernetes manifests.
+    - Helm chart versions in Argo CD Applications.
+    - CLI tool versions in `.mise.toml`.
+- **Tooling**: The `.mise.toml` file defines the exact versions of the command-line tools required for this project. These tools are installed and managed via `mise` and `aqua`.
+- **Secrets**: Secrets are not stored in the repository. They are managed by the Bitwarden Secrets Operator, which injects them into the cluster at runtime.
+- **Shared Resources**: The `kubernetes/apps/default/_shared` directory contains an Argo CD application for managing resources that are shared across multiple applications in the `default` namespace.
+- **Sync Waves**: Argo CD sync waves are used in application annotations (`argocd.argoproj.io/sync-wave`) to control the deployment order of resources. For example, infrastructure components like Longhorn have a lower sync wave (`"0"`) to ensure they are deployed before applications that depend on them.
 
-*   **Kustomize:** Used extensively to manage Kubernetes configurations, with a preference for overlays and shared bases (`_shared` directory) to reduce duplication.
-*   **Pre-commit Hooks:** Before committing any changes, a pre-commit hook runs to:
-    *   Scan for secrets using `TruffleHog`.
-    *   Ensure YAML files have a trailing newline to comply with `yamllint` rules.
-    To enable the hooks, run:
-    ```bash
-    git config core.hooksPath .githooks
-    ```
-*   **Manifest Validation:** All Kubernetes manifests are validated against their schemas using `kubeconform`. This is enforced in the CI pipeline.
-*   **Linting:** `yamllint` is used to enforce YAML best practices, with a custom configuration defined in `.yamllint.yaml`.
-*   **Secrets Management:** Secrets are managed outside of the repository using the Bitwarden Secrets Operator.
+## Current Status (as of 2025-11-21)
+
+The user is in the process of upgrading the Talos cluster.
+
+1.  **Problem:** An attempt to upgrade the `brainiac-01` control plane node (10.0.0.35) was blocked because it would cause a loss of quorum.
+2.  **Solution:** A new control plane node, `brainiac-02` (10.0.0.36), is being added to the cluster to establish quorum before proceeding with the upgrade.
+3.  **Next Steps:**
+    *   Apply the machine configuration for `brainiac-02` using `talosctl apply-config`. A `talos/clusterconfig/talos-rao-brainiac-02.yaml` file already exists.
+    *   Once the new node is online and the cluster is healthy, proceed with the upgrade of `brainiac-01` using `talosctl upgrade`.
+4.  **Note:** There is a recurring `x509: certificate signed by unknown authority` error when connecting to `brainiac-01`. The `--insecure` flag is being used as a temporary workaround.
+
+A `talos/README.md` file has been created to document these steps.
