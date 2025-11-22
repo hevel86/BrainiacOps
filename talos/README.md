@@ -7,6 +7,7 @@ This document provides comprehensive guidance for managing the Talos Linux clust
 - [Cluster Overview](#cluster-overview)
 - [Prerequisites](#prerequisites)
 - [Configuration Files Structure](#configuration-files-structure)
+- [Understanding Factory Images and Installer URLs](#understanding-factory-images-and-installer-urls)
 - [Adding a New Control Plane Node](#adding-a-new-control-plane-node)
 - [System Configuration](#system-configuration)
 - [Verification and Health Checks](#verification-and-health-checks)
@@ -134,6 +135,74 @@ clusterconfig/*.yaml (machine configs)
     Talos Node Configuration
 ```
 
+## Understanding Factory Images and Installer URLs
+
+Talos supports two types of installer images, and understanding the difference is critical to avoid losing system extensions during installation.
+
+### Base Installer vs. Factory Installer
+
+**Base Installer** (`ghcr.io/siderolabs/installer`):
+- Generic Talos installer without any system extensions
+- Smaller image size
+- Extensions must be added after installation via upgrade
+
+**Factory Installer** (`factory.talos.dev/installer/<schematic-id>`):
+- Custom-built installer with specific system extensions baked in
+- Extensions persist through installation and reboot
+- Larger image but eliminates need for post-install upgrade
+
+### How Schematic IDs Work
+
+A **schematic ID** is a unique hash that identifies a specific set of system extensions. For this cluster, the schematic ID is:
+
+```
+284a1fe978ff4e6221a0e95fc1d01278bab28729adcb54bb53f7b0d3f2951dcc
+```
+
+This schematic includes all 9 system extensions defined in `talconfig.yaml`:
+- siderolabs/i915
+- siderolabs/intel-ice-firmware
+- siderolabs/intel-ucode
+- siderolabs/iscsi-tools
+- siderolabs/mei
+- siderolabs/nut-client
+- siderolabs/nvme-cli
+- siderolabs/thunderbolt
+- siderolabs/util-linux-tools
+
+### Configured Installer Image
+
+This cluster is configured to use the factory installer with extensions:
+
+```yaml
+# In talconfig.yaml
+talosImageURL: factory.talos.dev/installer/284a1fe978ff4e6221a0e95fc1d01278bab28729adcb54bb53f7b0d3f2951dcc
+```
+
+When `talhelper genconfig` runs, it embeds this factory URL into the generated machine configs. When you apply the config with `talosctl apply-config`, Talos installs using the factory image, ensuring all extensions are present from the first boot.
+
+### Finding Your Schematic ID
+
+You can find your schematic ID in two places:
+
+1. **Factory ISO URL**: The schematic ID is in the URL you use to download the boot ISO from factory.talos.dev
+2. **Generated machine configs**: Look for the `image:` field in files like `clusterconfig/talos-rao-brainiac-02.yaml`
+
+### Common Pitfall: Extensions Disappearing After Installation
+
+**Symptom**: You boot from a factory ISO with extensions, apply the machine config, but after the first reboot the extensions are gone and you need to run `talosctl upgrade` to get them back.
+
+**Cause**: The `talosImageURL` in `talconfig.yaml` is set to the base installer (`ghcr.io/siderolabs/installer`) instead of the factory installer with your schematic ID.
+
+**Solution**: Ensure `talconfig.yaml` uses the factory installer URL:
+
+```yaml
+controlPlane:
+  talosImageURL: factory.talos.dev/installer/284a1fe978ff4e6221a0e95fc1d01278bab28729adcb54bb53f7b0d3f2951dcc
+```
+
+Then regenerate machine configs with `talhelper genconfig` and apply the updated configuration.
+
 ## Adding a New Control Plane Node
 
 This section documents the complete workflow for adding a new control plane node to the cluster. This example uses `brainiac-02` (10.0.0.36) as the new node.
@@ -195,6 +264,9 @@ This command:
 2. Decrypts secrets using your age key
 3. Generates individual machine configs in `clusterconfig/`
 4. Creates a new `talosconfig` file for talosctl
+5. Embeds the factory installer URL (with schematic ID) into each machine config
+
+**Important**: Because `talosImageURL` in `talconfig.yaml` points to the factory installer with extensions, the generated machine configs will instruct Talos to install using that factory image. This ensures system extensions persist through installation without requiring a post-install upgrade.
 
 **Verify the generated configuration**:
 ```bash
@@ -447,6 +519,51 @@ Common issues when adding nodes and their solutions.
 1. Verify the node IP was added to `additionalApiServerCertSans`
 2. Regenerate configs with `talhelper genconfig`
 3. Reapply the configuration
+
+### Extensions Disappearing After Installation
+
+**Symptoms**: You boot from a factory ISO that includes system extensions, apply the machine config, but after the first reboot all extensions are gone. Running `talosctl -n <node-ip> get extensions` shows no extensions installed.
+
+**Cause**: The `talosImageURL` in `talconfig.yaml` is configured to use the base installer (`ghcr.io/siderolabs/installer`) instead of the factory installer with your schematic ID.
+
+**What's happening**:
+1. You boot from factory ISO with extensions (e.g., `factory.talos.dev/metal-iso/...`)
+2. You apply machine config via `talosctl apply-config`
+3. Talos installs to disk using the installer image specified in the machine config
+4. If the machine config references the base installer, it installs without extensions
+5. After reboot, extensions are gone because they weren't in the installed image
+
+**Solutions**:
+
+1. **Update talconfig.yaml** to use the factory installer URL:
+   ```yaml
+   controlPlane:
+     talosImageURL: factory.talos.dev/installer/284a1fe978ff4e6221a0e95fc1d01278bab28729adcb54bb53f7b0d3f2951dcc
+   ```
+
+2. **Regenerate machine configs**:
+   ```bash
+   cd talos
+   talhelper genconfig
+   ```
+
+3. **Verify the generated config** includes the factory URL:
+   ```bash
+   grep "image:" clusterconfig/talos-rao-brainiac-02.yaml
+   # Should show: factory.talos.dev/installer/...
+   ```
+
+4. **Reapply the configuration** to the node:
+   ```bash
+   talosctl apply-config --insecure --nodes 10.0.0.36 --file clusterconfig/talos-rao-brainiac-02.yaml
+   ```
+
+5. **Verify extensions after reboot**:
+   ```bash
+   talosctl -n 10.0.0.36 get extensions
+   ```
+
+**Prevention**: Always ensure `talosImageURL` in `talconfig.yaml` uses the factory installer URL with your schematic ID. See the [Understanding Factory Images and Installer URLs](#understanding-factory-images-and-installer-urls) section for more details.
 
 ### Disk Not Found
 
