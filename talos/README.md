@@ -291,9 +291,20 @@ less clusterconfig/talos-rao-brainiac-02.yaml
    ping 10.0.0.36
    ```
 
-3. **Verify Disk Layout**: Optionally, you can check the disk layout before applying config:
+3. **Verify Disk Layout**: Check the available disks before applying the configuration to ensure the correct disk will be selected for installation:
    ```bash
-   talosctl -n 10.0.0.36 --insecure disks
+   talosctl get disks --nodes 10.0.0.36 --insecure
+   ```
+
+   Look for:
+   - **System disk**: An NVMe disk <= 600GB (e.g., 256GB-512GB) will be selected for OS installation
+   - **Storage disks**: Any disks >= 1.5TB will be automatically provisioned for Longhorn storage
+   - **Unwanted disks**: If you see any disks that shouldn't be in the system, power down and physically remove them before proceeding
+
+   Example output:
+   ```
+   nvme0n1   500 GB    WD Red SN700          ← Will be used for system install
+   nvme2n1   2.0 TB    Samsung SSD 990 PRO   ← Will be used for Longhorn
    ```
 
 ### Step 5: Apply the Machine Configuration
@@ -336,6 +347,27 @@ kubectl get nodes -w
 ```
 
 Wait for the node to appear as `Ready` in kubectl output.
+
+### Step 7: Verify System Extensions
+
+After the node is running, verify that all system extensions are present (confirming the factory installer worked correctly):
+
+```bash
+talosctl -n 10.0.0.36 get extensions
+```
+
+You should see all 9 system extensions listed:
+- siderolabs/i915
+- siderolabs/intel-ice-firmware
+- siderolabs/intel-ucode
+- siderolabs/iscsi-tools
+- siderolabs/mei
+- siderolabs/nut-client
+- siderolabs/nvme-cli
+- siderolabs/thunderbolt
+- siderolabs/util-linux-tools
+
+**Important**: If extensions are missing at this stage, it means the factory installer URL in `talconfig.yaml` is not configured correctly. See the [Extensions Disappearing After Installation](#extensions-disappearing-after-installation) troubleshooting section.
 
 ## System Configuration
 
