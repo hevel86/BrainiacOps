@@ -94,6 +94,19 @@ controlPlane:
           install:
             wipe: true
         cluster:
+          apiServer:
+            admissionControl:
+              - name: PodSecurity
+                configuration:
+                  apiVersion: pod-security.admission.config.k8s.io/v1alpha1
+                  kind: PodSecurityConfiguration
+                  defaults:
+                    enforce: privileged
+                    enforce-version: latest
+                    audit: restricted
+                    audit-version: latest
+                    warn: restricted
+                    warn-version: latest
           discovery:
             enabled: true
             registries:
