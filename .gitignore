@@ -67,3 +67,5 @@ kubernetes/infrastructure/nvidia/nvidia-smi-test.yaml
 logs/
 *.log
 talos/talconfig.json
+talos/og-example.yaml
+talconfig.json
