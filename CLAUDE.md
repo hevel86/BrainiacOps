@@ -301,6 +301,7 @@ kustomize build kubernetes/apps/default/myapp | kubeconform -strict -
 ## Important Files
 
 - `README.md` - Project overview
+- `deployment.md` - **Comprehensive deployment guide (bootstrap, troubleshooting, operations)**
 - `talos/README.md` - **Comprehensive Talos management guide (22KB)**
 - `renovate.json5` - Dependency automation strategy
 - `.mise.toml` - Tool versions

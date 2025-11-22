@@ -71,6 +71,8 @@ kubectl apply -f kubernetes/bootstrap/apps-external-app.yaml
 
 Once these steps are completed, Argo CD will take over and continuously reconcile the state of the cluster with the manifests in this repository.
 
+**For comprehensive deployment instructions, troubleshooting, and operational guidance, see [deployment.md](deployment.md).**
+
 ## Mise En Place Tooling
 
 The repository ships with a [mise](https://mise.jdx.dev/) configuration (`.mise.toml`) that relies on the built-in [aquaproj/aqua](https://aquaproj.github.io/) backend for static CLI downloads—`kubectl`, `kustomize`, `helm`, `talhelper`, `talosctl`, `kubeconform`, `sops`, and `age`—plus `yamllint` via `pipx`. No manual plugin installs are required. It also wires environment variables for:
