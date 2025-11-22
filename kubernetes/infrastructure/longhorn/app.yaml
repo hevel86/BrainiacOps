@@ -29,9 +29,9 @@ spec:
         persistence:
           reclaimPolicy: Retain
           defaultClass: true
-          defaultClassReplicaCount: 1
+          defaultClassReplicaCount: 3
         defaultSettings:
-          defaultReplicaCount: '1'
+          defaultReplicaCount: '3'
           defaultDataPath: /var/mnt/longhorn
           createDefaultDiskLabeledNodes: true
         longhornUI:
