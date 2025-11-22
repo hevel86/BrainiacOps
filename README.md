@@ -35,7 +35,7 @@ Automation is a core principle, with Renovate for dependency updates, GitHub Act
     - metrics-server for resource metrics.
 - **Security Guardrails**:
     - **Secret Management**: Bitwarden Secrets Operator injects credentials securely, keeping sensitive data out of Git.
-    - **Supply Chain Security**: Pre-commit hooks with TruffleHog scan for secrets, and Renovate keeps dependencies up-to-date.
+    - **Supply Chain Security**: Pre-commit hooks enforce YAML formatting, and Renovate keeps dependencies up-to-date.
 - **Testing Sandboxes**: The `kubernetes/testing` directory provides a space for temporary workloads, benchmarks, and experiments without affecting production namespaces.
 
 ## Repository Layout
@@ -47,7 +47,7 @@ Automation is a core principle, with Renovate for dependency updates, GitHub Act
 - `kubernetes/storage/`: Defines PersistentVolumes for the media stack, ensuring data persistence across pod restarts.
 - `kubernetes/testing/`: A sandbox for temporary experiments, benchmark jobs, and validation manifests.
 - `.github/workflows/`: Contains CI pipelines, including a `kubeconform` workflow to validate all Kubernetes manifests against their schemas.
-- `.githooks/`: Includes custom Git hooks that run on pre-commit to scan for secrets with TruffleHog and enforce YAML linting rules.
+- `.githooks/`: Includes a custom Git hook that runs on pre-commit to enforce YAML linting rules.
 - `renovate.json5`: The configuration for the Renovate bot, defining how dependencies are updated, grouped, and managed.
 
 ## GitOps Bootstrap
@@ -95,7 +95,6 @@ This project follows a set of conventions to maintain code quality and consisten
 - **Mise En Place**: Use `.mise.toml` to install and pin CLI dependencies (via aqua + pipx) and to provide consistent environment configuration for `KUBECONFIG`, `TALOSCONFIG`, and `SOPS_AGE_KEY_FILE`.
 - **Kustomize:** Used extensively to manage Kubernetes configurations, with a preference for overlays and shared bases (`_shared` directory) to reduce duplication.
 - **Pre-commit Hooks:** Before committing any changes, a pre-commit hook runs to:
-    - Scan for secrets using `TruffleHog`.
     - Ensure YAML files have a trailing newline to comply with `yamllint` rules.
     To enable the hooks, run:
     ```bash

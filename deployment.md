@@ -1018,7 +1018,6 @@ argocd app sync myapp --dry-run
 **Never commit secrets to Git:**
 - All runtime secrets use Bitwarden Secrets Operator
 - Talos secrets encrypted with SOPS + age
-- Pre-commit hooks scan for secrets with TruffleHog
 
 **Encrypted secrets (SOPS):**
 ```bash

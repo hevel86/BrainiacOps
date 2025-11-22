@@ -189,9 +189,8 @@ All PRs are validated by kubeconform CI before merge.
 ### Pre-commit Security
 
 On `git commit`:
-1. TruffleHog scans for secrets in staged files
-2. YAML files checked for trailing newlines
-3. Commit fails if secrets detected or YAML invalid
+1. YAML files checked for trailing newlines
+2. Commit fails if YAML invalid
 
 ## Current Cluster Details
 
@@ -330,7 +329,7 @@ sops -d talos/talsecret.sops.yaml
 
 ## Summary
 
-BrainiacOps is a GitOps repository where all cluster state is declared in Git. Changes flow: Git → Argo CD → Kubernetes. The system is automation-heavy (Renovate, GitHub Actions, pre-commit hooks) and security-conscious (no secrets in Git, TruffleHog scanning). Refer to `talos/README.md` for operational procedures—it contains 22KB of detailed documentation on node management, troubleshooting, and best practices.
+BrainiacOps is a GitOps repository where all cluster state is declared in Git. Changes flow: Git → Argo CD → Kubernetes. The system is automation-heavy (Renovate, GitHub Actions, pre-commit hooks) and security-conscious (no secrets in Git). Refer to `talos/README.md` for operational procedures—it contains 22KB of detailed documentation on node management, troubleshooting, and best practices.
 
 **Most common tasks**:
 - Adding apps: Create `kubernetes/apps/default/myapp/app.yaml`

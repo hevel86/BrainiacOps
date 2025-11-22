@@ -17,7 +17,7 @@ The project emphasizes automation and security with tools like:
 
 *   **Renovate:** A self-hosted bot that automatically updates dependencies.
 *   **GitHub Actions:** Used for continuous integration to validate Kubernetes manifests with `kubeconform`.
-*   **Pre-commit hooks:** Enforce code quality and security by running `TruffleHog` to scan for secrets and `yamllint` to check for style issues.
+*   **Pre-commit hooks:** Enforce YAML style basics (final newline) to keep `yamllint` happy.
 *   **Bitwarden Secrets Operator:** Injects secrets into the cluster, keeping sensitive data out of the Git repository.
 
 ## Building and Running
@@ -53,7 +53,6 @@ This project follows a set of conventions to maintain code quality and consisten
 
 *   **Kustomize:** Used extensively to manage Kubernetes configurations, with a preference for overlays and shared bases (`_shared` directory) to reduce duplication.
 *   **Pre-commit Hooks:** Before committing any changes, a pre-commit hook runs to:
-    *   Scan for secrets using `TruffleHog`.
     *   Ensure YAML files have a trailing newline to comply with `yamllint` rules.
     To enable the hooks, run:
     ```bash
