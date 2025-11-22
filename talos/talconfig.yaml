@@ -32,7 +32,7 @@ nodes:
       size: "<= 600GB"
       type: "nvme"
 controlPlane:
-  talosImageURL: ghcr.io/siderolabs/installer
+  talosImageURL: factory.talos.dev/installer/284a1fe978ff4e6221a0e95fc1d01278bab28729adcb54bb53f7b0d3f2951dcc
   schematic:
     customization:
       systemExtensions:
