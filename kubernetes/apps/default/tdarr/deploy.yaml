@@ -1,0 +1,109 @@
+# kubernetes/apps/default/tdarr/deploy.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tdarr
+  namespace: default
+  labels:
+    app: tdarr
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: tdarr
+  template:
+    metadata:
+      labels:
+        app: tdarr
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: tdarr
+          image: ghcr.io/haveagitgat/tdarr:2.58.02
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: web
+              containerPort: 8265
+              protocol: TCP
+            - name: server
+              containerPort: 8266
+              protocol: TCP
+            - name: node
+              containerPort: 8267
+              protocol: TCP
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "America/New_York"
+            - name: serverIP
+              value: "0.0.0.0"
+            - name: serverPort
+              value: "8266"
+            - name: webUIPort
+              value: "8265"
+            - name: nodePort
+              value: "8267"
+            - name: internalNode
+              value: "true"
+          resources:
+            requests:
+              gpu.intel.com/i915: "1"
+              cpu: 1000m
+              memory: "4Gi"
+            limits:
+              gpu.intel.com/i915: "1"
+          volumeMounts:
+            - name: config
+              mountPath: /app/server
+              subPath: server
+            - name: config
+              mountPath: /app/configs
+              subPath: configs
+            - name: config
+              mountPath: /app/logs
+              subPath: logs
+            - name: config
+              mountPath: /app/plugins
+              subPath: plugins
+            - name: cache
+              mountPath: /temp
+            - name: movies
+              mountPath: /media/movies
+            - name: tv
+              mountPath: /media/tv
+            - name: downloads
+              mountPath: /downloads
+          readinessProbe:
+            httpGet:
+              path: /
+              port: web
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: web
+            initialDelaySeconds: 60
+            periodSeconds: 20
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: tdarr-config
+        - name: cache
+          persistentVolumeClaim:
+            claimName: tdarr-cache
+        - name: movies
+          persistentVolumeClaim:
+            claimName: media-movies-pvc
+        - name: tv
+          persistentVolumeClaim:
+            claimName: media-tv-pvc
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: sabnzbd-downloads-pvc
