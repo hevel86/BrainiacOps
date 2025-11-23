@@ -11,13 +11,30 @@ spec:
       storage: 20Gi
 ---
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: tdarr-cache-pv
+spec:
+  capacity:
+    storage: 2Ti
+  accessModes: ["ReadWriteMany"]
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  volumeMode: Filesystem
+  nfs:
+    server: truenas-nfs.torquasmvo.internal
+    path: /mnt/media/tdarr_temp
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: tdarr-cache
   namespace: default
 spec:
-  accessModes: ["ReadWriteOnce"]
-  storageClassName: longhorn
+  accessModes: ["ReadWriteMany"]
   resources:
     requests:
-      storage: 200Gi
+      storage: 2Ti
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: tdarr-cache-pv
