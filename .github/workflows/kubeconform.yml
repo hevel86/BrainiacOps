@@ -24,30 +24,21 @@ jobs:
   kubeconform:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
         with:
           # Fetch all history for all branches and tags for the tj-actions/changed-files action
           fetch-depth: 0
       - name: Get changed Kubernetes YAML files
         id: changed-files
-        uses: tj-actions/changed-files@v47
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47
         with:
           files: |
             kubernetes/**/*.yaml
-      - name: Install kubeconform
-        run: |
-          curl -sSL -o kubeconform.tar.gz https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz
-          tar -xzf kubeconform.tar.gz kubeconform
-          sudo mv kubeconform /usr/local/bin/
       - name: Validate changed manifests with kubeconform
         if: steps.changed-files.outputs.any_changed == 'true'
-        env:
-          CHANGED: ${{ steps.changed-files.outputs.all_changed_files }}
-        run: |
-          for f in $CHANGED; do
-            echo "Validating $f";
-            kubeconform -strict -ignore-missing-schemas "$f";
-          done
+        uses: docker://ghcr.io/yannh/kubeconform:v0.7.0@sha256:7426d17ca19f3731d2a6287c868005f052f2682800141f20e83d3109f5c8faa1
+        with:
+          args: -strict -ignore-missing-schemas -summary ${{ steps.changed-files.outputs.all_changed_files }}
       - name: No Kubernetes YAML changes
         if: steps.changed-files.outputs.any_changed != 'true'
         run: echo "No kubernetes YAML changes detected. Skipping kubeconform."
