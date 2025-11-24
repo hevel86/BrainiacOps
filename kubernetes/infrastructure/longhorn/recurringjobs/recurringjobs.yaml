@@ -38,9 +38,9 @@ spec:
     - default
 ---
 # apiVersion: longhorn.io/v1beta2
-# kind: Setting
-# metadata:
-#   # Ensure restored volumes keep any recurring job assignments
-#   name: restore-volume-recurring-job
-#   namespace: longhorn-system
-# value: "true"
+kind: Setting
+metadata:
+  # Ensure restored volumes keep any recurring job assignments
+  name: restore-volume-recurring-job
+  namespace: longhorn-system
+value: "true"
