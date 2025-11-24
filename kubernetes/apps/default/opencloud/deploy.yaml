@@ -96,7 +96,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: opencloud
-          image: opencloudeu/opencloud-rolling:latest
+          image: opencloudeu/opencloud-rolling:3.7.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 9200
