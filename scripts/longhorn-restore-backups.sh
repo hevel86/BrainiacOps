@@ -68,6 +68,17 @@ while IFS=$'\t' read -r VOL_NAME BACKUP_VOLUME LAST_BACKUP SIZE_BYTES STORAGE_CL
   fi
 
   PV_NAME="pv-${PVC_NS}-${PVC_NAME}"
+  PVC_EXISTS=0
+  if kubectl -n "$PVC_NS" get pvc "$PVC_NAME" >/dev/null 2>&1; then
+    PVC_EXISTS=1
+    EXISTING_PV_NAME="$(kubectl -n "$PVC_NS" get pvc "$PVC_NAME" -o jsonpath='{.spec.volumeName}' 2>/dev/null || true)"
+    if [[ -n "$EXISTING_PV_NAME" ]]; then
+      PV_NAME="$EXISTING_PV_NAME"
+      log "PVC ${PVC_NS}/${PVC_NAME} exists; reusing bound PV name ${PV_NAME}"
+    else
+      log "PVC ${PVC_NS}/${PVC_NAME} exists without a bound PV; using PV name ${PV_NAME}"
+    fi
+  fi
   RJG_LABEL_KEY="recurring-job-group.longhorn.io/${RECURRING_JOB_GROUP}"
   if [[ "$USE_BACKUP_VOLUME_NAME" -eq 1 ]]; then
     RESTORE_VOLUME="${VOL_NAME}"
@@ -130,7 +141,8 @@ EOF
     log "PV $PV_NAME already exists; skipping PV create"
   fi
 
-  cat <<EOF | kubectl apply -f -
+  if [[ "$PVC_EXISTS" -eq 0 ]]; then
+    cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -146,6 +158,9 @@ spec:
   volumeMode: Filesystem
   volumeName: ${PV_NAME}
 EOF
+  else
+    log "PVC ${PVC_NS}/${PVC_NAME} already exists; skipping PVC create"
+  fi
 
   log "Ensuring recurring job group label '${RECURRING_JOB_GROUP}' on volume ${RESTORE_VOLUME}"
   kubectl -n longhorn-system patch volume "${RESTORE_VOLUME}" --type=merge -p "$(jq -n --arg k "${RJG_LABEL_KEY}" '{"metadata":{"labels":{($k):"enabled"}}}')" || log "Warning: failed to set recurring job group on ${RESTORE_VOLUME}"
