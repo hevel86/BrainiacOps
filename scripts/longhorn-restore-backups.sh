@@ -3,7 +3,7 @@ set -euo pipefail
 
 BACKUP_TARGET="${BACKUP_TARGET:-nfs://truenas1-nfs.torquasmvo.internal:/mnt/fast/longhorn-backup}"
 EXECUTE=0
-USE_BACKUP_VOLUME_NAME=0
+USE_BACKUP_VOLUME_NAME=1
 RECURRING_JOB_GROUP="${RECURRING_JOB_GROUP:-prod}"
 FRONTEND="${FRONTEND:-blockdev}"
 
@@ -16,8 +16,7 @@ Set RECURRING_JOB_GROUP env var to pick a recurring job group (default: prod).
 Set FRONTEND env var if you need a different Longhorn frontend (default: blockdev).
 
   --execute                  Perform the restore (create Volume/PV/PVC). Otherwise dry-run.
-  --use-backup-volume-name   Restore with the original Longhorn volume name ("Use Previous Name" in UI).
-                             Default is to use the PVC name for the restored volume.
+  --use-backup-volume-name   Restore with the original Longhorn volume name ("Use Previous Name" in UI). (default)
 EOF
 }
 
