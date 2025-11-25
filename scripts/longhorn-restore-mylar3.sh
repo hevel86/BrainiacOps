@@ -7,12 +7,14 @@ USE_BACKUP_VOLUME_NAME=1
 TARGET_PVC="mylar3-config-pvc-lh"
 TARGET_NS="default"
 FRONTEND="blockdev"
+RECURRING_JOB_GROUP="${RECURRING_JOB_GROUP:-prod}"
 
 usage() {
   cat <<EOF
 Usage: $0 [--execute] [--use-backup-volume-name]
 Restore ONLY the mylar3 volume from its latest Longhorn backup on the NFS target.
 Defaults to dry-run (no changes). Set BACKUP_TARGET env var to override target.
+Set RECURRING_JOB_GROUP env var to pick a recurring job group (default: prod).
 
   --execute                  Perform the restore (create Volume/PV/PVC). Otherwise dry-run.
   --use-backup-volume-name   Restore with the original Longhorn volume name ("Use Previous Name" in UI). (default)
@@ -64,6 +66,7 @@ while IFS=$'\t' read -r VOL_NAME BACKUP_VOLUME LAST_BACKUP SIZE_BYTES STORAGE_CL
   esac
 
   PV_NAME="pv-${PVC_NS}-${PVC_NAME}"
+  RJG_LABEL_KEY="recurring-job-group.longhorn.io/${RECURRING_JOB_GROUP}"
   if [[ "$USE_BACKUP_VOLUME_NAME" -eq 1 ]]; then
     RESTORE_VOLUME="${VOL_NAME}"
   else
@@ -72,7 +75,7 @@ while IFS=$'\t' read -r VOL_NAME BACKUP_VOLUME LAST_BACKUP SIZE_BYTES STORAGE_CL
   FROM_BACKUP="${BACKUP_TARGET}?volume=${VOL_NAME}&backup=${LAST_BACKUP}"
   STORAGE_GI="$(( (SIZE_BYTES + (1<<30) - 1) / (1<<30) ))Gi"
 
-  log "Volume: $RESTORE_VOLUME | PVC: ${PVC_NS}/${PVC_NAME} | StorageClass: $STORAGE_CLASS | AccessMode: $ACCESS_MODE | Size: $STORAGE_GI | LatestBackup: $LAST_BACKUP | SourceVol: $VOL_NAME"
+  log "Volume: $RESTORE_VOLUME | PVC: ${PVC_NS}/${PVC_NAME} | StorageClass: $STORAGE_CLASS | AccessMode: $ACCESS_MODE | Size: $STORAGE_GI | LatestBackup: $LAST_BACKUP | SourceVol: $VOL_NAME | RecurringJobGroup: $RECURRING_JOB_GROUP"
 
   if [[ "$EXECUTE" -eq 0 ]]; then
     continue
@@ -87,6 +90,8 @@ kind: Volume
 metadata:
   name: ${RESTORE_VOLUME}
   namespace: longhorn-system
+  labels:
+    ${RJG_LABEL_KEY}: enabled
 spec:
   fromBackup: ${FROM_BACKUP}
   numberOfReplicas: 3
@@ -146,6 +151,6 @@ if [[ "$EXECUTE" -eq 0 ]]; then
   log "Dry-run complete. Re-run with --execute to perform the mylar3 restore."
 else
   log "Mylar3 restore completed."
-  log "Assigning Longhorn recurring job group 'prod' to volume ${RESTORE_VOLUME}"
-  kubectl -n longhorn-system patch volume "${RESTORE_VOLUME}" --type=merge -p '{"spec":{"recurringJobSelector":[{"name":"prod"}]}}' || log "Warning: failed to set recurring job group on ${RESTORE_VOLUME}"
+  log "Assigning Longhorn recurring job group '${RECURRING_JOB_GROUP}' to volume ${RESTORE_VOLUME}"
+  kubectl -n longhorn-system patch volume "${RESTORE_VOLUME}" --type=merge -p "$(jq -n --arg k "${RJG_LABEL_KEY}" '{"metadata":{"labels":{($k):"enabled"}}}')" || log "Warning: failed to set recurring job group on ${RESTORE_VOLUME}"
 fi
