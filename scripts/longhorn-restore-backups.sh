@@ -4,12 +4,16 @@ set -euo pipefail
 BACKUP_TARGET="${BACKUP_TARGET:-nfs://truenas1-nfs.torquasmvo.internal:/mnt/fast/longhorn-backup}"
 EXECUTE=0
 USE_BACKUP_VOLUME_NAME=0
+RECURRING_JOB_GROUP="${RECURRING_JOB_GROUP:-prod}"
+FRONTEND="${FRONTEND:-blockdev}"
 
 usage() {
   cat <<EOF
 Usage: $0 [--execute] [--use-backup-volume-name]
 Restore Longhorn volumes from latest backups on the configured NFS target.
 Defaults to dry-run (no changes). Set BACKUP_TARGET env var to override target.
+Set RECURRING_JOB_GROUP env var to pick a recurring job group (default: prod).
+Set FRONTEND env var if you need a different Longhorn frontend (default: blockdev).
 
   --execute                  Perform the restore (create Volume/PV/PVC). Otherwise dry-run.
   --use-backup-volume-name   Restore with the original Longhorn volume name ("Use Previous Name" in UI).
@@ -65,6 +69,7 @@ while IFS=$'\t' read -r VOL_NAME BACKUP_VOLUME LAST_BACKUP SIZE_BYTES STORAGE_CL
   fi
 
   PV_NAME="pv-${PVC_NS}-${PVC_NAME}"
+  RJG_LABEL_KEY="recurring-job-group.longhorn.io/${RECURRING_JOB_GROUP}"
   if [[ "$USE_BACKUP_VOLUME_NAME" -eq 1 ]]; then
     RESTORE_VOLUME="${VOL_NAME}"
   else
@@ -73,7 +78,7 @@ while IFS=$'\t' read -r VOL_NAME BACKUP_VOLUME LAST_BACKUP SIZE_BYTES STORAGE_CL
   FROM_BACKUP="${BACKUP_TARGET}?volume=${VOL_NAME}&backup=${LAST_BACKUP}"
   STORAGE_GI="$(( (SIZE_BYTES + (1<<30) - 1) / (1<<30) ))Gi"
 
-  log "Volume: $RESTORE_VOLUME | PVC: ${PVC_NS}/${PVC_NAME} | StorageClass: $STORAGE_CLASS | AccessMode: $ACCESS_MODE | Size: $STORAGE_GI | LatestBackup: $LAST_BACKUP | SourceVol: $VOL_NAME"
+  log "Volume: $RESTORE_VOLUME | PVC: ${PVC_NS}/${PVC_NAME} | StorageClass: $STORAGE_CLASS | AccessMode: $ACCESS_MODE | Size: $STORAGE_GI | LatestBackup: $LAST_BACKUP | SourceVol: $VOL_NAME | RecurringJobGroup: $RECURRING_JOB_GROUP"
 
   if [[ "$EXECUTE" -eq 0 ]]; then
     continue
@@ -88,10 +93,13 @@ kind: Volume
 metadata:
   name: ${RESTORE_VOLUME}
   namespace: longhorn-system
+  labels:
+    ${RJG_LABEL_KEY}: enabled
 spec:
   fromBackup: ${FROM_BACKUP}
   numberOfReplicas: 3
   staleReplicaTimeout: 30
+  frontend: ${FRONTEND}
 EOF
   else
     log "Volume $RESTORE_VOLUME already exists; skipping volume create"
@@ -139,6 +147,9 @@ spec:
   volumeMode: Filesystem
   volumeName: ${PV_NAME}
 EOF
+
+  log "Ensuring recurring job group label '${RECURRING_JOB_GROUP}' on volume ${RESTORE_VOLUME}"
+  kubectl -n longhorn-system patch volume "${RESTORE_VOLUME}" --type=merge -p "$(jq -n --arg k "${RJG_LABEL_KEY}" '{"metadata":{"labels":{($k):"enabled"}}}')" || log "Warning: failed to set recurring job group on ${RESTORE_VOLUME}"
 
 done <<<"$data"
 
