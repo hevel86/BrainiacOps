@@ -34,5 +34,16 @@ If you previously restored with these scripts and hit immutable `volumeName` err
 kubectl -n <ns> annotate pvc <pvc-name> kubectl.kubernetes.io/last-applied-configuration-
 ```
 
+## clean-pvc-last-applied.sh
+Remove the kubectl last-applied annotation from PVCs (default namespace: `default`) to clear stale, immutable patches.
+
+```bash
+# clean default namespace
+./clean-pvc-last-applied.sh
+
+# clean another namespace
+NAMESPACE=media ./clean-pvc-last-applied.sh
+```
+
 ## Notes
 - `longhorn-restore-mylar3.sh` is kept as a single-volume test/example; it mirrors the same options but targets only the mylar3 PVC.
