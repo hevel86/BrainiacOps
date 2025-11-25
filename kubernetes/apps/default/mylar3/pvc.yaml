@@ -7,7 +7,6 @@ metadata:
 spec:
   accessModes: ["ReadWriteOnce"]
   storageClassName: longhorn-prod
-  volumeName: pv-default-mylar3-config-pvc-lh
   resources:
     requests:
       storage: 1Gi
