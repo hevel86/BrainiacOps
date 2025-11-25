@@ -106,7 +106,7 @@ while IFS=$'\t' read -r VOL_NAME BACKUP_VOLUME LAST_BACKUP SIZE_BYTES STORAGE_CL
   kubectl get namespace "$PVC_NS" >/dev/null 2>&1 || kubectl create namespace "$PVC_NS"
 
   if ! kubectl -n longhorn-system get volume "$RESTORE_VOLUME" >/dev/null 2>&1; then
-    cat <<EOF | kubectl apply -f -
+    cat <<EOF | kubectl create -f -
 apiVersion: longhorn.io/v1beta2
 kind: Volume
 metadata:
@@ -125,7 +125,7 @@ EOF
   fi
 
   if ! kubectl get pv "$PV_NAME" >/dev/null 2>&1; then
-    cat <<EOF | kubectl apply -f -
+    cat <<EOF | kubectl create -f -
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -151,7 +151,7 @@ EOF
   fi
 
   if [[ "$PVC_EXISTS" -eq 0 ]]; then
-    cat <<EOF | kubectl apply -f -
+    cat <<EOF | kubectl create -f -
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
