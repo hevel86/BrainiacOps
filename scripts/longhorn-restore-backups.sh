@@ -47,7 +47,8 @@ data="$(
         (.status.storageClassName // "longhorn"),
         (.status.labels."longhorn.io/volume-access-mode" // "rwo"),
         (.status.labels.KubernetesStatus | try fromjson | .namespace // empty),
-        (.status.labels.KubernetesStatus | try fromjson | .pvcName // empty)
+        (.status.labels.KubernetesStatus | try fromjson | .pvcName // empty),
+        (.status.labels.KubernetesStatus | try fromjson | .pvName // empty)
       ] | @tsv'
 )"
 
@@ -56,7 +57,7 @@ if [[ -z "$data" ]]; then
   exit 0
 fi
 
-while IFS=$'\t' read -r VOL_NAME BACKUP_VOLUME LAST_BACKUP SIZE_BYTES STORAGE_CLASS ACCESS_LABEL PVC_NS PVC_NAME; do
+while IFS=$'\t' read -r VOL_NAME BACKUP_VOLUME LAST_BACKUP SIZE_BYTES STORAGE_CLASS ACCESS_LABEL PVC_NS PVC_NAME PV_NAME_FROM_BACKUP; do
   case "${ACCESS_LABEL,,}" in
     rwx|readwriteoncepod|readwritemany) ACCESS_MODE="ReadWriteMany" ;;
     *) ACCESS_MODE="ReadWriteOnce" ;;
@@ -67,7 +68,11 @@ while IFS=$'\t' read -r VOL_NAME BACKUP_VOLUME LAST_BACKUP SIZE_BYTES STORAGE_CL
     continue
   fi
 
-  PV_NAME="pv-${PVC_NS}-${PVC_NAME}"
+  if [[ -n "$PV_NAME_FROM_BACKUP" ]]; then
+    PV_NAME="$PV_NAME_FROM_BACKUP"
+  else
+    PV_NAME="pv-${PVC_NS}-${PVC_NAME}"
+  fi
   PVC_EXISTS=0
   if kubectl -n "$PVC_NS" get pvc "$PVC_NAME" >/dev/null 2>&1; then
     PVC_EXISTS=1
@@ -84,6 +89,10 @@ while IFS=$'\t' read -r VOL_NAME BACKUP_VOLUME LAST_BACKUP SIZE_BYTES STORAGE_CL
     RESTORE_VOLUME="${VOL_NAME}"
   else
     RESTORE_VOLUME="${PVC_NAME}"
+  fi
+  if [[ "$PVC_EXISTS" -eq 1 && -n "$EXISTING_PV_NAME" && "$RESTORE_VOLUME" != "$EXISTING_PV_NAME" ]]; then
+    log "PVC ${PVC_NS}/${PVC_NAME} bound to PV ${EXISTING_PV_NAME}; using volume name ${EXISTING_PV_NAME} for restore instead of ${RESTORE_VOLUME}"
+    RESTORE_VOLUME="${EXISTING_PV_NAME}"
   fi
   FROM_BACKUP="${BACKUP_TARGET}?volume=${VOL_NAME}&backup=${LAST_BACKUP}"
   STORAGE_GI="$(( (SIZE_BYTES + (1<<30) - 1) / (1<<30) ))Gi"

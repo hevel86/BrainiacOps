@@ -50,7 +50,8 @@ data="$(
         (.status.storageClassName // "longhorn"),
         (.status.labels."longhorn.io/volume-access-mode" // "rwo"),
         (.status.labels.KubernetesStatus | try fromjson | .namespace // empty),
-        (.status.labels.KubernetesStatus | try fromjson | .pvcName // empty)
+        (.status.labels.KubernetesStatus | try fromjson | .pvcName // empty),
+        (.status.labels.KubernetesStatus | try fromjson | .pvName // empty)
       ] | @tsv'
 )"
 
@@ -59,18 +60,29 @@ if [[ -z "$data" ]]; then
   exit 0
 fi
 
-while IFS=$'\t' read -r VOL_NAME BACKUP_VOLUME LAST_BACKUP SIZE_BYTES STORAGE_CLASS ACCESS_LABEL PVC_NS PVC_NAME; do
+while IFS=$'\t' read -r VOL_NAME BACKUP_VOLUME LAST_BACKUP SIZE_BYTES STORAGE_CLASS ACCESS_LABEL PVC_NS PVC_NAME PV_NAME_FROM_BACKUP; do
   case "${ACCESS_LABEL,,}" in
     rwx|readwriteoncepod|readwritemany) ACCESS_MODE="ReadWriteMany" ;;
     *) ACCESS_MODE="ReadWriteOnce" ;;
   esac
 
-  PV_NAME="pv-${PVC_NS}-${PVC_NAME}"
+  if [[ -n "$PV_NAME_FROM_BACKUP" ]]; then
+    PV_NAME="$PV_NAME_FROM_BACKUP"
+  else
+    PV_NAME="pv-${PVC_NS}-${PVC_NAME}"
+  fi
   RJG_LABEL_KEY="recurring-job-group.longhorn.io/${RECURRING_JOB_GROUP}"
   if [[ "$USE_BACKUP_VOLUME_NAME" -eq 1 ]]; then
     RESTORE_VOLUME="${VOL_NAME}"
   else
     RESTORE_VOLUME="${PVC_NAME}"
+  fi
+  if kubectl -n "$PVC_NS" get pvc "$PVC_NAME" >/dev/null 2>&1; then
+    EXISTING_PV_NAME="$(kubectl -n "$PVC_NS" get pvc "$PVC_NAME" -o jsonpath='{.spec.volumeName}' 2>/dev/null || true)"
+    if [[ -n "$EXISTING_PV_NAME" && "$RESTORE_VOLUME" != "$EXISTING_PV_NAME" ]]; then
+      log "PVC ${PVC_NS}/${PVC_NAME} bound to PV ${EXISTING_PV_NAME}; using volume name ${EXISTING_PV_NAME} for restore instead of ${RESTORE_VOLUME}"
+      RESTORE_VOLUME="${EXISTING_PV_NAME}"
+    fi
   fi
   FROM_BACKUP="${BACKUP_TARGET}?volume=${VOL_NAME}&backup=${LAST_BACKUP}"
   STORAGE_GI="$(( (SIZE_BYTES + (1<<30) - 1) / (1<<30) ))Gi"
