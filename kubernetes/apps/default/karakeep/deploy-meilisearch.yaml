@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: meilisearch
-          image: getmeili/meilisearch:v1.26.0
+          image: getmeili/meilisearch:v1.27.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 7700
