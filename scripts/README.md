@@ -22,7 +22,7 @@ Key env vars:
 - `BACKUP_TARGET` – backup target URL (default: NFS path in the script)
 - `RECURRING_JOB_GROUP` – recurring job group label to apply (default: `prod`)
 - `FRONTEND` – Longhorn frontend for restored volumes (default: `blockdev`)
-- `USE_BACKUP_VOLUME_NAME` – `1` to use the original Longhorn volume name (`--use-backup-volume-name`), `0` to use the PVC name
+- `USE_BACKUP_VOLUME_NAME` – `1` (default, also via `--use-backup-volume-name` flag) to use the original Longhorn volume name; `0` (via env var) to use the PVC name.
 
 Behavior:
 - Creates Volume/PV/PVC with `kubectl create` to avoid persisting last-applied annotations on immutable fields.
