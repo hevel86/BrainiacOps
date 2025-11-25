@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: semaphore-postgres
-          image: postgres:18
+          image: postgres:15
           ports:
             - containerPort: 5432
 
