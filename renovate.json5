@@ -123,8 +123,8 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
-        '^\\.mise\\.toml$',
+      managerFilePatterns: [
+        '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
         '"aqua:kubernetes/kubectl" = "(?<currentValue>[^"]+)"',
@@ -135,8 +135,8 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
-        '^\\.mise\\.toml$',
+      managerFilePatterns: [
+        '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
         '"aqua:kubernetes-sigs/kustomize" = "(?<currentValue>[^"]+)"',
@@ -147,8 +147,8 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
-        '^\\.mise\\.toml$',
+      managerFilePatterns: [
+        '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
         '"aqua:helm/helm" = "(?<currentValue>[^"]+)"',
@@ -159,8 +159,8 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
-        '^\\.mise\\.toml$',
+      managerFilePatterns: [
+        '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
         '"aqua:budimanjojo/talhelper" = "(?<currentValue>[^"]+)"',
@@ -171,8 +171,8 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
-        '^\\.mise\\.toml$',
+      managerFilePatterns: [
+        '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
         '"aqua:siderolabs/talos" = "(?<currentValue>[^"]+)"',
@@ -183,8 +183,8 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
-        '^\\.mise\\.toml$',
+      managerFilePatterns: [
+        '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
         '"aqua:yannh/kubeconform" = "(?<currentValue>[^"]+)"',
@@ -195,8 +195,8 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
-        '^\\.mise\\.toml$',
+      managerFilePatterns: [
+        '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
         '"aqua:getsops/sops" = "(?<currentValue>[^"]+)"',
@@ -207,8 +207,8 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
-        '^\\.mise\\.toml$',
+      managerFilePatterns: [
+        '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
         '"aqua:FiloSottile/age" = "(?<currentValue>[^"]+)"',
@@ -219,8 +219,8 @@
     {
       customType: 'regex',
       description: 'Update pipx-managed CLI versions in .mise.toml',
-      fileMatch: [
-        '^\\.mise\\.toml$',
+      managerFilePatterns: [
+        '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
         '"pipx:(?<depName>[^"]+)" = "(?<currentValue>[^"]+)"',
