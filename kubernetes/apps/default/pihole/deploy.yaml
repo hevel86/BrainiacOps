@@ -17,7 +17,7 @@ spec:
         app: pihole
     spec:
       # This will now work correctly without hostNetwork
-      hostname: pihole-k3s
+      hostname: pihole-k8s
       dnsPolicy: None
       dnsConfig:
         nameservers:
@@ -42,12 +42,14 @@ spec:
                 secretKeyRef:
                   name: pihole-credentials
                   key: FTLCONF_webserver_api_password
+            - name: PIHOLE_DNS_1
+              value: "1.1.1.1"
+            - name: PIHOLE_DNS_2
+              value: "1.0.0.1"
             - name: FTLCONF_dns_listeningMode
               value: "all"
-            - name: FTLCONF_ignore_localhost
+            - name: FTLCONF_dns_ignoreLocalhost
               value: "yes"
-            - name: FTLCONF_local_ipv4
-              value: "10.0.0.213"
           ports:
             - containerPort: 53
               protocol: TCP
