@@ -72,7 +72,7 @@ spec:
               mountPath: /app/plugins
               subPath: plugins
             - name: cache
-              mountPath: /temp
+              mountPath: /tdarr_temp
             - name: movies
               mountPath: /media/movies
             - name: tv
