@@ -7,6 +7,8 @@ metadata:
     app: karakeep
     component: web
 spec:
+  strategy:
+    type: Recreate
   replicas: 1
   selector:
     matchLabels:
