@@ -38,3 +38,4 @@
 | jdownloader-service   | default         | 10.0.0.233  |
 | obsidian              | default         | 10.0.0.234  |
 | vikunja               | default         | 10.0.0.235  |
+| stirling-pdf          | default         | 10.0.0.236  |
