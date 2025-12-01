@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: stirling-pdf
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`stirlingpdf.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: stirling-pdf
+          namespace: default
+          port: 8080
+  tls:
+    secretName: traefik-dashboard-tls

@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stirling-pdf
+  namespace: default
+  labels:
+    app: stirling-pdf
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: stirling-pdf
+  template:
+    metadata:
+      labels:
+        app: stirling-pdf
+    spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: stirling-pdf
+          image: ghcr.io/stirling-tools/stirling-pdf:2.0.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: TZ
+              value: America/New_York
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: UMASK
+              value: "022"
+            - name: SYSTEM_DEFAULTLOCALE
+              value: en-US
+            - name: UI_APPNAME
+              value: "Stirling PDF"
+            - name: UI_APPNAMENAVBAR
+              value: "Stirling PDF"
+            - name: UI_HOMEDESCRIPTION
+              value: "Self-hosted PDF toolkit"
+            - name: SECURITY_ENABLELOGIN
+              value: "true"
+            - name: SECURITY_INITIALLOGIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: stirling-pdf-secrets
+                  key: SECURITY_INITIALLOGIN_USERNAME
+            - name: SECURITY_INITIALLOGIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: stirling-pdf-secrets
+                  key: SECURITY_INITIALLOGIN_PASSWORD
+            - name: SYSTEM_MAXFILESIZE
+              value: "200"
+            - name: METRICS_ENABLED
+              value: "true"
+            - name: SYSTEM_GOOGLEVISIBILITY
+              value: "false"
+            - name: DISABLE_ADDITIONAL_FEATURES
+              value: "false"
+          readinessProbe:
+            httpGet:
+              path: /api/v1/info/status
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v1/info/status
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+          volumeMounts:
+            - name: stirling-pdf-config
+              mountPath: /configs
+            - name: stirling-pdf-logs
+              mountPath: /logs
+      volumes:
+        - name: stirling-pdf-config
+          persistentVolumeClaim:
+            claimName: stirling-pdf-config-pvc-lh
+        - name: stirling-pdf-logs
+          persistentVolumeClaim:
+            claimName: stirling-pdf-logs-pvc-lh

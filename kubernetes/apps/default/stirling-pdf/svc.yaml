@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: stirling-pdf
+  namespace: default
+  labels:
+    app: stirling-pdf
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.236
+  selector:
+    app: stirling-pdf
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+      protocol: TCP
