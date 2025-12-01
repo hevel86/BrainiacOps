@@ -1,4 +1,4 @@
-# Meilisearch Migration Guide: v1.11.1 to v1.26.0
+# Meilisearch Migration Guide
 
 ## Problem
 
@@ -11,7 +11,7 @@ To migrate data between Meilisearch versions, please follow our guide on https:/
 
 **Root Cause**: Meilisearch does not support automatic in-place database migrations between major versions. The persistent volume contained data in v1.11.1 format, which v1.26.0 cannot read directly.
 
-## Solution Overview
+## Solution Overview (v1.11.1 → v1.26.0)
 
 The migration requires:
 1. Downgrading to v1.11.1 to access the old data
@@ -335,3 +335,69 @@ kubectl scale deployment karakeep-meilisearch -n default --replicas=1
 - **Downtime**: ~14 minutes
 - **Migration Date**: 2025-11-23
 - **Performed By**: Claude Code (automated migration)
+
+---
+
+# Quick Migration Notes: v1.26.0 → v1.27.0 (2025-12-01)
+
+This was a straightforward dump/import using the same PVC (RWO). Keep the Deployment `strategy: Recreate` to avoid multi-attach errors.
+
+1. **Scale down** to release the PVC:
+   ```
+   kubectl scale deployment karakeep-meilisearch -n default --replicas=0
+   ```
+2. **Run v1.26.0 to create a dump**:
+   - Set `image: getmeili/meilisearch:v1.26.0` in `deploy-meilisearch.yaml`.
+   - Apply and scale to 1, wait until Running.
+   - Create dump:
+     ```
+     kubectl exec -n default deploy/karakeep-meilisearch -- \
+       sh -c 'curl -s -X POST "http://localhost:7700/dumps" -H "Authorization: Bearer $MEILI_MASTER_KEY"'
+     ```
+   - Note the `dumpUid` (e.g., `20251201-213154576.dump`).
+3. **Backup the dump locally (optional but recommended)**:
+   ```
+   kubectl cp default/$(kubectl get pods -n default -l component=meilisearch -o jsonpath='{.items[0].metadata.name}'):/meili_data/dumps/20251201-213154576.dump /tmp/karakeep-meili-20251201.dump
+   ```
+4. **Clean the PVC** to ensure import succeeds:
+   ```
+   kubectl scale deploy karakeep-meilisearch -n default --replicas=0
+   kubectl run meili-cleanup --image=busybox --restart=Never -n default --overrides='{"spec":{"containers":[{"name":"cleanup","image":"busybox","command":["sh","-c","rm -rf /meili_data/* && echo Cleanup complete"],"volumeMounts":[{"name":"data","mountPath":"/meili_data"}]}],"volumes":[{"name":"data","persistentVolumeClaim":{"claimName":"karakeep-meilisearch-pvc-lh"}}]}}'
+   kubectl wait --for=condition=complete pod/meili-cleanup -n default --timeout=120s
+   kubectl delete pod meili-cleanup -n default
+   ```
+5. **Stage the dump back onto the PVC**:
+   ```
+   kubectl run meili-stager --image=busybox --restart=Never -n default --overrides='{"spec":{"containers":[{"name":"stager","image":"busybox","command":["sh","-c","sleep 3600"],"volumeMounts":[{"name":"data","mountPath":"/meili_data"}]}],"volumes":[{"name":"data","persistentVolumeClaim":{"claimName":"karakeep-meilisearch-pvc-lh"}}]}}'
+   kubectl wait --for=condition=ready pod/meili-stager -n default --timeout=60s
+   kubectl exec -n default meili-stager -- sh -c 'mkdir -p /meili_data/dumps'
+   kubectl cp /tmp/karakeep-meili-20251201.dump default/meili-stager:/meili_data/dumps/20251201-213154576.dump
+   kubectl delete pod meili-stager -n default
+   ```
+6. **Start v1.27.0 with import flag**:
+   - Set in `deploy-meilisearch.yaml`:
+     ```
+     image: getmeili/meilisearch:v1.27.0
+     args:
+       - meilisearch
+       - --import-dump
+       - /meili_data/dumps/20251201-213154576.dump
+     ```
+   - Apply and scale to 1; watch logs for successful import (`All documents successfully imported.`).
+7. **Return to normal config**:
+   - Remove the `args` block.
+   - Apply the manifest; the pod should start cleanly on 1.27.0.
+8. **Verify**:
+   ```
+   kubectl exec -n default deploy/karakeep-meilisearch -- \
+     sh -c 'curl -s "http://localhost:7700/indexes" -H "Authorization: Bearer $MEILI_MASTER_KEY"'
+   kubectl exec -n default deploy/karakeep-meilisearch -- \
+     sh -c 'curl -s "http://localhost:7700/indexes/bookmarks/stats" -H "Authorization: Bearer $MEILI_MASTER_KEY"'
+   ```
+9. **Cleanup**:
+   - Remove the staged dump from the PVC: `kubectl exec -n default deploy/karakeep-meilisearch -- rm -f /meili_data/dumps/20251201-213154576.dump`
+   - Delete the local backup when you’re satisfied: `rm /tmp/karakeep-meili-20251201.dump`
+
+### Notes
+- PVC access mode is `ReadWriteOnce`; keep `strategy: Recreate` on the Deployment to avoid multi-attach errors during rollouts.
+- PodSecurity warnings appear because the chart lacks restricted defaults; functional but noisy. Consider adding `runAsNonRoot`, dropping capabilities, and `seccompProfile` later.
