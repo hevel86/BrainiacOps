@@ -6,8 +6,6 @@ metadata:
   namespace: default
 spec:
   type: LoadBalancer
-  # This is the correct way to preserve the client's source IP
-  externalTrafficPolicy: Local
   loadBalancerIP: 10.0.0.213
   selector:
     app: pihole
