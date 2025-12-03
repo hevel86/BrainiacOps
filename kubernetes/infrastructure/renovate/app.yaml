@@ -19,7 +19,7 @@ spec:
           - secretRef:
               name: renovate-secrets
         env:
-          LOG_LEVEL: debug
+          LOG_LEVEL: info
           RENOVATE_NODE_OPTIONS: --max-old-space-size=1024
         extraEnvVars:
           - name: RENOVATE_HOST_RULES
