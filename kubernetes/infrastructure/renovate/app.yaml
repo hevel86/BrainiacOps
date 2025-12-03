@@ -34,14 +34,20 @@ spec:
                 {
                   "matchHost": "index.docker.io",
                   "hostType": "docker",
-                  "username": "{{ env \"DOCKERHUB_USERNAME\" }}",
-                  "password": "{{ env \"DOCKERHUB_PASSWORD\" }}"
+                  "username": "${DOCKERHUB_USERNAME}",
+                  "password": "${DOCKERHUB_PASSWORD}"
                 },
                 {
                   "matchHost": "registry-1.docker.io",
                   "hostType": "docker",
-                  "username": "{{ env \"DOCKERHUB_USERNAME\" }}",
-                  "password": "{{ env \"DOCKERHUB_PASSWORD\" }}"
+                  "username": "${DOCKERHUB_USERNAME}",
+                  "password": "${DOCKERHUB_PASSWORD}"
+                },
+                {
+                  "matchHost": "docker.io",
+                  "hostType": "docker",
+                  "username": "${DOCKERHUB_USERNAME}",
+                  "password": "${DOCKERHUB_PASSWORD}"
                 }
               ]
             }
