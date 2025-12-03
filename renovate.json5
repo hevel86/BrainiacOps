@@ -16,6 +16,7 @@
     'kubernetes/games/**',
     'kubernetes/infrastructure/**',
     '.github/workflows/**',
+    '.mise.toml',
   ],
   enabledManagers: [
     'github-actions',
