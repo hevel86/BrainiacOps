@@ -19,8 +19,11 @@ spec:
           - secretRef:
               name: renovate-secrets
         env:
-          LOG_LEVEL: info
+          LOG_LEVEL: debug
           RENOVATE_NODE_OPTIONS: --max-old-space-size=1024
+        extraEnvVars:
+          - name: RENOVATE_HOST_RULES
+            value: '[{"matchHost":"docker.io","hostType":"docker","username":"$(DOCKERHUB_USERNAME)","password":"$(DOCKERHUB_PASSWORD)"},{"matchHost":"index.docker.io","hostType":"docker","username":"$(DOCKERHUB_USERNAME)","password":"$(DOCKERHUB_PASSWORD)"},{"matchHost":"registry-1.docker.io","hostType":"docker","username":"$(DOCKERHUB_USERNAME)","password":"$(DOCKERHUB_PASSWORD)"}]'
         renovate:
           # Minimal JSON config: platform + repositories to scan.
           # Repository-local renovate.json drives behavior.
@@ -29,26 +32,6 @@ spec:
               "platform": "github",
               "repositories": [
                 "hevel86/BrainiacOps"
-              ],
-              "hostRules": [
-                {
-                  "matchHost": "index.docker.io",
-                  "hostType": "docker",
-                  "username": "${DOCKERHUB_USERNAME}",
-                  "password": "${DOCKERHUB_PASSWORD}"
-                },
-                {
-                  "matchHost": "registry-1.docker.io",
-                  "hostType": "docker",
-                  "username": "${DOCKERHUB_USERNAME}",
-                  "password": "${DOCKERHUB_PASSWORD}"
-                },
-                {
-                  "matchHost": "docker.io",
-                  "hostType": "docker",
-                  "username": "${DOCKERHUB_USERNAME}",
-                  "password": "${DOCKERHUB_PASSWORD}"
-                }
               ]
             }
           securityContext:
