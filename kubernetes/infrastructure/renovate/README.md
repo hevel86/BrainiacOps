@@ -43,5 +43,6 @@ For enhanced security, it is highly recommended to use a **Fine-grained Personal
     - Ensure `spec.secretName` is set to `renovate-secrets`.
     - Update `spec.organizationId` with your Bitwarden organization ID.
     - Update `map.bwSecretId` with the unique ID of the secret you created in step 1.
+    - Populate `DOCKERHUB_USERNAME` and `DOCKERHUB_PASSWORD` with your Docker Hub credentials or PAT so Renovate can authenticate to `index.docker.io`/`registry-1.docker.io` and avoid rate-limit warnings.
 
 Once you commit these files, your app-of-apps controller will discover and sync the `secret-app.yaml`, which in turn deploys the `BitwardenSecret`. The operator then creates the final Kubernetes secret, allowing the Renovate cronjob to authenticate with GitHub.

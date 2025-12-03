@@ -36,6 +36,12 @@ spec:
                   "hostType": "docker",
                   "username": "{{ env \"DOCKERHUB_USERNAME\" }}",
                   "password": "{{ env \"DOCKERHUB_PASSWORD\" }}"
+                },
+                {
+                  "matchHost": "registry-1.docker.io",
+                  "hostType": "docker",
+                  "username": "{{ env \"DOCKERHUB_USERNAME\" }}",
+                  "password": "{{ env \"DOCKERHUB_PASSWORD\" }}"
                 }
               ]
             }
@@ -82,4 +88,3 @@ spec:
       - CreateNamespace=true
       - ServerSideApply=true
       #- Replace=true
-
