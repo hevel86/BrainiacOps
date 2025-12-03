@@ -188,6 +188,18 @@
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
+        '"aqua:derailed/k9s" = "(?<currentValue>[^"]+)"',
+      ],
+      datasourceTemplate: 'github-tags',
+      depNameTemplate: 'derailed/k9s',
+    },
+    {
+      customType: 'regex',
+      description: 'Update aqua-managed CLI versions in .mise.toml',
+      managerFilePatterns: [
+        '/^\\.mise\\.toml$/',
+      ],
+      matchStrings: [
         '"aqua:yannh/kubeconform" = "(?<currentValue>[^"]+)"',
       ],
       datasourceTemplate: 'github-tags',

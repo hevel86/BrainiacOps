@@ -75,7 +75,7 @@ Once these steps are completed, Argo CD will take over and continuously reconcil
 
 ## Mise En Place Tooling
 
-The repository ships with a [mise](https://mise.jdx.dev/) configuration (`.mise.toml`) that relies on the built-in [aquaproj/aqua](https://aquaproj.github.io/) backend for static CLI downloads—`kubectl`, `kustomize`, `helm`, `talhelper`, `talosctl`, `kubeconform`, `sops`, and `age`—plus `yamllint` via `pipx`. No manual plugin installs are required. It also wires environment variables for:
+The repository ships with a [mise](https://mise.jdx.dev/) configuration (`.mise.toml`) that relies on the built-in [aquaproj/aqua](https://aquaproj.github.io/) backend for static CLI downloads—`kubectl`, `kustomize`, `helm`, `talhelper`, `talosctl`, `k9s`, `kubeconform`, `sops`, and `age`—plus `yamllint` via `pipx`. No manual plugin installs are required. It also wires environment variables for:
 
 - `KUBECONFIG`: points to `~/.kube/config`.
 - `TALOSCONFIG`: points to `~/.talos/config`.
