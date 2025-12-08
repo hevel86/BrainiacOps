@@ -38,6 +38,8 @@ spec:
               mountPath: /tv                  # NFS media (shared)
             - name: downloads
               mountPath: /downloads           # NFS media (shared)
+            - name: data
+              mountPath: /data
           readinessProbe: 
             httpGet:
               path: /
@@ -59,4 +61,7 @@ spec:
             claimName: media-tv-pvc           # <- your bound NFS PVC
         - name: downloads
           persistentVolumeClaim:
-            claimName: sabnzbd-downloads-pvc            
+            claimName: sabnzbd-downloads-pvc   
+        - name: data
+          persistentVolumeClaim:
+            claimName: transmission-vpn-data            
