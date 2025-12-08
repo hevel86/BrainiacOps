@@ -10,16 +10,4 @@ spec:
   resources:
     requests:
       storage: 1Gi
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: transmission-vpn-data
-spec:
-  storageClassName: ""
-  volumeMode: Filesystem
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 100Gi
-  volumeName: transmission-vpn-data-pv
+---
