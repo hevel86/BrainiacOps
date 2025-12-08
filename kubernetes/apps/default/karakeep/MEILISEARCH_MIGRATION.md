@@ -327,13 +327,78 @@ kubectl scale deployment karakeep-meilisearch -n default --replicas=1
 - Deployment manifest: `kubernetes/apps/default/karakeep/deploy-meilisearch.yaml`
 - PVC manifest: `kubernetes/apps/default/karakeep/pvc.yaml`
 
+
+# Quick Migration Notes: v1.28.2 → v1.29.0 (2025-12-08)
+
+Live run details (pending): dump `20251208-150000000.dump` staged at `/meili_data/dumps/20251208-150000000.dump`; local backup at `/tmp/karakeep-meili-20251208.dump`.
+
+1. Scale down to free the PVC:
+   ```
+   kubectl scale deploy karakeep-meilisearch -n default --replicas=0
+   kubectl wait --for=delete pod -l component=meilisearch -n default --timeout=60s
+   ```
+2. Create dump on v1.28.2:
+   - Ensure `image: getmeili/meilisearch:v1.28.2` in `deploy-meilisearch.yaml`.
+   - Apply and scale to 1; wait Ready.
+   - Create dump:
+     ```
+     kubectl exec -n default deploy/karakeep-meilisearch -- \
+       sh -c 'curl -s -X POST "http://localhost:7700/dumps" -H "Authorization: Bearer $MEILI_MASTER_KEY"'
+     ```
+   - Verify task (example `taskUid: 251`):
+     ```
+     kubectl exec -n default deploy/karakeep-meilisearch -- \
+       sh -c 'curl -s "http://localhost:7700/tasks/251" -H "Authorization: Bearer $MEILI_MASTER_KEY"'
+     ```
+   - Copy backup locally (kept at `/tmp/karakeep-meili-20251208.dump`):
+     ```
+     kubectl cp default/$(kubectl get pods -n default -l component=meilisearch -o jsonpath='{.items[0].metadata.name}'):/meili_data/dumps/20251208-150000000.dump /tmp/karakeep-meili-20251208.dump
+     ```
+3. Clean the PVC:
+   ```
+   kubectl scale deploy/karakeep-meilisearch -n default --replicas=0
+   kubectl run meili-cleanup --image=busybox --restart=Never -n default --overrides='{"spec":{"containers":[{"name":"cleanup","image":"busybox","command":["sh","-c","rm -rf /meili_data/* && echo Cleanup complete"],"volumeMounts":[{"name":"data","mountPath":"/meili_data"}]}],"volumes":[{"name":"data","persistentVolumeClaim":{"claimName":"karakeep-meilisearch-pvc-lh"}}]}}'
+   kubectl wait --for=condition=complete pod/meili-cleanup -n default --timeout=120s
+   kubectl delete pod meili-cleanup -n default
+   ```
+4. Stage dump back onto PVC:
+   ```
+   kubectl run meili-stager --image=busybox --restart=Never -n default --overrides='{"spec":{"containers":[{"name":"stager","image":"busybox","command":["sh","-c","sleep 3600"],"volumeMounts":[{"name":"data","mountPath":"/meili_data"}]}],"volumes":[{"name":"data","persistentVolumeClaim":{"claimName":"karakeep-meilisearch-pvc-lh"}}]}}'
+   kubectl wait --for=condition=ready pod/meili-stager -n default --timeout=60s
+   kubectl exec -n default meili-stager -- sh -c 'mkdir -p /meili_data/dumps'
+   kubectl cp /tmp/karakeep-meili-20251208.dump default/meili-stager:/meili_data/dumps/20251208-150000000.dump
+   kubectl delete pod meili-stager -n default
+   ```
+5. Start v1.29.0 with import flag and verify:
+   - Set in `deploy-meilisearch.yaml`:
+     ```
+     image: getmeili/meilisearch:v1.29.0
+     args:
+       - meilisearch
+       - --import-dump
+       - /meili_data/dumps/20251208-150000000.dump
+     ```
+   - Apply and roll out; check logs for `All documents successfully imported.`
+6. Return to normal config:
+   - Remove the `args` block (keep image v1.29.0).
+   - Apply and roll out; pod should start cleanly without import.
+7. Cleanup (optional):
+   - Remove staged dump from PVC once satisfied:
+     ```
+     kubectl exec -n default deploy/karakeep-meilisearch -- rm -f /meili_data/dumps/20251208-150000000.dump
+     ```
+   - Delete local backup when no longer needed:
+     ```
+     rm /tmp/karakeep-meili-20251208.dump
+     ```
+
 ## Migration Summary
 
-- **Database Version**: 1.11.1 → 1.26.0
+- **Database Version**: 1.11.1 → 1.29.0
 - **Index Migrated**: bookmarks (67 documents)
 - **Data Loss**: None
-- **Downtime**: ~14 minutes
-- **Migration Date**: 2025-11-23
+- **Downtime**: ~14 minutes (initial migration)
+- **Migration Date**: 2025-12-08 (last updated)
 - **Performed By**: Claude Code (automated migration)
 
 ---
