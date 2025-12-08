@@ -417,11 +417,13 @@ Live run details (completed): dump `20251208-145849091.dump` staged at `/meili_d
    - Apply and scale to 1; wait Ready.
    - Create dump:
      ```
-     kubectl exec -n default deploy/karakeep-meilisearch --        sh -c 'curl -s -X POST "http://localhost:7700/dumps" -H "Authorization: Bearer $MEILI_MASTER_KEY"'
+     kubectl exec -n default deploy/karakeep-meilisearch -- \
+       sh -c 'curl -s -X POST "http://localhost:7700/dumps" -H "Authorization: Bearer $MEILI_MASTER_KEY"'
      ```
    - Verify task (example `taskUid: 251`):
      ```
-     kubectl exec -n default deploy/karakeep-meilisearch --        sh -c 'curl -s "http://localhost:7700/tasks/251" -H "Authorization: Bearer $MEILI_MASTER_KEY"'
+     kubectl exec -n default deploy/karakeep-meilisearch -- \
+       sh -c 'curl -s "http://localhost:7700/tasks/251" -H "Authorization: Bearer $MEILI_MASTER_KEY"'
      ```
    - Copy backup locally (kept at `/tmp/karakeep-meili-20251208.dump`):
      ```
