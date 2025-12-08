@@ -180,6 +180,12 @@ All PRs are validated by kubeconform CI before merge.
 - Longhorn auto-configures disks >= 1.5TB on each node
 - System disks use disk selectors (NVMe <= 600GB)
 
+**High Availability Configuration**:
+- `longhorn-prod` StorageClass: 3 replicas, `dataLocality: best-effort`
+- `node-down-pod-deletion-policy`: `delete-both-statefulset-and-deployment-pod` (enables automatic pod failover)
+- Default replica count: 3 (data on all nodes)
+- On node failure: Longhorn deletes stuck pods, Kubernetes reschedules to healthy node, volume attaches using remaining replicas
+
 ### Secret Management
 
 **Runtime secrets**: Bitwarden Secrets Operator injects from Bitwarden vault into Kubernetes Secrets (never in Git)
