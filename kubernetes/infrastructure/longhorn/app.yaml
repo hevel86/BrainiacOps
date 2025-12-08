@@ -33,9 +33,10 @@ spec:
         defaultSettings:
           defaultReplicaCount: '3'
           defaultDataPath: /var/mnt/longhorn
+          defaultDataLocality: best-effort
           createDefaultDiskLabeledNodes: true
         longhornUI:
-          replicas: 1
+          replicas: 3
   syncPolicy:
     automated:
       prune: true
