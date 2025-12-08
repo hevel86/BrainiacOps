@@ -1,5 +1,14 @@
 # Gemini Project: BrainiacOps
 
+## Critical Rules
+
+**This is a GitOps repository. All changes are automatically deployed to a live Kubernetes cluster.**
+
+- **NEVER commit secrets, passwords, API keys, or tokens** - Use Bitwarden Secrets Operator references instead
+- **NEVER hardcode sensitive values** in manifests - Reference `BitwardenSecret` resources
+- **Talos secrets** must only exist in `talsecret.sops.yaml` (encrypted with SOPS+age)
+- When in doubt, ask before committing anything that could contain sensitive data
+
 ## Project Overview
 
 This repository, BrainiacOps, is a GitOps-managed home lab running on a Kubernetes cluster. It uses an "app-of-apps" pattern with Argo CD to declaratively manage infrastructure, self-hosted applications, and media automation services.
