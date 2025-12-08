@@ -1,0 +1,20 @@
+# kubernetes/storage/media/pv-transmission-downloads.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: transmission-vpn-data-pv
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes: ["ReadWriteMany"]
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+  nfs:
+    server: truenas1-nfs.torquasmvo.internal
+    path: /mnt/fast/downloaders/transmission
+  mountOptions:
+    - nfsvers=4.1
+    - rsize=1048576
+    - wsize=1048576
+    - hard
+    - noatime
