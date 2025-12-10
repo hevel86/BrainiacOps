@@ -3,10 +3,11 @@
 **Last Updated**: 2025-12-10
 **Pod Image**: `lscr.io/linuxserver/jellyfin:10.11.4`
 **Role**: Backup media server (Primary: Plex)
+**Hardware**: MINISFORUM MS-01 with Intel i5-12600H (12th Gen Alder Lake, Iris Xe Graphics)
 
 ## Current Configuration Summary
 
-Jellyfin is configured to use Intel Quick Sync Video hardware acceleration through VAAPI on Intel GPUs. The configuration has been optimized to work with the stock container image (no custom packages installed).
+Jellyfin is configured to use Intel Quick Sync Video hardware acceleration through VAAPI on Intel Iris Xe Graphics (12th gen). The configuration has been optimized to work with the stock container image (no custom packages installed) and tailored to the i5-12600H's actual hardware capabilities.
 
 **Use Case**: Jellyfin serves as a backup to Plex. All client TVs support HDR/Dolby Vision, so HDR→SDR tone mapping is not required.
 
@@ -22,7 +23,27 @@ Jellyfin is configured to use Intel Quick Sync Video hardware acceleration throu
 <EnableHardwareEncoding>true</EnableHardwareEncoding>
 <EnableIntelLowPowerH264HwEncoder>true</EnableIntelLowPowerH264HwEncoder>
 <EnableIntelLowPowerHevcHwEncoder>true</EnableIntelLowPowerHevcHwEncoder>
+
+<!-- Hardware Decoding Codecs -->
+<HardwareDecodingCodecs>
+  <string>mpeg2video</string>
+  <string>mpeg4</string>
+  <string>vp8</string>
+  <string>vp9</string>
+  <string>h264</string>
+  <string>vc1</string>
+  <string>hevc</string>
+  <string>av1</string>
+</HardwareDecodingCodecs>
+
+<!-- HEVC Range Extensions Support -->
+<EnableDecodingColorDepth10Hevc>true</EnableDecodingColorDepth10Hevc>
+<EnableDecodingColorDepth10Vp9>true</EnableDecodingColorDepth10Vp9>
+<EnableDecodingColorDepth10HevcRext>true</EnableDecodingColorDepth10HevcRext>
+<EnableDecodingColorDepth12HevcRext>false</EnableDecodingColorDepth12HevcRext>
 ```
+
+**Note**: 12-bit HEVC RExt is disabled because Intel Iris Xe (12th gen) does not have full hardware support for 12-bit decoding. It would fall back to software decoding, which is slower. 10-bit HEVC (used by all consumer HDR content) is fully hardware accelerated.
 
 ### Key Configuration Decisions
 
@@ -69,12 +90,19 @@ Disabled all tone mapping to eliminate OpenCL dependency while maintaining hardw
 
 ## Current Status
 
-### ✅ Working Features
-- Hardware-accelerated video decoding (H.264, HEVC, VC1, AV1)
-- Hardware-accelerated video encoding (H.264, HEVC)
+### ✅ Working Features (Intel i5-12600H Iris Xe)
+- Hardware-accelerated video decoding:
+  - H.264 (all profiles)
+  - HEVC 8-bit and 10-bit (Main, Main10, 10-bit Range Extensions)
+  - VC1, AV1
+  - MPEG2, MPEG4
+  - VP8, VP9 (including 10-bit)
+- Hardware-accelerated video encoding:
+  - H.264 (low-power mode enabled)
+  - HEVC (low-power mode enabled)
 - Hardware-accelerated transcoding
-- Trickplay thumbnail generation (hardware-accelerated)
-- Intel Quick Sync Video utilization via VAAPI
+- Trickplay thumbnail generation (mjpeg_vaapi)
+- Intel Quick Sync Video via VAAPI interface
 
 ### ⚠️ Known Limitations
 - **No HDR → SDR tone mapping**
@@ -82,6 +110,10 @@ Disabled all tone mapping to eliminate OpenCL dependency while maintaining hardw
   - May appear washed out on SDR displays
   - Will display correctly on HDR-capable displays
   - **Not an issue for this environment**: All TVs support HDR/Dolby Vision
+- **No 12-bit HEVC RExt support**
+  - Intel Iris Xe (12th gen) lacks hardware support for 12-bit HEVC Range Extensions
+  - Disabled to prevent software fallback
+  - Not an issue: consumer content (Blu-ray, streaming) uses 10-bit maximum
 
 ### 🔧 How to Enable Tone Mapping (Future)
 
@@ -150,6 +182,28 @@ A Longhorn snapshot was taken before making configuration changes (2025-12-10).
 To restore original configuration if needed:
 1. Restore from Longhorn snapshot, OR
 2. Reset encoding settings via Jellyfin Web UI: Dashboard → Playback → Transcoding
+
+## Intel i5-12600H Hardware Capabilities
+
+**CPU**: 12th Gen Intel Core i5-12600H (Alder Lake-P)
+**GPU**: Intel Iris Xe Graphics (96 EUs)
+**Quick Sync Video Generation**: Gen 12.5
+
+**Verified Hardware Decode Support**:
+- H.264 (AVC): All profiles, 8-bit
+- HEVC (H.265): Main, Main10, Main10 RExt (8-bit, 10-bit)
+- VP9: Profile 0, Profile 2 (8-bit, 10-bit)
+- VP8: 8-bit
+- AV1: 8-bit, 10-bit
+- MPEG2, MPEG4, VC1
+
+**Hardware Encode Support**:
+- H.264: 8-bit (with low-power mode)
+- HEVC: 8-bit, 10-bit (with low-power mode)
+
+**NOT Hardware Accelerated**:
+- HEVC 12-bit (Range Extensions) - falls back to software
+- AV1 encoding - decode only
 
 ## GPU Device Access
 
