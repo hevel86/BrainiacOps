@@ -115,41 +115,7 @@ Disabled all tone mapping to eliminate OpenCL dependency while maintaining hardw
   - Disabled to prevent software fallback
   - Not an issue: consumer content (Blu-ray, streaming) uses 10-bit maximum
 
-### 🔧 How to Enable Tone Mapping (Future)
 
-If HDR tone mapping becomes required, there are three options:
-
-**Option 1: Add OpenCL to Container (Recommended if needed)**
-
-Create a custom Dockerfile:
-```dockerfile
-FROM lscr.io/linuxserver/jellyfin:10.11.4
-
-RUN apt-get update && \
-    apt-get install -y \
-    ocl-icd-libopencl1 \
-    intel-opencl-icd && \
-    rm -rf /var/lib/apt/lists/*
-```
-
-Then update [deploy.yaml](deploy.yaml):
-```yaml
-image: your-registry/jellyfin-opencl:10.11.4
-```
-
-And modify [encoding.xml](encoding.xml) inside the pod:
-```xml
-<EnableTonemapping>true</EnableTonemapping>
-<EnableVppTonemapping>false</EnableVppTonemapping>
-```
-
-**Option 2: Wait for Jellyfin Update**
-
-Future Jellyfin versions may support pure VAAPI tone mapping without OpenCL dependency.
-
-**Option 3: Software Tone Mapping**
-
-Not recommended - extremely slow, no hardware acceleration.
 
 ## Verification Commands
 
