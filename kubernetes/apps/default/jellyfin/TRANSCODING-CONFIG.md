@@ -207,7 +207,7 @@ Device path: `/dev/dri/renderD128`
 | Feature | Status | Notes |
 |---------|--------|-------|
 | Video Playback (SDR) | ✅ Working | Full hardware acceleration |
-| Video Playback (HDR) | ⚠️ Limited | Plays but no tone mapping |
+| Video Playback (HDR) | ⚠️ Limited | Plays but no tone mapping (only a problem on SDR displays) |
 | Transcoding | ✅ Working | Hardware-accelerated encoding/decoding |
 | Trickplay Generation | ✅ Working | No OpenCL errors, using mjpeg_vaapi |
 | Intel QSV Utilization | ✅ Working | Via VAAPI interface |
