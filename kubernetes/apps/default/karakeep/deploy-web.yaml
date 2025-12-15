@@ -25,7 +25,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: web
-          image: ghcr.io/karakeep-app/karakeep:0.29.1
+          image: ghcr.io/karakeep-app/karakeep:0.29.3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000

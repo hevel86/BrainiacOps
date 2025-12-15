@@ -6,7 +6,7 @@ SOPS_AGE_KEY_FILE = "{{env.HOME}}/.config/sops/age/keys.txt"
 [tools]
 "aqua:kubernetes/kubectl" = "v1.34.3"
 "aqua:kubernetes-sigs/kustomize" = "kustomize/v5.8.0"
-"aqua:helm/helm" = "v4.0.2"
+"aqua:helm/helm" = "v4.0.4"
 "aqua:budimanjojo/talhelper" = "v3.0.41"
 "aqua:siderolabs/talos" = "v1.11.5"
 "aqua:derailed/k9s" = "v0.50.16"
