@@ -27,16 +27,6 @@ data:
         interval: 1m
         conditions:
           - "[STATUS] == 200"
-<<<<<<< HEAD
-      - name: bitwarden-sm-operator
-        group: security
-        description: Bitwarden Secrets Manager operator metrics endpoint reachable
-        url: tcp://bitwarden-sm-operator-controller-manager-metrics-service.sm-operator-system.svc.cluster.local:8443
-        interval: 1m
-        conditions:
-          - "[CONNECTED] == true"
-=======
->>>>>>> 1b775b4 (fix(gatus): remove health checks for non-existent or unreachable services)
       - name: prometheus
         group: monitoring
         description: Prometheus /-/healthy endpoint
