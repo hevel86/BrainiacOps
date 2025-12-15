@@ -27,10 +27,59 @@ data:
         interval: 1m
         conditions:
           - "[STATUS] == 200"
+      - name: portainer-agent
+        group: platform
+        description: Portainer agent tunnel should answer on 9001
+        url: tcp://portainer-agent.portainer.svc.cluster.local:9001
+        interval: 1m
+        conditions:
+          - "[CONNECTED] == true"
+      - name: bitwarden-sm-operator
+        group: security
+        description: Bitwarden Secrets Manager operator metrics endpoint reachable
+        url: tcp://bitwarden-sm-operator-controller-manager-metrics-service.sm-operator-system.svc.cluster.local:8443
+        interval: 1m
+        conditions:
+          - "[CONNECTED] == true"
+      - name: renovate
+        group: automation
+        description: Renovate CronJob webhook exposed by chart
+        url: tcp://renovate.renovate.svc.cluster.local:8080
+        interval: 1m
+        conditions:
+          - "[CONNECTED] == true"
+      - name: renovate-secrets
+        group: automation
+        description: Bitwarden secrets feed for Renovate (secret-sync webhook)
+        url: tcp://renovate-secrets.renovate.svc.cluster.local:8080
+        interval: 1m
+        conditions:
+          - "[CONNECTED] == true"
       - name: prometheus
         group: monitoring
         description: Prometheus /-/healthy endpoint
         url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/-/healthy
+        interval: 1m
+        conditions:
+          - "[STATUS] == 200"
+      - name: grafana
+        group: monitoring
+        description: Grafana API health endpoint
+        url: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local/api/health
+        interval: 1m
+        conditions:
+          - "[STATUS] == 200"
+      - name: alertmanager
+        group: monitoring
+        description: Alertmanager ready endpoint
+        url: http://kube-prometheus-stack-alertmanager.monitoring.svc.cluster.local:9093/-/ready
+        interval: 1m
+        conditions:
+          - "[STATUS] == 200"
+      - name: gatus
+        group: monitoring
+        description: Gatus UI should be reachable to view checks
+        url: http://gatus.monitoring.svc.cluster.local/health
         interval: 1m
         conditions:
           - "[STATUS] == 200"
@@ -41,6 +90,20 @@ data:
         interval: 1m
         conditions:
           - "[STATUS] == 200"
+      - name: csi-snapshotter
+        group: storage
+        description: CSI snapshot-controller leader healthz
+        url: http://snapshot-controller.kube-system.svc.cluster.local:8080/healthz/leader-election
+        interval: 1m
+        conditions:
+          - "[STATUS] == 200"
+      - name: intel-gpu-device-plugin
+        group: compute
+        description: Intel GPU device plugin DaemonSet registration port
+        url: tcp://intel-gpu-plugin.intel-gpu.svc.cluster.local:10010
+        interval: 1m
+        conditions:
+          - "[CONNECTED] == true"
       - name: plex
         group: media
         description: Plex media server identity endpoint should be reachable
@@ -52,6 +115,34 @@ data:
         group: networking
         description: TCP availability of the Traefik websecure entrypoint
         url: tcp://traefik.kube-system.svc.cluster.local:443
+        interval: 1m
+        conditions:
+          - "[CONNECTED] == true"
+      - name: traefik-dashboard
+        group: networking
+        description: Traefik dashboard API should respond on 8080
+        url: http://traefik.kube-system.svc.cluster.local:8080/api/rawdata
+        interval: 1m
+        conditions:
+          - "[STATUS] == 200"
+      - name: cert-manager-webhook
+        group: networking
+        description: cert-manager webhook service reachable
+        url: tcp://cert-manager-webhook.cert-manager.svc.cluster.local:443
+        interval: 1m
+        conditions:
+          - "[CONNECTED] == true"
+      - name: tailscale
+        group: networking
+        description: Tailscale sidecar control tunnel
+        url: tcp://tailscale.default.svc.cluster.local:41112
+        interval: 1m
+        conditions:
+          - "[CONNECTED] == true"
+      - name: metallb-webhook
+        group: networking
+        description: MetalLB validating webhook reachable
+        url: tcp://metallb-webhook-service.metallb-system.svc.cluster.local:443
         interval: 1m
         conditions:
           - "[CONNECTED] == true"
