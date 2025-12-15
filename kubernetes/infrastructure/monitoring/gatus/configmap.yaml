@@ -27,31 +27,10 @@ data:
         interval: 1m
         conditions:
           - "[STATUS] == 200"
-      - name: portainer-agent
-        group: platform
-        description: Portainer agent tunnel should answer on 9001
-        url: tcp://portainer-agent.portainer.svc.cluster.local:9001
-        interval: 1m
-        conditions:
-          - "[CONNECTED] == true"
       - name: bitwarden-sm-operator
         group: security
         description: Bitwarden Secrets Manager operator metrics endpoint reachable
         url: tcp://bitwarden-sm-operator-controller-manager-metrics-service.sm-operator-system.svc.cluster.local:8443
-        interval: 1m
-        conditions:
-          - "[CONNECTED] == true"
-      - name: renovate
-        group: automation
-        description: Renovate CronJob webhook exposed by chart
-        url: tcp://renovate.renovate.svc.cluster.local:8080
-        interval: 1m
-        conditions:
-          - "[CONNECTED] == true"
-      - name: renovate-secrets
-        group: automation
-        description: Bitwarden secrets feed for Renovate (secret-sync webhook)
-        url: tcp://renovate-secrets.renovate.svc.cluster.local:8080
         interval: 1m
         conditions:
           - "[CONNECTED] == true"
@@ -90,20 +69,6 @@ data:
         interval: 1m
         conditions:
           - "[STATUS] == 200"
-      - name: csi-snapshotter
-        group: storage
-        description: CSI snapshot-controller leader healthz
-        url: http://snapshot-controller.kube-system.svc.cluster.local:8080/healthz/leader-election
-        interval: 1m
-        conditions:
-          - "[STATUS] == 200"
-      - name: intel-gpu-device-plugin
-        group: compute
-        description: Intel GPU device plugin DaemonSet registration port
-        url: tcp://intel-gpu-plugin.intel-gpu.svc.cluster.local:10010
-        interval: 1m
-        conditions:
-          - "[CONNECTED] == true"
       - name: plex
         group: media
         description: Plex media server identity endpoint should be reachable
@@ -129,13 +94,6 @@ data:
         group: networking
         description: cert-manager webhook service reachable
         url: tcp://cert-manager-webhook.cert-manager.svc.cluster.local:443
-        interval: 1m
-        conditions:
-          - "[CONNECTED] == true"
-      - name: tailscale
-        group: networking
-        description: Tailscale sidecar control tunnel
-        url: tcp://tailscale.default.svc.cluster.local:41112
         interval: 1m
         conditions:
           - "[CONNECTED] == true"
