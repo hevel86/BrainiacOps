@@ -88,6 +88,8 @@ spec:
               value: "creative"
             - name: SERVER_NAME
               value: "Raven"
+            - name: ENABLE_COMMAND_BLOCK
+              value: "TRUE"
             - name: ENABLE_RCON
               value: "TRUE"
             - name: RCON_PASSWORD
