@@ -19,9 +19,9 @@ automation:
   deployment_strategy: Recreate
 
 current_state:
-  version: "v1.29.0"
-  last_migration: "2025-12-08"
-  document_count: 67
+  version: "v1.30.0"
+  last_migration: "2025-12-16"
+  document_count: 71
 
 prerequisites:
   - kubectl cluster access
@@ -242,7 +242,7 @@ kubectl exec -n default deploy/karakeep-meilisearch -- \
 
 **Verification**:
 - Index `bookmarks` exists
-- `numberOfDocuments` matches expected count (currently 67)
+- `numberOfDocuments` matches expected count (currently 71)
 
 #### STEP 10: Cleanup (Optional)
 
@@ -454,6 +454,21 @@ migration:
   notes: ""
 ```
 
+### v1.28.2 → v1.30.0 (2025-12-16)
+
+```yaml
+migration:
+  date: "2025-12-16"
+  source_version: "v1.28.2"
+  target_version: "v1.30.0"
+  dump_file: "20251216-034934741.dump"
+  local_backup: "/tmp/karakeep-meili-20251216.dump"
+  status: completed
+  documents_migrated: 71
+  downtime_minutes: 6
+  notes: "Automated migration via Claude Code. Skip v1.29.0, direct upgrade to v1.30.0. Silent import (no log messages in v1.30.0)"
+```
+
 ### v1.28.2 → v1.29.0 (2025-12-08)
 
 ```yaml
@@ -463,10 +478,10 @@ migration:
   target_version: "v1.29.0"
   dump_file: "20251208-150000000.dump"
   local_backup: "/tmp/karakeep-meili-20251208.dump"
-  status: pending
-  documents_migrated: 67
-  downtime_minutes: ~15
-  notes: "Staged for execution"
+  status: skipped
+  documents_migrated: 0
+  downtime_minutes: 0
+  notes: "Skipped - upgraded directly to v1.30.0"
 ```
 
 ### v1.27.0 → v1.28.2 (2025-12-08)
@@ -543,8 +558,8 @@ migration:
 
 ## Summary
 
-- **Current Version**: v1.29.0
-- **Index**: bookmarks (67 documents)
+- **Current Version**: v1.30.0
+- **Index**: bookmarks (71 documents)
 - **Data Loss**: None across all migrations
-- **Last Migration**: 2025-12-08
+- **Last Migration**: 2025-12-16
 - **Automated By**: Claude Code
