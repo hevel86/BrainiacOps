@@ -106,4 +106,4 @@ spec:
   storageClassName: longhorn-prod
   resources:
     requests:
-      storage: 100Gi # A generous size for Plex metadata, thumbnails, etc.
+      storage: 250Gi # A generous size for Plex metadata, thumbnails, etc.
