@@ -1,11 +1,29 @@
 # Scripts
 
-Helper scripts for restoring Longhorn volumes from backups.
+Helper scripts for Longhorn volume management and operations.
 
 ## Prerequisites
 - `kubectl` configured to the cluster with Longhorn installed
-- `jq`
+- `python3` (for analyze-pvc-usage.sh)
+- `jq` (for restore scripts)
 - Access to the Longhorn backup target (default NFS path is baked into the scripts)
+
+## analyze-pvc-usage.sh
+Analyze Longhorn PVC storage allocation and actual usage across the cluster.
+
+```bash
+./analyze-pvc-usage.sh
+```
+
+Generates a comprehensive markdown report at `docs/longhorn-pvc-usage.md` containing:
+- Total allocated vs. used storage with efficiency metrics
+- Volume inventory categorized by size
+- Over-allocated volumes with waste calculations
+- Optimization recommendations prioritized by impact
+- Volumes at/over capacity requiring immediate action
+- Storage efficiency breakdown by category
+
+Run this periodically to track storage utilization and identify optimization opportunities.
 
 ## longhorn-restore-backups.sh
 Restore **all** Longhorn volumes from their latest backups.
