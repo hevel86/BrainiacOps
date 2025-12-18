@@ -1,13 +1,13 @@
 # Longhorn PVC Storage Analysis
 
-**Last Updated:** 2025-12-18 12:08:03 UTC
+**Last Updated:** 2025-12-18 12:28:35 UTC
 
 ## Executive Summary
 
-- **Total Allocated:** 1,073.0 GiB
-- **Total Used:** 429.1 GiB
+- **Total Allocated:** 1,077.0 GiB
+- **Total Used:** 429.2 GiB
 - **Overall Efficiency:** 40%
-- **Total Waste:** 643.9 GiB (60% unused storage)
+- **Total Waste:** 647.8 GiB (60% unused storage)
 - **Storage Class:** longhorn / longhorn-prod
 - **Replica Count:** 3 (across brainiac-00, brainiac-01, brainiac-02)
 
@@ -47,7 +47,7 @@
 | default/mysql-data-pvc | 10.0 GiB | 0.5 GiB | 5% | 9.5 GiB | 🔴 Severely over-allocated |
 | default/bazarr-config | 10.0 GiB | 0.8 GiB | 8% | 9.2 GiB | 🔴 Severely over-allocated |
 | default/sabnzbd-config | 10.0 GiB | 1.2 GiB | 12% | 8.8 GiB | ⚠️ Could reduce |
-| default/sonarr-config | 10.0 GiB | 3.5 GiB | 35% | 6.5 GiB | ⚠️ Over-allocated |
+| default/sonarr-config | 10.0 GiB | 3.6 GiB | 36% | 6.4 GiB | ⚠️ Over-allocated |
 | default/radarr-config | 10.0 GiB | 5.9 GiB | 59% | 4.1 GiB | ✅ Acceptable |
 
 ### Small Volumes (3-7 GiB)
@@ -57,8 +57,9 @@
 | default/opencloud-config-pvc-lh | 5.0 GiB | 0.2 GiB | 4% | 4.8 GiB | 🔴 Severely over-allocated |
 | default/romm-assets-pvc | 5.0 GiB | 0.2 GiB | 4% | 4.8 GiB | 🔴 Severely over-allocated |
 | default/semaphore-postgres-pvc-lh | 5.0 GiB | 0.3 GiB | 6% | 4.7 GiB | 🔴 Severely over-allocated |
-| default/prowlarr-config-lh | 5.0 GiB | 0.6 GiB | 13% | 4.4 GiB | ⚠️ Could reduce |
-| default/tautulli-config-lh | 5.0 GiB | 1.5 GiB | 31% | 3.5 GiB | ⚠️ Over-allocated |
+| default/prowlarr-config-lh | 5.0 GiB | 0.7 GiB | 13% | 4.3 GiB | ⚠️ Could reduce |
+| default/nextcloud-mariadb-config-pvc | 5.0 GiB | 1.2 GiB | 23% | 3.8 GiB | ⚠️ Over-allocated |
+| default/tautulli-config-lh | 5.0 GiB | 1.6 GiB | 31% | 3.4 GiB | ⚠️ Over-allocated |
 
 ### Minimal Volumes (<3 GiB)
 
@@ -78,8 +79,7 @@
 | default/audiobookshelf-metadata-pvc-lh | 1.0 GiB | 0.1 GiB | 12% | 0.9 GiB | ⚠️ Could reduce |
 | default/jellyseerr-config-pvc | 1.0 GiB | 0.2 GiB | 19% | 0.8 GiB | ⚠️ Could reduce |
 | default/jdownloader-config-pvc-lh | 1.0 GiB | 0.5 GiB | 54% | 0.5 GiB | ✅ Acceptable |
-| default/nextcloud-config-pvc | 1.0 GiB | 0.7 GiB | 70% | 0.3 GiB | ✅ Good |
-| default/nextcloud-mariadb-config-pvc | 1.0 GiB | 1.1 GiB | 109% | -0.1 GiB | 🔴 **OVER CAPACITY** |
+| default/nextcloud-config-pvc | 1.0 GiB | 0.7 GiB | 71% | 0.3 GiB | ✅ Good |
 
 ## Recommendations for Space Optimization
 
@@ -136,14 +136,6 @@
 16. **default/bazarr-config**: 10Gi → 2Gi
 17. **default/sabnzbd-config**: 10Gi → 2Gi
 
-### Immediate Action Required
-
-
-🔴 **default/nextcloud-mariadb-config-pvc**: Currently at 109% capacity (1.1 GiB / 1.0 GiB)
-- **Action:** Increase to 2Gi immediately
-- File: `kubernetes/apps/default/nextcloud-mariadb-config-pvc/pvc.yaml`
-
-
 ## PVC Expansion Process
 
 To expand a Longhorn PVC:
@@ -176,8 +168,8 @@ kubectl describe pvc -n default <pvc-name>
 | Large (100+ GiB) | 5 | 800 GiB | 386 GiB | 48% | 414 GiB |
 | Medium (15-100 GiB) | 6 | 120 GiB | 22 GiB | 19% | 98 GiB |
 | Standard (7-15 GiB) | 11 | 110 GiB | 14 GiB | 13% | 96 GiB |
-| Small (3-7 GiB) | 5 | 25 GiB | 3 GiB | 11% | 22 GiB |
-| Minimal (<3 GiB) | 16 | 18 GiB | 4 GiB | 20% | 14 GiB |
+| Small (3-7 GiB) | 6 | 30 GiB | 4 GiB | 13% | 26 GiB |
+| Minimal (<3 GiB) | 15 | 17 GiB | 3 GiB | 15% | 14 GiB |
 
 ## Longhorn Storage Architecture
 
@@ -194,5 +186,5 @@ kubectl describe pvc -n default <pvc-name>
 
 - This analysis excludes NFS-backed volumes (media-movies, media-tv, plex-zfstranscode, etc.)
 - All sizes reflect actual Longhorn volume allocations with 3-way replication
-- Total physical storage used = Used * 3 replicas = ~1,287 GiB across cluster
+- Total physical storage used = Used * 3 replicas = ~1,288 GiB across cluster
 - Longhorn auto-snapshots may increase actual disk usage beyond reported values
