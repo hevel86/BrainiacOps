@@ -11,6 +11,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Talos secrets** must only exist in `talsecret.sops.yaml` (encrypted with SOPS+age)
 - When in doubt, ask before committing anything that could contain sensitive data
 
+### GitOps Security Best Practices for Scripts
+
+When creating scripts that query cluster data or generate reports:
+
+**Safe to commit:**
+- Scripts that query cluster metadata (PVC names, sizes, namespaces, storage classes)
+- Generated reports with operational data (storage usage, resource allocations)
+- Scripts that read non-sensitive Kubernetes resources (Deployments, PVCs, ConfigMaps)
+- Documentation and analysis based on public cluster information
+
+**Never commit:**
+- Scripts that output Secret contents, even if base64-encoded
+- Volume UUIDs or internal identifiers that could aid unauthorized access
+- Scripts that dump environment variables or pod configurations with secrets
+- IP addresses of services outside the cluster (internal IPs like node IPs are OK)
+- Any script output containing passwords, tokens, or API keys
+- Backup URLs or storage credentials
+
+**Best practices:**
+- Use temporary files in `/tmp` for intermediate data, clean up after execution
+- Filter sensitive fields before writing output (e.g., exclude `data` field from Secrets)
+- Document what data the script accesses and outputs
+- For cluster analysis scripts: focus on metadata, not content
+- If a script must handle secrets, document that it should NOT be run in CI/CD
+
 ## Executive Summary
 
 **BrainiacOps** is a GitOps-managed home lab Kubernetes cluster using Argo CD as the single source of truth. It follows a declarative, infrastructure-as-code approach with heavy emphasis on automation, security, and maintainability.
