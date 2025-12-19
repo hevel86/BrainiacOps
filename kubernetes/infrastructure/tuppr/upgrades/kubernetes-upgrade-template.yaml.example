@@ -1,0 +1,47 @@
+# KubernetesUpgrade Resource Template
+#
+# This template shows how to create a KubernetesUpgrade resource for automated Kubernetes upgrades.
+#
+# USAGE:
+# 1. Copy this file and remove the .example extension
+# 2. Update the version to your target Kubernetes version
+# 3. Commit to Git and let Argo CD apply
+#
+# IMPORTANT:
+# - Only one KubernetesUpgrade resource can exist at a time
+# - Cannot run concurrently with TalosUpgrade
+# - Update talos/talconfig.yaml kubernetesVersion to match before creating this resource
+# - Ensure Kubernetes version is compatible with your Talos version
+
+apiVersion: tuppr.dev/v1
+kind: KubernetesUpgrade
+metadata:
+  name: upgrade-to-v1-34-2  # Update this to match target version
+  namespace: system-upgrade
+  annotations:
+    argocd.argoproj.io/sync-wave: "50"  # Run after all infrastructure is ready
+spec:
+  # Target Kubernetes version
+  version: v1.34.2  # CHANGE THIS to your target version
+
+  # Health checks using CEL expressions
+  # These run before the upgrade to ensure cluster health
+  healthChecks:
+    - name: talos-ready
+      expression: |
+        talos.ready
+    - name: kubernetes-ready
+      expression: |
+        kubernetes.ready
+    - name: longhorn-ready
+      expression: |
+        longhorn.ready
+    - name: all-nodes-ready
+      expression: |
+        kubernetes.nodes.allReady
+
+  # Optional: Enable debug logging
+  # debug: true
+
+  # Optional: Force upgrade even if validation fails (use with caution!)
+  # force: false

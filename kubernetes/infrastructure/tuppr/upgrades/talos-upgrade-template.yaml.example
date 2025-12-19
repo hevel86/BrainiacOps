@@ -1,0 +1,53 @@
+# TalosUpgrade Resource Template
+#
+# This template shows how to create a TalosUpgrade resource for automated Talos Linux upgrades.
+#
+# USAGE:
+# 1. Copy this file and remove the .example extension
+# 2. Update the version to your target Talos version
+# 3. Verify the installer URL includes the correct schematic ID and version tag
+# 4. Commit to Git and let Argo CD apply
+#
+# IMPORTANT:
+# - The schematic ID (284a1fe978ff4e6221a0e95fc1d01278bab28729adcb54bb53f7b0d3f2951dcc) must match talconfig.yaml
+# - Always append the version tag to preserve system extensions
+# - Only one TalosUpgrade resource can exist at a time
+# - Update talos/talconfig.yaml versions to match before creating this resource
+
+apiVersion: tuppr.dev/v1
+kind: TalosUpgrade
+metadata:
+  name: upgrade-to-v1-11-6  # Update this to match target version
+  namespace: system-upgrade
+  annotations:
+    argocd.argoproj.io/sync-wave: "50"  # Run after all infrastructure is ready
+spec:
+  # Target Talos version
+  version: v1.11.6  # CHANGE THIS to your target version
+
+  # Factory installer URL with schematic ID
+  # CRITICAL: Use the same schematic from talos/talconfig.yaml line 35
+  # Format: factory.talos.dev/metal-installer/<SCHEMATIC-ID>:<VERSION>
+  installer: factory.talos.dev/metal-installer/284a1fe978ff4e6221a0e95fc1d01278bab28729adcb54bb53f7b0d3f2951dcc:v1.11.6
+
+  # Health checks using CEL expressions
+  # These run before upgrading each node to ensure cluster health
+  healthChecks:
+    - name: talos-ready
+      expression: |
+        talos.ready
+    - name: kubernetes-ready
+      expression: |
+        kubernetes.ready
+    - name: longhorn-ready
+      expression: |
+        longhorn.ready
+
+  # Reboot mode: "default" (graceful) or "powercycle" (force reboot)
+  rebootMode: default
+
+  # Optional: Enable debug logging
+  # debug: true
+
+  # Optional: Force upgrade even if validation fails (use with caution!)
+  # force: false

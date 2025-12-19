@@ -92,6 +92,12 @@ controlPlane:
             hostDNS:
               enabled: true
               forwardKubeDNSToHost: true
+            kubernetesTalosAPIAccess:
+              enabled: true
+              allowedRoles:
+                - os:admin
+              allowedKubernetesNamespaces:
+                - system-upgrade
           install:
             wipe: true
         cluster:

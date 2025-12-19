@@ -1,0 +1,4 @@
+# This directory contains upgrade resource templates and active upgrade resources
+#
+# Templates (*.example files) are examples and won't be applied by Argo CD
+# Active upgrades (*.yaml files) will be applied automatically when committed

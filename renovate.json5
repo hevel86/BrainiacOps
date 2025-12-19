@@ -17,6 +17,7 @@
     'kubernetes/infrastructure/**',
     '.github/workflows/**',
     '.mise.toml',
+    'talos/talconfig.yaml',
   ],
   enabledManagers: [
     'github-actions',
@@ -239,6 +240,142 @@
         '"pipx:(?<depName>[^"]+)" = "(?<currentValue>[^"]+)"',
       ],
       datasourceTemplate: 'pypi',
+    },
+    {
+      customType: 'regex',
+      description: 'Update Talos version in talconfig.yaml',
+      managerFilePatterns: [
+        '/^talos/talconfig\\.ya?ml$/',
+      ],
+      matchStrings: [
+        'talosVersion:\\s*(?<currentValue>v[0-9.]+)',
+      ],
+      datasourceTemplate: 'github-releases',
+      depNameTemplate: 'siderolabs/talos',
+      versioningTemplate: 'semver',
+    },
+    {
+      customType: 'regex',
+      description: 'Update Kubernetes version in talconfig.yaml',
+      managerFilePatterns: [
+        '/^talos/talconfig\\.ya?ml$/',
+      ],
+      matchStrings: [
+        'kubernetesVersion:\\s*(?<currentValue>v[0-9.]+)',
+      ],
+      datasourceTemplate: 'github-releases',
+      depNameTemplate: 'kubernetes/kubernetes',
+      versioningTemplate: 'semver',
+    },
+    {
+      customType: 'regex',
+      description: 'Update Talos version in TalosUpgrade resources',
+      managerFilePatterns: [
+        '/^kubernetes/infrastructure/tuppr/upgrades/.*\\.ya?ml$/',
+      ],
+      matchStrings: [
+        // Match both the version field and installer URL
+        'apiVersion:\\s*tuppr\\.dev/v1[\\s\\S]*?kind:\\s*TalosUpgrade[\\s\\S]*?version:\\s*(?<currentValue>v[0-9.]+)',
+      ],
+      datasourceTemplate: 'github-releases',
+      depNameTemplate: 'siderolabs/talos',
+      versioningTemplate: 'semver',
+    },
+    {
+      customType: 'regex',
+      description: 'Update Kubernetes version in KubernetesUpgrade resources',
+      managerFilePatterns: [
+        '/^kubernetes/infrastructure/tuppr/upgrades/.*\\.ya?ml$/',
+      ],
+      matchStrings: [
+        'apiVersion:\\s*tuppr\\.dev/v1[\\s\\S]*?kind:\\s*KubernetesUpgrade[\\s\\S]*?version:\\s*(?<currentValue>v[0-9.]+)',
+      ],
+      datasourceTemplate: 'github-releases',
+      depNameTemplate: 'kubernetes/kubernetes',
+      versioningTemplate: 'semver',
+    },
+  ],
+  packageRules: [
+    {
+      description: 'Group Talos Linux updates (talconfig + tuppr resources)',
+      matchDatasources: [
+        'github-releases',
+      ],
+      matchPackageNames: [
+        'siderolabs/talos',
+      ],
+      groupName: 'Talos Linux',
+      automerge: false,
+      labels: [
+        'dependencies',
+        'renovate',
+        'talos',
+      ],
+    },
+    {
+      description: 'Group Kubernetes updates (talconfig + tuppr resources)',
+      matchDatasources: [
+        'github-releases',
+      ],
+      matchPackageNames: [
+        'kubernetes/kubernetes',
+      ],
+      matchFileNames: [
+        'talos/talconfig.yaml',
+        'kubernetes/infrastructure/tuppr/upgrades/**',
+      ],
+      groupName: 'Kubernetes',
+      automerge: false,
+      labels: [
+        'dependencies',
+        'renovate',
+        'kubernetes',
+      ],
+    },
+    {
+      description: 'Group all patch updates',
+      matchUpdateTypes: [
+        'patch',
+      ],
+      groupName: 'Patch updates',
+      groupSlug: 'patch-updates',
+    },
+    {
+      description: 'Automerge safe updates for GitHub Actions',
+      matchManagers: [
+        'github-actions',
+      ],
+      matchUpdateTypes: [
+        'minor',
+        'patch',
+      ],
+      automerge: true,
+      automergeType: 'pr',
+      labels: [
+        'dependencies',
+        'renovate',
+        'automerge',
+      ],
+    },
+    {
+      description: 'Allow mylar3 only semver ls tags',
+      matchDatasources: [
+        'docker',
+      ],
+      matchPackageNames: [
+        'lscr.io/linuxserver/mylar3',
+      ],
+      allowedVersions: '/^v?d+.d+.d+(?:-lsd+)?$/',
+    },
+    {
+      description: 'Limit linuxserver tags to semver-style releases',
+      matchDatasources: [
+        'docker',
+      ],
+      allowedVersions: '/^\\d{1,3}\\.\\d+\\.\\d+(?:-[A-Za-z0-9._-]+)?$/',
+      matchPackageNames: [
+        'lscr.io/linuxserver/{/,}**',
+      ],
     },
   ],
 }
