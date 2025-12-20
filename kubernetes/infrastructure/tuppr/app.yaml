@@ -14,8 +14,8 @@ spec:
     server: https://kubernetes.default.svc
     namespace: system-upgrade
   source:
-    repoURL: oci://ghcr.io/home-operations/charts
-    chart: tuppr
+    repoURL: https://github.com/home-operations/tuppr
+    path: charts/tuppr
     targetRevision: 0.0.48
     helm:
       values: |
