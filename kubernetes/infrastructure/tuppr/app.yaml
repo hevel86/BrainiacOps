@@ -16,7 +16,7 @@ spec:
   source:
     repoURL: oci://ghcr.io/home-operations/charts
     chart: tuppr
-    targetRevision: 0.1.0
+    targetRevision: 0.0.48
     helm:
       values: |
         # Prometheus metrics configuration
