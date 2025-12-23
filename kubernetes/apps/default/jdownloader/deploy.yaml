@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: jdownloader
-          image: jlesage/jdownloader-2:v25.12.2
+          image: jlesage/jdownloader-2:v25.12.3
           ports:
             - containerPort: 5800
           volumeMounts:
