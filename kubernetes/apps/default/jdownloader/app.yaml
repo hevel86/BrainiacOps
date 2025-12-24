@@ -14,11 +14,7 @@ spec:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
     path: kubernetes/apps/default/jdownloader
-  ignoreDifferences:
-    - group: ""
-      kind: PersistentVolumeClaim
-      jsonPointers:
-        - /spec/volumeName
   syncPolicy:
     syncOptions:
       - ServerSideApply=true
+      - CreateNamespace=true
