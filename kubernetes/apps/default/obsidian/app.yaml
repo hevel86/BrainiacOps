@@ -16,8 +16,5 @@ spec:
     targetRevision: HEAD
     path: kubernetes/apps/default/obsidian
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
     syncOptions:
       - ServerSideApply=true

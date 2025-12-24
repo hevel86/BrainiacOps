@@ -15,8 +15,5 @@ spec:
     targetRevision: HEAD
     path: kubernetes/apps/default/peanut
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
     syncOptions:
       - ServerSideApply=true

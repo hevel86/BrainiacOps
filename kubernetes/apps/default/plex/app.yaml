@@ -15,9 +15,6 @@ spec:
     targetRevision: HEAD
     path: kubernetes/apps/default/plex
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
     syncOptions:
       - ServerSideApply=true
       - CreateNamespace=true

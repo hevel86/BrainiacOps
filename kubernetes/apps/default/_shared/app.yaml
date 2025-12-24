@@ -18,8 +18,5 @@ spec:
       recurse: true
       include: '**/app.yaml'
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
     syncOptions:
       - ServerSideApply=true

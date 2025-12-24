@@ -15,9 +15,6 @@ spec:
     targetRevision: HEAD
     path: kubernetes/apps/default/opencloud
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
     syncOptions:
       - ServerSideApply=true
 

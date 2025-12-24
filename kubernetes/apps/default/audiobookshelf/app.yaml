@@ -15,8 +15,5 @@ spec:
     targetRevision: HEAD
     path: kubernetes/apps/default/audiobookshelf
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
     syncOptions:
       - ServerSideApply=true

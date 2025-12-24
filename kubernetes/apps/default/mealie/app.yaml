@@ -15,9 +15,6 @@ spec:
     targetRevision: HEAD
     path: kubernetes/apps/default/mealie
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
     syncOptions:
       - ServerSideApply=true
 
