@@ -19,9 +19,9 @@ automation:
   deployment_strategy: Recreate
 
 current_state:
-  version: "v1.30.0"
-  last_migration: "2025-12-16"
-  document_count: 71
+  version: "v1.31.0"
+  last_migration: "2025-12-24"
+  document_count: 72
 
 prerequisites:
   - kubectl cluster access
@@ -467,6 +467,21 @@ migration:
   documents_migrated: 71
   downtime_minutes: 6
   notes: "Automated migration via Claude Code. Skip v1.29.0, direct upgrade to v1.30.0. Silent import (no log messages in v1.30.0)"
+```
+
+### v1.30.0 → v1.31.0 (2025-12-24)
+
+```yaml
+migration:
+  date: "2025-12-24"
+  source_version: "v1.30.0"
+  target_version: "v1.31.0"
+  dump_file: "20251224-190735936.dump"
+  local_backup: "/tmp/karakeep-meili-20251224.dump"
+  status: completed
+  documents_migrated: 72
+  downtime_minutes: 8
+  notes: "CrashLoopBackOff on version mismatch; full dump/restore completed successfully."
 ```
 
 ### v1.28.2 → v1.29.0 (2025-12-08)
