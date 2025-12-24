@@ -14,5 +14,11 @@ spec:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
     path: kubernetes/apps/default/audiobookshelf
+  ignoreDifferences:
+    - group: ""
+      kind: PersistentVolumeClaim
+      jsonPointers:
+        - /spec/volumeName
   syncPolicy:
-    syncOptions: []
+    syncOptions:
+      - ServerSideApply=true
