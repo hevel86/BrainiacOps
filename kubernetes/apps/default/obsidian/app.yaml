@@ -15,11 +15,6 @@ spec:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
     path: kubernetes/apps/default/obsidian
-  ignoreDifferences:
-    - group: ""
-      kind: PersistentVolumeClaim
-      jsonPointers:
-        - /spec/volumeName
   syncPolicy:
     syncOptions:
       - ServerSideApply=true
