@@ -6,10 +6,11 @@ EXECUTE=0
 USE_BACKUP_VOLUME_NAME=1
 RECURRING_JOB_GROUP="${RECURRING_JOB_GROUP:-prod}"
 FRONTEND="${FRONTEND:-blockdev}"
+SKIP_PVC=0
 
 usage() {
   cat <<EOF
-Usage: $0 [--execute] [--use-backup-volume-name]
+Usage: $0 [--execute] [--use-backup-volume-name] [--skip-pvc]
 Restore Longhorn volumes from latest backups on the configured NFS target.
 Defaults to dry-run (no changes). Set BACKUP_TARGET env var to override target.
 Set RECURRING_JOB_GROUP env var to pick a recurring job group (default: prod).
@@ -17,6 +18,7 @@ Set FRONTEND env var if you need a different Longhorn frontend (default: blockde
 
   --execute                  Perform the restore (create Volume/PV/PVC). Otherwise dry-run.
   --use-backup-volume-name   Restore with the original Longhorn volume name ("Use Previous Name" in UI). (default)
+  --skip-pvc                 Do not create PVCs; rely on GitOps to create them and bind via PV claimRef.
 EOF
 }
 
@@ -24,6 +26,7 @@ for arg in "$@"; do
   case "$arg" in
     --execute) EXECUTE=1 ;;
     --use-backup-volume-name) USE_BACKUP_VOLUME_NAME=1 ;;
+    --skip-pvc) SKIP_PVC=1 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown argument: $arg" >&2; usage; exit 1 ;;
   esac
@@ -150,7 +153,9 @@ EOF
     log "PV $PV_NAME already exists; skipping PV create"
   fi
 
-  if [[ "$PVC_EXISTS" -eq 0 ]]; then
+  if [[ "$SKIP_PVC" -eq 1 ]]; then
+    log "Skipping PVC create for ${PVC_NS}/${PVC_NAME}; GitOps should create and bind it"
+  elif [[ "$PVC_EXISTS" -eq 0 ]]; then
     cat <<EOF | kubectl create -f -
 apiVersion: v1
 kind: PersistentVolumeClaim
