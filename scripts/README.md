@@ -34,6 +34,9 @@ Restore **all** Longhorn volumes from their latest backups.
 
 # execute restores with default settings
 ./longhorn-restore-backups.sh --execute
+
+# restore volumes/PVs only and let GitOps create PVCs
+./longhorn-restore-backups.sh --execute --skip-pvc
 ```
 
 Key env vars:
@@ -46,6 +49,8 @@ Behavior:
 - Creates Volume/PV/PVC with `kubectl create` to avoid persisting last-applied annotations on immutable fields.
 - Skips existing PVC/PV and reuses bound PV names so restore stays idempotent.
 - Applies the recurring job group label on restored volumes.
+- `--skip-pvc` restores Volume/PV only and relies on GitOps to create PVCs that bind via the PV `claimRef`.
+- The PV `claimRef` pre-binds the restored volume to the intended PVC name/namespace, preventing Longhorn from provisioning a fresh volume.
 
 If you previously restored with these scripts and hit immutable `volumeName` errors when running `kubectl apply -k`, drop the last-applied annotation on the PVCs before re-applying, e.g.:
 ```bash
