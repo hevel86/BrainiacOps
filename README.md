@@ -10,7 +10,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Renovate](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://renovatebot.com)
-[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/hevel86/BrainiacOps/kubeconform.yml?branch=main)](https://github.com/hevel86/BrainiacOps/actions/workflows/kubeconform.yml)
+[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/hevel86/BrainiacOps/kubeconform.yml?branch=master)](https://github.com/hevel86/BrainiacOps/actions/workflows/kubeconform.yml)
 
 </div>
 
@@ -22,29 +22,38 @@ BrainiacOps is the single source of truth for my homelab Kubernetes cluster. It 
 
 Automation is a core principle, with Renovate for dependency updates, GitHub Actions for CI/CD, and pre-commit hooks for code quality and security.
 
+**Cluster Configuration:**
+- **Operating System**: Talos Linux v1.12.0
+- **Kubernetes**: v1.35.0
+- **Nodes**: 3 control plane nodes (brainiac-00, brainiac-01, brainiac-02)
+- **GitOps Controller**: Argo CD
+
 ## Key Capabilities
 
-- **GitOps-first Operations**: Argo CD bootstraps itself and then syncs all resources, including infrastructure, media applications, and game servers, from declarative manifests in this repository.
-- **Opinionated Platform Services**: A robust set of platform services are managed as first-class infrastructure, including:
-    - **Ingress & Networking**: Traefik, MetalLB, and Tailscale.
-    - **Storage**: Longhorn for distributed block storage and CSI snapshotting.
-    - **Security**: cert-manager for automated TLS certificates and Bitwarden Secrets Operator for secret injection.
-    - **Hardware Acceleration**: Intel GPU device plugins for video transcoding.
-    - **Management**: Portainer for a GUI-based overview of the cluster.
-- **Comprehensive Media & Automation Stack**: A wide range of applications for media management and automation are deployed, including:
-    - **Media Servers**: Plex, Jellyfin, Audiobookshelf.
-    - **Content Automation**: Radarr, Sonarr, Bazarr, Prowlarr, Mylar3.
-    - **Download Clients**: SABnzbd, Transmission (with and without VPN).
-    - **Request Management**: Jellyseerr, Ombi.
-    - **Utilities**: Handbrake for video transcoding, Tautulli for Plex monitoring, and more.
-- **Observability**: A full monitoring stack provides insights into the cluster's health, featuring:
-    - Kube Prometheus Stack for metrics and alerting.
-    - Gatus for endpoint health checking.
-    - metrics-server for resource metrics.
+- **GitOps-first Operations**: Argo CD bootstraps itself and then syncs all resources, including infrastructure, media applications, and self-hosted services, from declarative manifests in this repository.
+
+- **Platform Infrastructure**: A robust set of platform services managed as first-class infrastructure:
+    - **Ingress & Networking**: Traefik (ingress controller), MetalLB (load balancer), Tailscale (VPN/mesh networking)
+    - **Storage**: Longhorn (distributed block storage), CSI snapshotter, media PersistentVolumes/Claims
+    - **Security**: cert-manager (automated TLS with Cloudflare), Bitwarden Secrets Operator (runtime secret injection)
+    - **Hardware Acceleration**: Intel GPU device plugins for video transcoding (Plex, Jellyfin, Tdarr)
+    - **Monitoring**: Kube Prometheus Stack (Prometheus + Grafana), Gatus (health dashboard), metrics-server
+    - **Management**: Portainer + Portainer Agent (GUI-based cluster management)
+    - **Automation**: Renovate (automated dependency updates)
+
 - **Security Guardrails**:
-    - **Secret Management**: Bitwarden Secrets Operator injects credentials securely, keeping sensitive data out of Git.
-    - **Supply Chain Security**: Pre-commit hooks enforce YAML formatting, and Renovate keeps dependencies up-to-date.
-- **Testing Sandboxes**: The `kubernetes/testing` directory provides a space for temporary workloads, benchmarks, and experiments without affecting production namespaces.
+    - **Secret Management**: Bitwarden Secrets Operator injects credentials securely, keeping sensitive data out of Git
+    - **Encrypted Secrets**: Talos cluster secrets encrypted with SOPS + age
+    - **Supply Chain Security**: Pre-commit hooks enforce YAML formatting, kubeconform validates manifests in CI
+    - **Automated Updates**: Renovate with 15+ custom regex managers tracks dependencies across Docker images, Helm charts, and CLI tools
+
+- **High Availability Storage**:
+    - Longhorn with 3-replica configuration across all nodes
+    - Automatic pod failover on node failure (`delete-both-statefulset-and-deployment-pod` policy)
+    - Data locality optimization for performance (`best-effort`)
+    - Automatic disk provisioning (disks >= 1.5TB)
+
+- **Testing & Experimentation**: The `kubernetes/testing` directory provides a space for temporary workloads, benchmarks, and experiments without affecting production namespaces.
 
 ## Repository Layout
 
@@ -83,7 +92,7 @@ Once these steps are completed, Argo CD will take over and continuously reconcil
 
 ## Mise En Place Tooling
 
-The repository ships with a [mise](https://mise.jdx.dev/) configuration (`.mise.toml`) that relies on the built-in [aquaproj/aqua](https://aquaproj.github.io/) backend for static CLI downloads—`kubectl`, `kustomize`, `helm`, `talhelper`, `talosctl`, `k9s`, `kubeconform`, `sops`, and `age`—plus `yamllint` via `pipx`. No manual plugin installs are required. It also wires environment variables for:
+The repository ships with a [mise](https://mise.jdx.dev/) configuration (`.mise.toml`) that relies on the built-in [aquaproj/aqua](https://aquaproj.github.io/) backend for static CLI downloads—`kubectl`, `kustomize`, `helm`, `talhelper`, `talosctl`, `argocd`, `k9s`, `kubeconform`, `sops`, `age`, and `gh` (GitHub CLI). No manual plugin installs are required. It also wires environment variables for:
 
 - `KUBECONFIG`: points to `~/.kube/config`.
 - `TALOSCONFIG`: points to `~/.talos/config`.
