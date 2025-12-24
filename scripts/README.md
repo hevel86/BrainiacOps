@@ -51,6 +51,7 @@ Behavior:
 - Applies the recurring job group label on restored volumes.
 - `--skip-pvc` restores Volume/PV only and relies on GitOps to create PVCs that bind via the PV `claimRef`.
 - The PV `claimRef` pre-binds the restored volume to the intended PVC name/namespace, preventing Longhorn from provisioning a fresh volume.
+- You may see a kubectl warning about `metadata.finalizers: "longhorn.io"` not being domain-qualified; this comes from the Longhorn Volume CRD and is safe to ignore.
 
 If you previously restored with these scripts and hit immutable `volumeName` errors when running `kubectl apply -k`, drop the last-applied annotation on the PVCs before re-applying, e.g.:
 ```bash
