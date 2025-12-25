@@ -23,4 +23,16 @@ spec:
   resources:
     requests:
       storage: 20Gi # Adjust to your needs, should be >= old PVC
-
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minecraft-fox-data-longhorn
+  namespace: default # Adjust if your namespace is different
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn-prod # Ensure this is your Longhorn StorageClass name
+  resources:
+    requests:
+      storage: 10Gi # Adjust to your needs, should be >= old PVC

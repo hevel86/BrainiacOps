@@ -108,3 +108,60 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: minecraft-creative-data-longhorn
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minecraft-fox
+  namespace: default
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: minecraft-fox
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: minecraft-fox
+    spec:
+      containers:
+        - name: minecraft
+          image: itzg/minecraft-server:2025.12.0
+          ports:
+            - containerPort: 25565
+              protocol: TCP
+            - containerPort: 25565
+              protocol: UDP
+          env:
+            - name: TZ
+              value: "America/New_York"
+            - name: EULA
+              value: "TRUE"
+            - name: ONLINE_MODE
+              value: "TRUE"
+            - name: VERSION
+              value: "1.21.1"
+            - name: TYPE
+              value: "NEOFORGE"
+            - name: SERVER_NAME
+              value: "Fox"
+            - name: ENABLE_RCON
+              value: "TRUE"
+            - name: RCON_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minecraft-secrets
+                  key: RCON_PASSWORD
+            - name: ENABLE_ROLLING_LOGS
+              value: "TRUE"
+            - name: MEMORY
+              value: "4G"
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: minecraft-fox-data-longhorn

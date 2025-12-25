@@ -40,3 +40,22 @@ spec:
       targetPort: 25565
   selector:
     app.kubernetes.io/name: minecraft-creative
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minecraft-fox
+spec:
+  type: LoadBalancer
+  loadBalancerIP: "10.0.0.213" # Add this line
+  ports:
+    - name: fox-tcp
+      port: 25565
+      protocol: TCP
+      targetPort: 25565
+    - name: fox-udp
+      port: 25565
+      protocol: UDP
+      targetPort: 25565
+  selector:
+    app.kubernetes.io/name: minecraft-fox
