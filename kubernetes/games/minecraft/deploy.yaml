@@ -145,6 +145,8 @@ spec:
               value: "1.21.1"
             - name: TYPE
               value: "NEOFORGE"
+            - name: MODE
+              value: "creative"
             - name: SERVER_NAME
               value: "Fox"
             - name: ENABLE_RCON
@@ -154,6 +156,8 @@ spec:
                 secretKeyRef:
                   name: minecraft-secrets
                   key: RCON_PASSWORD
+            - name: MODS
+              value: "https://cdn.modrinth.com/data/VsM5EDoI/versions/YSWV62mG/blueprint-1.21.1-8.0.8.jar"
             - name: ENABLE_ROLLING_LOGS
               value: "TRUE"
             - name: MEMORY
