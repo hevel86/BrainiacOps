@@ -70,7 +70,7 @@ controlPlane:
     - |-
         machine:
           kubelet:
-            image: ghcr.io/siderolabs/kubelet:v1.34.1
+            image: ghcr.io/siderolabs/kubelet:v1.35.0
             extraMounts:
               - destination: /var/mnt/longhorn
                 type: bind
