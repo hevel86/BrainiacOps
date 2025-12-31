@@ -77,10 +77,12 @@ while IFS=$'\t' read -r VOL_NAME BACKUP_VOLUME LAST_BACKUP SIZE_BYTES STORAGE_CL
     PV_NAME="pv-${PVC_NS}-${PVC_NAME}"
   fi
   PVC_EXISTS=0
+  EXISTING_PV_HANDLE=""
   if kubectl -n "$PVC_NS" get pvc "$PVC_NAME" >/dev/null 2>&1; then
     PVC_EXISTS=1
     EXISTING_PV_NAME="$(kubectl -n "$PVC_NS" get pvc "$PVC_NAME" -o jsonpath='{.spec.volumeName}' 2>/dev/null || true)"
     if [[ -n "$EXISTING_PV_NAME" ]]; then
+      EXISTING_PV_HANDLE="$(kubectl get pv "$EXISTING_PV_NAME" -o jsonpath='{.spec.csi.volumeHandle}' 2>/dev/null || true)"
       PV_NAME="$EXISTING_PV_NAME"
       log "PVC ${PVC_NS}/${PVC_NAME} exists; reusing bound PV name ${PV_NAME}"
     else
@@ -93,9 +95,16 @@ while IFS=$'\t' read -r VOL_NAME BACKUP_VOLUME LAST_BACKUP SIZE_BYTES STORAGE_CL
   else
     RESTORE_VOLUME="${PVC_NAME}"
   fi
-  if [[ "$PVC_EXISTS" -eq 1 && -n "$EXISTING_PV_NAME" && "$RESTORE_VOLUME" != "$EXISTING_PV_NAME" ]]; then
-    log "PVC ${PVC_NS}/${PVC_NAME} bound to PV ${EXISTING_PV_NAME}; using volume name ${EXISTING_PV_NAME} for restore instead of ${RESTORE_VOLUME}"
-    RESTORE_VOLUME="${EXISTING_PV_NAME}"
+  if [[ "$PVC_EXISTS" -eq 1 && -n "$EXISTING_PV_NAME" ]]; then
+    if [[ -n "$EXISTING_PV_HANDLE" ]]; then
+      if [[ "$RESTORE_VOLUME" != "$EXISTING_PV_HANDLE" ]]; then
+        log "PVC ${PVC_NS}/${PVC_NAME} bound to PV ${EXISTING_PV_NAME} (handle ${EXISTING_PV_HANDLE}); using volume handle for restore instead of ${RESTORE_VOLUME}"
+        RESTORE_VOLUME="${EXISTING_PV_HANDLE}"
+      fi
+    elif [[ "$RESTORE_VOLUME" != "$EXISTING_PV_NAME" ]]; then
+      log "PVC ${PVC_NS}/${PVC_NAME} bound to PV ${EXISTING_PV_NAME}; using volume name ${EXISTING_PV_NAME} for restore instead of ${RESTORE_VOLUME}"
+      RESTORE_VOLUME="${EXISTING_PV_NAME}"
+    fi
   fi
   FROM_BACKUP="${BACKUP_TARGET}?volume=${VOL_NAME}&backup=${LAST_BACKUP}"
   STORAGE_GI="$(( (SIZE_BYTES + (1<<30) - 1) / (1<<30) ))Gi"
