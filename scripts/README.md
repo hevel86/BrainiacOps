@@ -40,15 +40,20 @@ Restore **all** Longhorn volumes from their latest backups.
 ```
 
 Key env vars:
-- `BACKUP_TARGET` – backup target URL (default: NFS path in the script)
+- `BACKUP_TARGET` – backup target URL (default: `nfs://truenas1-nfs.torquasmvo.internal:/mnt/fast/longhorn-backup`)
 - `RECURRING_JOB_GROUP` – recurring job group label to apply (default: `prod`)
 - `FRONTEND` – Longhorn frontend for restored volumes (default: `blockdev`)
-- `USE_BACKUP_VOLUME_NAME` – `1` (default, also via `--use-backup-volume-name` flag) to use the original Longhorn volume name; `0` (via env var) to use the PVC name.
+
+Flags:
+- `--execute` – Perform the restore (create Volume/PV/PVC). Without this flag, runs in dry-run mode showing what would be created.
+- `--use-backup-volume-name` – Restore with the original Longhorn volume name (default behavior, optional flag for clarity)
+- `--skip-pvc` – Do not create PVCs; rely on GitOps to create them and bind via PV claimRef
 
 Behavior:
 - Creates Volume/PV/PVC with `kubectl create` to avoid persisting last-applied annotations on immutable fields.
-- Skips existing PVC/PV and reuses bound PV names so restore stays idempotent.
-- Applies the recurring job group label on restored volumes.
+- Automatically detects existing PVCs and reuses their bound PV names for idempotent restores.
+- When a PVC already exists with a bound PV, the script uses the CSI volume handle from the existing PV as the restore volume name. This ensures the restore reconnects to the correct Longhorn volume rather than creating a duplicate.
+- Applies the recurring job group label (`recurring-job-group.longhorn.io/<group>: enabled`) on all restored volumes.
 - `--skip-pvc` restores Volume/PV only and relies on GitOps to create PVCs that bind via the PV `claimRef`.
 - The PV `claimRef` pre-binds the restored volume to the intended PVC name/namespace, preventing Longhorn from provisioning a fresh volume.
 - You may see a kubectl warning about `metadata.finalizers: "longhorn.io"` not being domain-qualified; this comes from the Longhorn Volume CRD and is safe to ignore.
