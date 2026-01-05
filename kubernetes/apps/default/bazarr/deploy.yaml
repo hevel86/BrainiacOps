@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: bazarr
-          image: lscr.io/linuxserver/bazarr:1.5.3
+          image: lscr.io/linuxserver/bazarr:1.5.4
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 6767
