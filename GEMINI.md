@@ -9,6 +9,7 @@ This document provides context for the Gemini Code Assistant to understand the `
 - **NEVER commit secrets, passwords, API keys, or tokens** - Use Bitwarden Secrets Operator references instead
 - **NEVER hardcode sensitive values** in manifests - Reference `BitwardenSecret` resources
 - **Talos secrets** must only exist in `talsecret.sops.yaml` (encrypted with SOPS+age)
+- **NEVER auto-stage (git add) or auto-commit changes** - The user will perform all Git operations manually. Reading git logs for context is permitted.
 - When in doubt, ask before committing anything that could contain sensitive data
 
 ## Executive Summary
