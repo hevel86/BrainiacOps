@@ -1,6 +1,6 @@
 clusterName: talos-rao
 endpoint: https://10.0.0.30:6443
-talosVersion: v1.12.0
+talosVersion: v1.12.1
 kubernetesVersion: v1.35.0
 domain: cluster.local
 allowSchedulingOnControlPlanes: true
