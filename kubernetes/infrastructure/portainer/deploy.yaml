@@ -58,8 +58,8 @@ spec:
           env:
             - name: TS_USERSPACE
               value: "false"
-            - name: TS_STATE_DIR
-              value: /var/lib/tailscale
+            - name: TS_KUBE_SECRET
+              value: "portainer-tailscale-state"
             - name: TS_AUTHKEY
               valueFrom:
                 secretKeyRef:
