@@ -10,10 +10,10 @@ metadata:
   name: syncthing-tailscale-role
   namespace: default
 rules:
-  # Let tailscaled store/read its state in Secret "tailscale"
+  # Let tailscaled store/read its state in Secret "syncthing-tailscale-state"
   - apiGroups: [""]
     resources: ["secrets"]
-    resourceNames: ["tailscale"]
+    resourceNames: ["syncthing-tailscale-state"]
     verbs: ["get", "create", "update", "patch"]
   # Let it write Pod Events for easier debugging (per the log hint)
   - apiGroups: [""]
