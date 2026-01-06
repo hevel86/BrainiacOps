@@ -11,9 +11,15 @@ metadata:
   name: semaphoreui-tailscale-role
   namespace: default
 rules:
+  # Allow creating secrets (cannot be restricted by name in RBAC)
   - apiGroups: [""]
     resources: ["secrets"]
-    verbs: ["get", "create", "update", "patch"]
+    verbs: ["create"]
+  # Let tailscaled store/read its state in Secret "semaphoreui-tailscale-state"
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["semaphoreui-tailscale-state"]
+    verbs: ["get", "update", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
