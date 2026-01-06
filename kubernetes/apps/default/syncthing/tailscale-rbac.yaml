@@ -10,11 +10,15 @@ metadata:
   name: syncthing-tailscale-role
   namespace: default
 rules:
+  # Allow creating secrets (cannot be restricted by name in RBAC)
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create"]
   # Let tailscaled store/read its state in Secret "syncthing-tailscale-state"
   - apiGroups: [""]
     resources: ["secrets"]
     resourceNames: ["syncthing-tailscale-state"]
-    verbs: ["get", "create", "update", "patch"]
+    verbs: ["get", "update", "patch"]
   # Let it write Pod Events for easier debugging (per the log hint)
   - apiGroups: [""]
     resources: ["events"]
