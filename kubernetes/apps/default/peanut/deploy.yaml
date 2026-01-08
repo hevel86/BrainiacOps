@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: peanut
-          image: brandawg93/peanut:5.19.2
+          image: brandawg93/peanut:5.20.1
           imagePullPolicy: IfNotPresent
           env:
             - name: NUT_HOST
