@@ -124,6 +124,14 @@ spec:
                   key: TS_AUTHKEY
             - name: TS_EXTRA_ARGS
               value: "--hostname=semaphoreui-sidecar --accept-routes=true"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
           volumeMounts:
             - mountPath: /dev/net/tun
               name: dev-net-tun

@@ -64,6 +64,14 @@ spec:
                   key: TS_AUTHKEY
             - name: TS_EXTRA_ARGS
               value: "--hostname=syncthing-sidecar --accept-routes=true --accept-dns=true"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
           volumeMounts:
             - mountPath: /dev/net/tun
               name: dev-net-tun

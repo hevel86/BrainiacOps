@@ -20,6 +20,10 @@ rules:
     resources: ["secrets"]
     resourceNames: ["semaphoreui-tailscale-state"]
     verbs: ["get", "update", "patch"]
+  # Allow writing Events for better debugging
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "create", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
