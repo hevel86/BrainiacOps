@@ -22,7 +22,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: stirling-pdf
-          image: ghcr.io/stirling-tools/stirling-pdf:2.1.5
+          image: ghcr.io/stirling-tools/stirling-pdf:2.2.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
