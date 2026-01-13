@@ -19,9 +19,9 @@ automation:
   deployment_strategy: Recreate
 
 current_state:
-  version: "v1.31.0"
-  last_migration: "2025-12-24"
-  document_count: 72
+  version: "v1.32.0"
+  last_migration: "2026-01-13"
+  document_count: 75
 
 prerequisites:
   - kubectl cluster access
@@ -454,6 +454,21 @@ migration:
   notes: ""
 ```
 
+### v1.31.0 → v1.32.0 (2026-01-13)
+
+```yaml
+migration:
+  date: "2026-01-13"
+  source_version: "v1.31.0"
+  target_version: "v1.32.0"
+  dump_file: "20260113-163647306.dump"
+  local_backup: "/home/michael/.gemini/tmp/9bfcb395d9f4c4c321aa38a128dcd0b467bcc289c71d69cec57e97bb4cd98053/20260113-163647306.dump"
+  status: completed
+  documents_migrated: 75
+  downtime_minutes: 10
+  notes: "Automated migration via Gemini. Pod was crashing with version mismatch. Full dump/restore cycle."
+```
+
 ### v1.28.2 → v1.30.0 (2025-12-16)
 
 ```yaml
@@ -573,8 +588,8 @@ migration:
 
 ## Summary
 
-- **Current Version**: v1.30.0
-- **Index**: bookmarks (71 documents)
+- **Current Version**: v1.32.0
+- **Index**: bookmarks (75 documents)
 - **Data Loss**: None across all migrations
-- **Last Migration**: 2025-12-16
-- **Automated By**: Claude Code
+- **Last Migration**: 2026-01-13
+- **Automated By**: Gemini
