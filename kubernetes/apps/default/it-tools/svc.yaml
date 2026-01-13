@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: it-tools
+  namespace: default
+  labels:
+    app: it-tools
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.237 # Reserve a free IP from your MetalLB pool
+  selector:
+    app: it-tools
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

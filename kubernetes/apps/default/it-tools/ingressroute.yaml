@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: it-tools
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`tools.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: it-tools
+          namespace: default
+          port: 80
+  tls:
+    secretName: traefik-dashboard-tls
