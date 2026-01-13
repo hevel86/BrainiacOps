@@ -21,5 +21,4 @@ spec:
         - /spec/volumeName
   syncPolicy:
     syncOptions:
-      - ServerSideApply=true
       - RespectIgnoreDifferences=true
