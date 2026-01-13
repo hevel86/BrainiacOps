@@ -1,0 +1,17 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: dns-pool
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.0.0.53-10.0.0.54  # Primary DNS (53) + future HA secondary (54)
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: dns-pool
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - dns-pool
