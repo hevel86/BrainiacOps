@@ -2,7 +2,7 @@
 
 Last updated: 2026-01-13 UTC
 MetalLB pool: 10.0.0.200-10.0.0.250
-MetalLB IPs: total=51 used=35 free=16
+MetalLB IPs: total=51 used=36 free=15
 
 | Service | Namespace | IP Address |
 | :------ | :-------- | :--------- |
@@ -41,3 +41,4 @@ MetalLB IPs: total=51 used=35 free=16
 | obsidian | default | 10.0.0.234 |
 | vikunja | default | 10.0.0.235 |
 | stirling-pdf | default | 10.0.0.236 |
+| it-tools | default | 10.0.0.237 |
