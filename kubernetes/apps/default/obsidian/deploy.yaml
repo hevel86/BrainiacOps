@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: obsidian
-          image: lscr.io/linuxserver/obsidian:1.10.6
+          image: lscr.io/linuxserver/obsidian:1.11.4
           imagePullPolicy: IfNotPresent
           env:
             - name: PUID
