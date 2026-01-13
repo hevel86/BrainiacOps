@@ -56,7 +56,7 @@ spec:
                 https://cdn.modrinth.com/data/InYMuiQt/versions/RQ5qgaUC/neapolitan-1.21.1-6.0.1.jar,
                 https://cdn.modrinth.com/data/nmDcB62a/versions/8Be8uJW6/modernfix-neoforge-5.25.1%2Bmc1.21.1.jar
             - name: ENABLE_ROLLING_LOGS
-              value: "TRUE"
+              value: "FALSE"
             - name: MEMORY
               value: "4G"
           volumeMounts:

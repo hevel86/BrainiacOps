@@ -39,7 +39,7 @@ spec:
             - name: MEMORY
               value: "4G"
             - name: ENABLE_ROLLING_LOGS
-              value: "TRUE"
+              value: "FALSE"
           volumeMounts:
             - name: data
               mountPath: /data

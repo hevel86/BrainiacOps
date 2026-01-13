@@ -48,7 +48,7 @@ spec:
                   name: minecraft-secrets
                   key: RCON_PASSWORD
             - name: ENABLE_ROLLING_LOGS
-              value: "TRUE"
+              value: "FALSE"
             - name: MEMORY
               value: "4G"
           volumeMounts:
