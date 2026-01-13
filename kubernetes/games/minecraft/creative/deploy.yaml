@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minecraft-creative
+  namespace: default
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: minecraft-creative
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: minecraft-creative
+    spec:
+      containers:
+        - name: minecraft
+          image: itzg/minecraft-server:2026.1.1
+          ports:
+            - containerPort: 25565
+              protocol: TCP
+            - containerPort: 25565
+              protocol: UDP
+          env:
+            - name: TZ
+              value: "America/New_York"
+            - name: EULA
+              value: "TRUE"
+            - name: ONLINE_MODE
+              value: "TRUE"
+            - name: VERSION
+              value: "1.21.5"
+            - name: TYPE
+              value: "FABRIC"
+            - name: MODE
+              value: "creative"
+            - name: SERVER_NAME
+              value: "Raven"
+            - name: ENABLE_COMMAND_BLOCK
+              value: "TRUE"
+            - name: ENABLE_RCON
+              value: "TRUE"
+            - name: RCON_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minecraft-secrets
+                  key: RCON_PASSWORD
+            - name: ENABLE_ROLLING_LOGS
+              value: "TRUE"
+            - name: MEMORY
+              value: "4G"
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: minecraft-creative-data-longhorn
