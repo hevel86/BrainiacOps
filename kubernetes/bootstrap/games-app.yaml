@@ -1,0 +1,28 @@
+# kubernetes/bootstrap/games-app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: games
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/hevel86/BrainiacOps
+    targetRevision: HEAD
+    # This path will scan all subdirectories within kubernetes/games
+    path: kubernetes/games
+    directory:
+      recurse: true
+      # Look for any file named app.yaml
+      include: "**/app.yaml"
+  destination:
+    server: https://kubernetes.default.svc
+    # The namespace here is for the Application resource itself
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
