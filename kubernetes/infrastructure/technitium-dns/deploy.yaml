@@ -37,11 +37,6 @@ spec:
           env:
             - name: DNS_SERVER_DOMAIN
               value: "technitium-dns.torquasmvo.internal"
-            - name: DNS_SERVER_ADMIN_USER
-              valueFrom:
-                secretKeyRef:
-                  name: technitium-admin
-                  key: admin-username
             - name: DNS_SERVER_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
