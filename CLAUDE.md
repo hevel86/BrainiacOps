@@ -239,10 +239,15 @@ On `git commit`:
 **Control Plane Nodes**:
 - brainiac-00 (10.0.0.34)
 - brainiac-01 (10.0.0.35)
-- brainiac-02 (10.0.0.36) - Recently added
+- brainiac-02 (10.0.0.36)
+
+**DNS Infrastructure**:
+- Primary: dns1.torquasmvo.internal (192.168.1.7)
+- Secondary: dns2.torquasmvo.internal (192.168.1.8)
+- Optimization: DoH + 0.0.0.0 Blocking mode
 
 **Configuration**:
-- Talos v1.11.5, Kubernetes v1.34.1
+- Talos v1.12.1, Kubernetes v1.35.0
 - VIP: 10.0.0.30 (HA endpoint)
 - Pod CIDR: 10.244.0.0/16
 - Service CIDR: 10.96.0.0/12
@@ -258,6 +263,11 @@ On `git commit`:
 - siderolabs/nvme-cli
 - siderolabs/thunderbolt
 - siderolabs/util-linux-tools
+
+## Status (as of 2026-01-14)
+
+The cluster is fully operational and healthy. The HA control plane is established across three nodes, and all infrastructure services (Argo CD, Longhorn, Technitium DNS) are synchronized and stable.
+
 
 ## Development Workflows
 

@@ -293,10 +293,15 @@ kustomize build kubernetes/apps/default/myapp | kubeconform -strict -
 **Control Plane Nodes**:
 - brainiac-00 (10.0.0.34)
 - brainiac-01 (10.0.0.35)
-- brainiac-02 (10.0.0.36) - Recently added
+- brainiac-02 (10.0.0.36)
+
+**DNS Infrastructure**:
+- Primary: dns1.torquasmvo.internal (192.168.1.7)
+- Secondary: dns2.torquasmvo.internal (192.168.1.8)
+- Optimization: DoH + 0.0.0.0 Blocking mode
 
 **Configuration**:
-- Talos v1.11.5, Kubernetes v1.34.1
+- Talos v1.12.1, Kubernetes v1.35.0
 - VIP: 10.0.0.30 (HA endpoint)
 - Pod CIDR: 10.244.0.0/16
 - Service CIDR: 10.96.0.0/12
@@ -313,16 +318,10 @@ kustomize build kubernetes/apps/default/myapp | kubeconform -strict -
 - siderolabs/thunderbolt
 - siderolabs/util-linux-tools
 
-### Ongoing Activity (as of 2025-11-21)
+### Status (as of 2026-01-14)
 
-The user is in the process of upgrading the Talos cluster.
+The cluster is fully operational, healthy, and up-to-date. The HA control plane is established across three nodes. DNS services have been migrated from Pi-hole to a High-Availability Technitium DNS cluster with DoH and optimized blocking modes.
 
-1.  **Problem:** An attempt to upgrade the `brainiac-01` control plane node (10.0.0.35) was blocked because it would cause a loss of quorum.
-2.  **Solution:** A new control plane node, `brainiac-02` (10.0.0.36), was added to the cluster to establish quorum before proceeding with the upgrade.
-3.  **Next Steps:**
-    *   Apply the machine configuration for `brainiac-02`.
-    *   Once the new node is online and the cluster is healthy, proceed with the upgrade of `brainiac-01`.
-4.  **Note:** There is a recurring `x509: certificate signed by unknown authority` error when connecting to `brainiac-01`. The `--insecure` flag is being used as a temporary workaround.
 
 ---
 *This document was last updated by Gemini by merging context from `CLAUDE.md`.*

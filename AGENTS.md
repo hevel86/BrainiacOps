@@ -94,22 +94,22 @@ This project follows a set of conventions to maintain code quality and consisten
 
 ## Cluster Details
 
-*   Cluster name: `talos-rao`; Talos v1.11.5, Kubernetes v1.34.1.
+*   Cluster name: `talos-rao`; Talos v1.12.1, Kubernetes v1.35.0.
 *   Control plane nodes: brainiac-00 (10.0.0.34), brainiac-01 (10.0.0.35), brainiac-02 (10.0.0.36); VIP 10.0.0.30.
+*   DNS: Technitium HA Cluster (192.168.1.7, 192.168.1.8) with DoH and 0.0.0.0 blocking.
 *   Networks: Pod CIDR 10.244.0.0/16, Service CIDR 10.96.0.0/12, MetalLB pool 10.0.0.200-10.0.0.250.
 *   System extensions (all nodes): i915, intel-ice-firmware, intel-ucode, iscsi-tools, mei, nut-client, nvme-cli, thunderbolt, util-linux-tools.
 
-## Current Cluster Status (as of 2025-11-21)
+## Current Cluster Status (as of 2026-01-14)
 
-The Talos cluster is currently undergoing maintenance.
+The cluster is fully operational, healthy, and up-to-date.
 
-1.  **Objective:** Upgrade the Talos OS on the control plane nodes.
-2.  **Blocker:** An attempt to upgrade `brainiac-01` (10.0.0.35) was halted because it would cause the cluster to lose quorum.
-3.  **Resolution:** A new control plane node, `brainiac-02` (10.0.0.36), is being added to the cluster to ensure quorum is maintained during the rolling upgrade.
-4.  **Next Steps:**
-    *   Apply the machine configuration for `brainiac-02`. A configuration file exists at `talos/clusterconfig/talos-rao-brainiac-02.yaml`.
-    *   After `brainiac-02` joins the cluster, proceed with the upgrade of the other control plane nodes one at a time.
-5.  **Known Issue:** There is a recurring TLS certificate error when connecting to `brainiac-01` (`x509: certificate signed by unknown authority`). The `--insecure` flag for `talosctl` is being used as a temporary workaround.
+1.  **State:** All three control plane nodes are active and in quorum.
+2.  **DNS Migration:** Legacy Pi-hole instances have been replaced by a High-Availability Technitium DNS cluster running in Proxmox LXCs. 
+3.  **Security:** External DNS queries are encrypted via DNS-over-HTTPS (DoH) to Quad9.
+4.  **Optimizations:** Blocking mode is set to `0.0.0.0` to minimize log noise and prevent search domain suffixing.
+5.  **Recent Activity:** Management script `scripts/technitium/manage.py` was unified to include log analysis tools.
+
 
 A detailed guide for these steps has been created in `talos/README.md`.
 
