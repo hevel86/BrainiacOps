@@ -194,6 +194,7 @@ See `talos/README.md` for detailed guide. Summary:
 2. GitHub Actions runs kubeconform validation
 3. Review and merge PR
 4. If Talos tools changed: run `talhelper genconfig`
+5. **If Argo CD version changed**: Manually run `kubectl apply -k kubernetes/bootstrap/argocd-install`
 
 ## Common Commands
 

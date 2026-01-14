@@ -183,6 +183,8 @@ kubectl apply -f kubernetes/bootstrap/argocd-namespace.yaml
 kubectl apply -k kubernetes/bootstrap/argocd-install
 ```
 
+**⚠️ Important:** Argo CD updates are **manual**. When Renovate updates the version in `kubernetes/bootstrap/argocd-install`, you must manually run the `kubectl apply -k ...` command above to apply the update. Argo CD does not self-manage its own installation.
+
 **What happens:**
 - Creates `argocd` namespace
 - Deploys Argo CD v3.1.9 from upstream (github.com/argoproj/argo-cd)
