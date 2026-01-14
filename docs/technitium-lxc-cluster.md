@@ -48,6 +48,7 @@ The unified `scripts/technitium/manage.py` tool handles all cluster operations.
 | `python3 manage.py reverse-dns` | Configures PTR zones on **all** nodes (Manual sync). |
 | `python3 manage.py forwarders` | Updates upstream DNS providers. |
 | `python3 manage.py import --zip <file>` | Migrates records from Pi-hole Teleporter ZIP. |
+| `python3 manage.py analyze` | Analyzes NXDOMAIN queries to identify blocked domains and sources. |
 
 ### Web UI Access
 - **Primary**: [http://192.168.1.7:5380](http://192.168.1.7:5380)
