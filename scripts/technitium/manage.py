@@ -3,7 +3,7 @@
 Technitium DNS Manager
 
 A unified tool to manage the Proxmox LXC Technitium DNS Cluster.
-Combines setup, status checks, updates, and migration utilities.
+Combines setup, status checks, updates, migration utilities, and log analysis.
 
 Features:
 - Status: Check clustering, blocklists, and sync status.
@@ -11,6 +11,7 @@ Features:
 - Reverse DNS: Configure conditional forwarder zones on all nodes.
 - Forwarders: Update upstream DNS providers.
 - Import: Migrate records from Pi-hole Teleporter ZIPs.
+- Analyze: Analyze query logs (e.g., NXDOMAIN).
 
 Usage:
   python3 manage.py <command> [options]
@@ -21,6 +22,7 @@ Commands:
   reverse-dns        Configure reverse DNS zones
   forwarders         Update upstream forwarders
   import             Import Pi-hole records
+  analyze            Analyze NXDOMAIN queries
 """
 
 import argparse
@@ -34,6 +36,8 @@ import shutil
 import subprocess
 import random
 import getpass
+from datetime import datetime, timedelta, timezone
+from collections import Counter
 
 try:
     import tomllib
@@ -53,7 +57,7 @@ ENV_TOKEN = os.environ.get("TECHNITIUM_TOKEN")
 
 # --- Shared Utilities ---
 
-def make_request(host, endpoint, params=None, token=None):
+def make_request(host, endpoint, params=None, token=None, timeout=30):
     """Make an API request to a Technitium instance."""
     if not token:
         token = ENV_TOKEN
@@ -71,7 +75,7 @@ def make_request(host, endpoint, params=None, token=None):
     
     try:
         req = urllib.request.Request(url)
-        with urllib.request.urlopen(req, timeout=10) as response:
+        with urllib.request.urlopen(req, timeout=timeout) as response:
             return json.loads(response.read().decode('utf-8'))
     except Exception as e:
         print(f"Error accessing {host}{endpoint}: {e}", file=sys.stderr)
@@ -218,6 +222,89 @@ def cmd_forwarders(args):
         print("Forwarders updated successfully.")
     else:
         print(f"Failed to update forwarders: {resp}")
+
+
+def cmd_analyze(args):
+    """Analyze NXDOMAIN queries."""
+    # Calculate time range (UTC)
+    end_time = datetime.now(timezone.utc)
+    start_time = end_time - timedelta(hours=args.hours)
+    fmt = "%Y-%m-%d %H:%M:%S"
+    
+    print(f"--- Analyzing NXDOMAIN queries on {args.primary} ---")
+    print(f"Timeframe: {start_time.strftime(fmt)} to {end_time.strftime(fmt)}")
+    
+    all_logs = []
+    page = 1
+    records_per_page = 1000
+    
+    print("Fetching logs...")
+    while True:
+        params = {
+            "name": "Query Logs (Sqlite)",
+            "classPath": "QueryLogsSqlite.App",
+            "rcode": "NxDomain",
+            "start": start_time.strftime(fmt),
+            "end": end_time.strftime(fmt),
+            "recordsPerPage": records_per_page,
+            "pageNumber": page
+        }
+
+        resp = make_request(args.primary, "/logs/query", params, token=args.token)
+        if not resp or resp.get('status') != 'ok':
+            if resp and resp.get('errorMessage'):
+                 print(f"API Error: {resp.get('errorMessage')}")
+            break
+
+        entries = resp.get('response', {}).get('entries', [])
+        if not entries:
+            break
+            
+        all_logs.extend(entries)
+        
+        total_pages = resp.get('response', {}).get('totalPages', 1)
+        if page >= total_pages or len(all_logs) >= 20000: # Safety cap
+            break
+        page += 1
+
+    total_records = len(all_logs)
+    print(f"Analyzed {total_records} NXDOMAIN records.")
+
+    if not all_logs:
+        print("No NXDOMAIN logs found in this period.")
+        return
+
+    domain_counts = Counter()
+    client_counts = Counter()
+    type_counts = Counter()
+    
+    for log in all_logs:
+        qname = log.get('qname')
+        client = log.get('clientIpAddress')
+        rtype = log.get('responseType')
+        
+        if qname:
+            domain_counts[qname] += 1
+        if client:
+            client_counts[client] += 1
+        if rtype:
+            type_counts[rtype] += 1
+
+    print(f"\n--- Response Type Breakdown ---")
+    for rtype, count in type_counts.items():
+        print(f"{rtype:<15}: {count}")
+
+    print(f"\n--- Top {args.limit} Domains returning NXDOMAIN ---")
+    print(f"{'Count':<8} {'Domain'}")
+    print("-" * 40)
+    for domain, count in domain_counts.most_common(args.limit):
+        print(f"{count:<8} {domain}")
+
+    print(f"\n--- Top {args.limit} Clients requesting these domains ---")
+    print(f"{'Count':<8} {'Client IP'}")
+    print("-" * 40)
+    for client, count in client_counts.most_common(args.limit):
+        print(f"{count:<8} {client}")
 
 
 # --- Import Logic (Pi-hole) ---
@@ -374,6 +461,11 @@ def main():
     imp_parser.add_argument("--skip-existing", action="store_true", help="Skip existing records")
     imp_parser.add_argument("--force", action="store_true", help="Allow records outside zone")
 
+    # Analyze
+    analyze_parser = subparsers.add_parser("analyze", help="Analyze NXDOMAIN queries")
+    analyze_parser.add_argument("--hours", type=int, default=24, help="Analyze last N hours (default: 24)")
+    analyze_parser.add_argument("--limit", type=int, default=20, help="Show top N domains (default: 20)")
+
     args = parser.parse_args()
 
     if not args.token:
@@ -390,6 +482,8 @@ def main():
         cmd_forwarders(args)
     elif args.command == "import":
         cmd_import(args)
+    elif args.command == "analyze":
+        cmd_analyze(args)
 
 if __name__ == "__main__":
     main()
