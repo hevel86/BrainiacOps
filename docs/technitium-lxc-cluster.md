@@ -24,10 +24,11 @@ This cluster replaces legacy Pi-hole instances with a Kubernetes-native compatib
 - **API Token**: Stored in Bitwarden. Use environment variable `TECHNITIUM_TOKEN` for script access.
 
 ### 2. Upstream & Security
-- **Forwarders**: 
-  - `9.9.9.9` (Quad9 Primary)
-  - `149.112.112.112` (Quad9 Secondary)
-- **Blocklists**: 7 lists enabled (StevenBlack, OISD, AdAway, etc.) for network-wide ad and malware filtering.
+- **Forwarders**: DNS-over-HTTPS (DoH) enabled via Quad9:
+  - `https://9.9.9.9/dns-query`
+  - `https://149.112.112.112/dns-query`
+- **Blocklists**: 7 lists enabled (StevenBlack, OISD, AdAway, etc.).
+- **Blocking Mode**: Set to `0.0.0.0` to prevent search domain suffixing and reduce log noise.
 - **Features**: QNAME Minimization and DNSSEC validation enabled.
 
 ### 3. DNS Zones
