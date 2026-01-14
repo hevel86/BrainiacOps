@@ -19,8 +19,8 @@ automation:
   deployment_strategy: Recreate
 
 current_state:
-  version: "v1.32.0"
-  last_migration: "2026-01-13"
+  version: "v1.32.1"
+  last_migration: "2026-01-14"
   document_count: 75
 
 prerequisites:
@@ -454,6 +454,21 @@ migration:
   notes: ""
 ```
 
+### v1.32.0 → v1.32.1 (2026-01-14)
+
+```yaml
+migration:
+  date: "2026-01-14"
+  source_version: "v1.32.0"
+  target_version: "v1.32.1"
+  dump_file: "20260114-183839065.dump"
+  local_backup: "/home/michael/.gemini/tmp/f9d44e1d2e56d00971dbbba5461d6992bb55ca8e5d9517aa95c1aecc1024116e/20260114-183839065.dump"
+  status: completed
+  documents_migrated: 75
+  downtime_minutes: 8
+  notes: "Automated migration via Gemini. Version mismatch resolved by dump/restore."
+```
+
 ### v1.31.0 → v1.32.0 (2026-01-13)
 
 ```yaml
@@ -588,8 +603,8 @@ migration:
 
 ## Summary
 
-- **Current Version**: v1.32.0
+- **Current Version**: v1.32.1
 - **Index**: bookmarks (75 documents)
 - **Data Loss**: None across all migrations
-- **Last Migration**: 2026-01-13
+- **Last Migration**: 2026-01-14
 - **Automated By**: Gemini
