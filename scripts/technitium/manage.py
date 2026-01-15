@@ -180,6 +180,18 @@ def cmd_setup(args):
         print(f"Failed to create zone: {resp}")
 
 
+def cmd_create_zone(args):
+    """Create a new Primary zone."""
+    print(f"--- Creating Zone '{args.zone}' on Primary ({args.primary}) ---")
+    resp = make_request(args.primary, "/zones/create", {"zone": args.zone, "type": "Primary"}, token=args.token)
+    if resp and resp.get('status') == 'ok':
+        print(f"Zone '{args.zone}' created successfully.")
+    elif resp:
+        print(f"Failed to create zone: {resp.get('errorMessage')}")
+    else:
+        print("Failed to communicate with API.")
+
+
 def cmd_reverse_dns(args):
     """Configure Reverse DNS (PTR) zones on ALL nodes."""
     ptr_zones = ["1.168.192.in-addr.arpa", "0.0.10.in-addr.arpa"]
@@ -445,6 +457,10 @@ def main():
     setup_parser = subparsers.add_parser("setup", help="Run initial setup")
     setup_parser.add_argument("--zone", default=DEFAULT_ZONE, help="Primary Zone Name")
 
+    # Create Zone
+    cz_parser = subparsers.add_parser("create-zone", help="Create a new primary zone")
+    cz_parser.add_argument("--zone", required=True, help="Zone name (e.g., localhost)")
+
     # Reverse DNS
     rev_parser = subparsers.add_parser("reverse-dns", help="Configure Reverse DNS zones")
     rev_parser.add_argument("--target", default="192.168.1.1", help="Target DNS for forwarding (UDM Pro)")
@@ -476,6 +492,8 @@ def main():
         cmd_status(args)
     elif args.command == "setup":
         cmd_setup(args)
+    elif args.command == "create-zone":
+        cmd_create_zone(args)
     elif args.command == "reverse-dns":
         cmd_reverse_dns(args)
     elif args.command == "forwarders":
