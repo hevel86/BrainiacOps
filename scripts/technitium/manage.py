@@ -57,7 +57,7 @@ ENV_TOKEN = os.environ.get("TECHNITIUM_TOKEN")
 
 # --- Shared Utilities ---
 
-def make_request(host, endpoint, params=None, token=None, timeout=30):
+def make_request(host, endpoint, params=None, token=None, timeout=30, method="GET"):
     """Make an API request to a Technitium instance."""
     if not token:
         token = ENV_TOKEN
@@ -71,10 +71,12 @@ def make_request(host, endpoint, params=None, token=None, timeout=30):
     
     if params:
         for k, v in params.items():
+            if isinstance(v, (dict, list)):
+                v = json.dumps(v)
             url += f"&{k}={urllib.parse.quote(str(v))}"
     
     try:
-        req = urllib.request.Request(url)
+        req = urllib.request.Request(url, method=method)
         with urllib.request.urlopen(req, timeout=timeout) as response:
             return json.loads(response.read().decode('utf-8'))
     except Exception as e:
@@ -83,6 +85,71 @@ def make_request(host, endpoint, params=None, token=None, timeout=30):
 
 
 # --- Commands ---
+
+def cmd_external_dns(args):
+    """Configure External-DNS (TSIG Key + Zone Options)."""
+    print(f"--- Configuring External-DNS on Primary ({args.primary}) ---")
+
+    # 1. Get Current Settings (for TSIG Keys)
+    print("Fetching current settings...")
+    settings = make_request(args.primary, "/settings/get", token=args.token)
+    if not settings or settings.get('status') != 'ok':
+        print("Failed to get settings.")
+        return
+
+    current_config = settings.get('response', {})
+    current_keys = current_config.get('tsigKeys', [])
+    
+    # 2. Add TSIG Key
+    key_name = "external-dns-key"
+    exists = False
+    for k in current_keys:
+        if k['keyName'] == key_name:
+            exists = True
+            print(f"TSIG Key '{key_name}' already exists.")
+            break
+    
+    if not exists:
+        if not args.secret:
+            print(f"Error: TSIG Key '{key_name}' missing and no --secret provided.")
+            return
+
+        print(f"Adding '{key_name}'...")
+        new_key = {
+            "keyName": key_name,
+            "sharedSecret": args.secret,
+            "algorithmName": "hmac-sha256"
+        }
+        current_keys.append(new_key)
+        
+        # Update Settings
+        # Note: We must send the FULL list of keys to avoid overwriting existing ones.
+        # /settings/set accepts 'tsigKeys' as a JSON string.
+        resp = make_request(args.primary, "/settings/set", {"tsigKeys": current_keys}, token=args.token, method="POST")
+        if resp and resp.get('status') == 'ok':
+            print("TSIG Key added successfully.")
+        else:
+            print(f"Failed to add TSIG Key: {resp}")
+            return
+
+    # 3. Configure Zone Options
+    print(f"Configuring Zone '{args.zone}' options...")
+    
+    policy = f"{key_name}|*.{args.zone}|A,AAAA,TXT"
+    params = {
+        "zone": args.zone,
+        "update": "Allow",
+        "updateSecurityPolicies": policy
+    }
+    
+    # Use zones/options/set (verified working endpoint)
+    resp = make_request(args.primary, "/zones/options/set", params, token=args.token, method="POST")
+    
+    if resp and resp.get('status') == 'ok':
+        print("Zone options configured successfully (Update: Allow).")
+    else:
+        print(f"Failed to configure zone options: {resp}")
+
 
 def cmd_status(args):
     """Check status of the cluster."""
@@ -465,6 +532,11 @@ def main():
     rev_parser = subparsers.add_parser("reverse-dns", help="Configure Reverse DNS zones")
     rev_parser.add_argument("--target", default="192.168.1.1", help="Target DNS for forwarding (UDM Pro)")
 
+    # External DNS
+    edns_parser = subparsers.add_parser("external-dns", help="Configure External-DNS (TSIG + Zone)")
+    edns_parser.add_argument("--zone", default=DEFAULT_ZONE, help="Zone to configure")
+    edns_parser.add_argument("--secret", help="TSIG Shared Secret (required if key missing)")
+
     # Forwarders
     fwd_parser = subparsers.add_parser("forwarders", help="Update upstream forwarders")
     fwd_parser.add_argument("forwarders", help="Comma-separated IPs (e.g., 9.9.9.9,1.1.1.1)")
@@ -496,6 +568,8 @@ def main():
         cmd_create_zone(args)
     elif args.command == "reverse-dns":
         cmd_reverse_dns(args)
+    elif args.command == "external-dns":
+        cmd_external_dns(args)
     elif args.command == "forwarders":
         cmd_forwarders(args)
     elif args.command == "import":
