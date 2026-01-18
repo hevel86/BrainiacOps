@@ -41,6 +41,10 @@ The existing deployment at `kubernetes/infrastructure/technitium-dns/` should be
 
 If not running, enable it via Argo CD or create the `app.yaml` if missing.
 
+**Important:** The DNS service (`svc-dns.yaml`) must expose both port 53 (DNS) and port 53443 (HTTPS) on 10.0.0.53 for clustering to work properly. This is because Technitium clustering uses:
+- Port 53 for NOTIFY and AXFR (zone transfers)
+- Port 53443 for HTTPS API communication
+
 ### 1.2 Manual: Configure K8s Technitium to Join Cluster
 
 Access http://10.0.0.238:5380 (K8s Technitium Web UI):
@@ -49,8 +53,9 @@ Access http://10.0.0.238:5380 (K8s Technitium Web UI):
 2. Enable Clustering: **Yes**
 3. Cluster Type: **Secondary**
 4. Primary Server Address: `192.168.1.7` (or `dns1.torquasmvo.internal`)
-5. Enter the **Cluster Secret** from the primary node
-6. Click **Save Settings**
+5. **This Server Address: `10.0.0.53`** (NOT 10.0.0.238 - must use the DNS LoadBalancer IP)
+6. Enter the **Cluster Secret** from the primary node
+7. Click **Save Settings**
 
 ### 1.3 Verify on LXC Primary
 
