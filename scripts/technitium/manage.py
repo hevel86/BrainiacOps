@@ -139,14 +139,16 @@ def cmd_external_dns(args):
     params = {
         "zone": args.zone,
         "update": "Allow",
-        "updateSecurityPolicies": policy
+        "updateSecurityPolicies": policy,
+        "zoneTransfer": "Allow",
+        "zoneTransferTsigKeyNames": key_name
     }
     
     # Use zones/options/set (verified working endpoint)
     resp = make_request(args.primary, "/zones/options/set", params, token=args.token, method="POST")
     
     if resp and resp.get('status') == 'ok':
-        print("Zone options configured successfully (Update: Allow).")
+        print("Zone options configured successfully (Update: Allow, Transfer: Allow).")
     else:
         print(f"Failed to configure zone options: {resp}")
 
