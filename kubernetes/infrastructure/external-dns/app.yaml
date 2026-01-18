@@ -59,7 +59,7 @@ spec:
           - --rfc2136-tsig-secret-alg=hmac-sha256
           - --service-type-filter=LoadBalancer
 
-        logLevel: debug
+        logLevel: info
 
         env:
           - name: EXTERNAL_DNS_RFC2136_TSIG_SECRET
