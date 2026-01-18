@@ -5,6 +5,8 @@ metadata:
   namespace: default
   labels:
     app: stirling-pdf
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: stirling-pdf.torquasmvo.internal
 spec:
   type: LoadBalancer
   loadBalancerIP: 10.0.0.236
