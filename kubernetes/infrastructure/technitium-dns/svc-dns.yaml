@@ -20,3 +20,7 @@ spec:
       port: 53
       targetPort: 53
       protocol: UDP
+    - name: https
+      port: 53443
+      targetPort: 53443
+      protocol: TCP
