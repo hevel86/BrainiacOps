@@ -22,12 +22,16 @@ spec:
           service:
             type: LoadBalancer
             loadBalancerIP: 10.0.0.230
+            annotations:
+              external-dns.alpha.kubernetes.io/hostname: prometheus.torquasmvo.internal
         alertmanager:
           alertmanagerSpec:
             replicas: 1
           service:
             type: LoadBalancer
             loadBalancerIP: 10.0.0.231
+            annotations:
+              external-dns.alpha.kubernetes.io/hostname: alertmanager.torquasmvo.internal
         grafana:
           replicas: 1
           admin:
@@ -37,6 +41,8 @@ spec:
           service:
             type: LoadBalancer
             loadBalancerIP: 10.0.0.232
+            annotations:
+              external-dns.alpha.kubernetes.io/hostname: grafana.torquasmvo.internal
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring

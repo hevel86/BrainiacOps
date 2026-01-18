@@ -5,6 +5,8 @@ kind: Service
 metadata:
   name: komga
   namespace: default
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: komga.torquasmvo.internal
 spec:
   type: LoadBalancer
   loadBalancerIP: 10.0.0.205

@@ -6,6 +6,8 @@ kind: Service
 metadata:
   name: jellyfin
   namespace: default
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: jellyfin.torquasmvo.internal
 spec:
   type: LoadBalancer
   # Assign a specific, static IP from your MetalLB pool.

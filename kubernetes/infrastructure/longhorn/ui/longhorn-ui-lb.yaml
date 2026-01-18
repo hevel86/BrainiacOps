@@ -4,6 +4,8 @@ kind: Service
 metadata:
   name: longhorn-ui-lb
   namespace: longhorn-system
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: longhorn.torquasmvo.internal
 spec:
   type: LoadBalancer
   loadBalancerIP: 10.0.0.215 # A free IP from your MetalLB pool

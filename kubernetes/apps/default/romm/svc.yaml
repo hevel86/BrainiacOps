@@ -6,6 +6,8 @@ metadata:
   labels:
     app.kubernetes.io/name: romm
     app.kubernetes.io/instance: romm
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: romm.torquasmvo.internal
 spec:
   selector:
     app.kubernetes.io/name: romm

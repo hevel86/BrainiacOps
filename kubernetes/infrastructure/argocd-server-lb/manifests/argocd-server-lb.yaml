@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: argocd-server-lb
   namespace: argocd
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: argocd.torquasmvo.internal
 spec:
   type: LoadBalancer
   loadBalancerIP: 10.0.0.209

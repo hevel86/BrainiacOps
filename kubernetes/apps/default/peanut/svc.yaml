@@ -5,6 +5,8 @@ metadata:
   namespace: default
   labels:
     app: peanut
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: peanut.torquasmvo.internal
 spec:
   type: LoadBalancer
   loadBalancerIP: 10.0.0.206   # Pick a free IP from your MetalLB pool

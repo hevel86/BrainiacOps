@@ -6,6 +6,8 @@ metadata:
   namespace: default
   labels:
     app: bazarr
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: bazarr.torquasmvo.internal
 spec:
   type: LoadBalancer
   loadBalancerIP: 10.0.0.226

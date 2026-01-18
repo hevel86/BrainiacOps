@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: transmission-vpn
   namespace: default
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: transmission-vpn.torquasmvo.internal
 spec:
   selector:
     app: transmission-vpn

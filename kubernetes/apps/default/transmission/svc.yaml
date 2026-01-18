@@ -2,6 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: transmission
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: transmission.torquasmvo.internal
 spec:
   selector:
     app: transmission

@@ -7,6 +7,8 @@ metadata:
   namespace: default
   labels:
     app: handbrake
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: handbrake.torquasmvo.internal
 spec:
   type: LoadBalancer
   loadBalancerIP: 10.0.0.203

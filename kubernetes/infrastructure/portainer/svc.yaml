@@ -4,6 +4,8 @@ kind: Service
 metadata:
   name: portainer
   namespace: portainer
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: portainer.torquasmvo.internal
 spec:
   type: LoadBalancer
   loadBalancerIP: 10.0.0.204

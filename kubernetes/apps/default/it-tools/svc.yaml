@@ -5,6 +5,8 @@ metadata:
   namespace: default
   labels:
     app: it-tools
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: it-tools.torquasmvo.internal
 spec:
   type: LoadBalancer
   loadBalancerIP: 10.0.0.237 # Reserve a free IP from your MetalLB pool

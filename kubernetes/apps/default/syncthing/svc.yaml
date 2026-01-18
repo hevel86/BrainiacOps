@@ -4,6 +4,8 @@ metadata:
   name: syncthing-ui
   labels:
     app: syncthing
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: syncthing.torquasmvo.internal
 spec:
   selector:
     app: syncthing

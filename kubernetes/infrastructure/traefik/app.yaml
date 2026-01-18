@@ -59,6 +59,8 @@ spec:
         service:
           enabled: true
           type: LoadBalancer
+          annotations:
+            external-dns.alpha.kubernetes.io/hostname: traefik.torquasmvo.internal
           spec:
             loadBalancerIP: 10.0.0.200   # pick a free IP in your MetalLB pool
 

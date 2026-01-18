@@ -6,6 +6,8 @@ metadata:
   labels:
     app.kubernetes.io/name: gatus
     app.kubernetes.io/part-of: monitoring
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: gatus.torquasmvo.internal
 spec:
   type: LoadBalancer
   loadBalancerIP: 10.0.0.223

@@ -8,6 +8,8 @@ kind: Service
 metadata:
   name: plex
   namespace: default
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: plex.torquasmvo.internal
 spec:
   # Expose Plex on a dedicated IP from your MetalLB pool
   type: LoadBalancer

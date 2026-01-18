@@ -5,6 +5,8 @@ metadata:
   namespace: default
   labels:
     app: vikunja
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: vikunja.torquasmvo.internal
 spec:
   type: LoadBalancer
   loadBalancerIP: 10.0.0.235  # Reserve a free MetalLB address

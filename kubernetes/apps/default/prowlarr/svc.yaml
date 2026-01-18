@@ -4,6 +4,8 @@ kind: Service
 metadata:
   name: prowlarr
   namespace: default
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: prowlarr.torquasmvo.internal
 spec:
   type: LoadBalancer
   loadBalancerIP: 10.0.0.214  # Reserve a free MetalLB IP
