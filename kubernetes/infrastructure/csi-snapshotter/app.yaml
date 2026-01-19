@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: https://piraeusdatastore.github.io/helm-charts
     chart: snapshot-controller
-    targetRevision: 5.0.1
+    targetRevision: 5.0.2
     helm:
       values: |
         replicaCount: 1
