@@ -18,8 +18,8 @@ spec:
       dnsPolicy: None
       dnsConfig:
         nameservers:
+          - 9.9.9.9
           - 1.1.1.1
-          - 1.0.0.1
       containers:
         - name: transmission-vpn
           image: haugene/transmission-openvpn:5.3.2
