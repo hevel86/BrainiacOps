@@ -14,6 +14,8 @@ spec:
     metadata:
       labels:
         app: gitea
+      annotations:
+        config/restart: "2026-01-21"
     spec:
       containers:
         - name: gitea

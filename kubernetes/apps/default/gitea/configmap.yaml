@@ -31,4 +31,4 @@ data:
   GITEA__service__DISABLE_REGISTRATION: "true"
   GITEA__service__SHOW_REGISTRATION_BUTTON: "false"
   GITEA__repository__DEFAULT_BRANCH: "master"
-  GITEA__repository__PREFERRED_LICENSES: "MIT License"
+  GITEA__repository__PREFERRED_LICENSES: "MIT"
