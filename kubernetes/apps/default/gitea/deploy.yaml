@@ -61,6 +61,8 @@ spec:
               value: "true"
             - name: GITEA__service__SHOW_REGISTRATION_BUTTON
               value: "false"
+            - name: GITEA__repository__DEFAULT_BRANCH
+              value: "master"
             - name: GITEA__security__SECRET_KEY
               valueFrom:
                 secretKeyRef:
