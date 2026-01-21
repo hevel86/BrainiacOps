@@ -5,8 +5,6 @@ metadata:
   namespace: default
   labels:
     app: gitea
-  annotations:
-    external-dns.alpha.kubernetes.io/hostname: gitea-ssh.torquasmvo.com
 spec:
   type: LoadBalancer
   loadBalancerIP: 10.0.0.238  # Reserve a free IP from your MetalLB pool
