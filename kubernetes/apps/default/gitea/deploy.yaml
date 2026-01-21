@@ -22,7 +22,7 @@ spec:
             - name: http
               containerPort: 3000
             - name: ssh
-              containerPort: 22
+              containerPort: 2222
           env:
             - name: USER_UID
               value: "1000"
@@ -55,6 +55,8 @@ spec:
               value: gitea.torquasmvo.com
             - name: GITEA__server__SSH_PORT
               value: "22"
+            - name: GITEA__server__SSH_LISTEN_PORT
+              value: "2222"
             - name: GITEA__security__SECRET_KEY
               valueFrom:
                 secretKeyRef:
