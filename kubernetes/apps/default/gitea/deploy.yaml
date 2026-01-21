@@ -70,17 +70,6 @@ spec:
                 secretKeyRef:
                   name: gitea-secrets
                   key: GITEA_LFS_JWT_SECRET
-            - name: GITEA__security__INSTALL_LOCK
-              value: "true"
-            - name: GITEA__admin__DEFAULT_ADMIN_NAME
-              value: "admin"
-            - name: GITEA__admin__DEFAULT_ADMIN_EMAIL
-              value: "admin@torquasmvo.com"
-            - name: GITEA__admin__DEFAULT_ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: gitea-secrets
-                  key: GITEA_ADMIN_PASSWORD
           volumeMounts:
             - name: gitea-data
               mountPath: /data
