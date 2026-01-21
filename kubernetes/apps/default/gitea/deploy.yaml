@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitea
+  namespace: default
+  labels:
+    app: gitea
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitea
+  template:
+    metadata:
+      labels:
+        app: gitea
+    spec:
+      containers:
+        - name: gitea
+          image: gitea/gitea:1.22.3
+          ports:
+            - name: http
+              containerPort: 3000
+            - name: ssh
+              containerPort: 22
+          env:
+            - name: USER_UID
+              value: "1000"
+            - name: USER_GID
+              value: "1000"
+            - name: GITEA__database__DB_TYPE
+              value: postgres
+            - name: GITEA__database__HOST
+              value: gitea-postgres-service:5432
+            - name: GITEA__database__NAME
+              value: gitea
+            - name: GITEA__database__USER
+              value: gitea
+            - name: GITEA__database__PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: gitea-secrets
+                  key: GITEA_DB_PASSWORD
+            - name: GITEA__database__SSL_MODE
+              value: disable
+            - name: GITEA__server__DOMAIN
+              value: gitea.torquasmvo.com
+            - name: GITEA__server__ROOT_URL
+              value: https://gitea.torquasmvo.com/
+            - name: GITEA__server__HTTP_PORT
+              value: "3000"
+            - name: GITEA__server__START_SSH_SERVER
+              value: "true"
+            - name: GITEA__server__SSH_DOMAIN
+              value: gitea.torquasmvo.com
+            - name: GITEA__server__SSH_PORT
+              value: "22"
+            - name: GITEA__security__SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gitea-secrets
+                  key: GITEA_SECRET_KEY
+            - name: GITEA__security__INTERNAL_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: gitea-secrets
+                  key: GITEA_INTERNAL_TOKEN
+          volumeMounts:
+            - name: gitea-data
+              mountPath: /data
+      volumes:
+        - name: gitea-data
+          persistentVolumeClaim:
+            claimName: gitea-data-pvc-lh

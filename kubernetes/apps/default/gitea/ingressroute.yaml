@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: gitea
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`gitea.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: gitea
+          namespace: default
+          port: 3000
+  tls:
+    secretName: traefik-dashboard-tls
