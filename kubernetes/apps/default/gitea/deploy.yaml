@@ -52,7 +52,7 @@ spec:
             - name: GITEA__server__START_SSH_SERVER
               value: "true"
             - name: GITEA__server__SSH_DOMAIN
-              value: gitea.torquasmvo.com
+              value: gitea-ssh.torquasmvo.com
             - name: GITEA__server__SSH_PORT
               value: "22"
             - name: GITEA__server__SSH_LISTEN_PORT
