@@ -57,6 +57,10 @@ spec:
               value: "22"
             - name: GITEA__server__SSH_LISTEN_PORT
               value: "2222"
+            - name: GITEA__service__DISABLE_REGISTRATION
+              value: "true"
+            - name: GITEA__service__SHOW_REGISTRATION_BUTTON
+              value: "false"
             - name: GITEA__security__SECRET_KEY
               valueFrom:
                 secretKeyRef:
