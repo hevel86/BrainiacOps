@@ -21,7 +21,7 @@ spec:
       serviceAccountName: syncthing-tailscale
       containers:
         - name: syncthing
-          image: lscr.io/linuxserver/syncthing:2.0.13
+          image: lscr.io/linuxserver/syncthing:2.0.14
           env:
             - name: PUID
               value: "1000"
