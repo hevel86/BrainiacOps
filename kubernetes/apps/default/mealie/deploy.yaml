@@ -22,7 +22,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: mealie
-          image: ghcr.io/mealie-recipes/mealie:v3.10.1
+          image: ghcr.io/mealie-recipes/mealie:v3.10.2
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 9000
