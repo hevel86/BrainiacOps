@@ -21,7 +21,7 @@ spec:
       serviceAccountName: portainer-tailscale
       containers:
         - name: portainer
-          image: portainer/portainer-ce:2.38.0
+          image: portainer/portainer-ce:2.38.1
           imagePullPolicy: Always
           ports:
             - name: http
