@@ -22,6 +22,8 @@ spec:
     targetRevision: 0.0.72
     helm:
       values: |
+        image:
+          tag: "0.0.72"
         monitoring:
           serviceMonitor:
             enabled: true
