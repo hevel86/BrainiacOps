@@ -69,6 +69,11 @@ controlPlane:
   patches:
     - |-
         machine:
+          nodeLabels:
+            node.kubernetes.io/exclude-from-external-load-balancers:
+              $$patch: delete
+    - |-
+        machine:
           kubelet:
             image: ghcr.io/siderolabs/kubelet:v1.35.0
             extraMounts:
