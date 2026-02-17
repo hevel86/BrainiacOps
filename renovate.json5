@@ -65,7 +65,6 @@
       datasourceTemplate: 'docker',
       versioningTemplate: 'docker',
     },
-    {
       customType: 'regex',
       description: 'Update Helm chart releases in Argo CD Applications',
       managerFilePatterns: [
@@ -76,6 +75,28 @@
       ],
       datasourceTemplate: 'helm',
       registryUrlTemplate: '{{registryUrl}}',
+    },
+    {
+      customType: 'regex',
+      description: 'Update OCI Helm chart releases in Argo CD Applications',
+      managerFilePatterns: [
+        '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
+      ],
+      matchStrings: [
+        'chart:\\s*(?<depName>[\\w./-]+)[\\s\\S]*?repoURL:\\s*(?<registryUrl>oci://\\S+)[\\s\\S]*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
+        'repoURL:\\s*(?<registryUrl>oci://\\S+)[\\s\\S]*?chart:\\s*(?<depName>[\\w./-]+)[\\s\\S]*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
+      ],
+      datasourceTemplate: 'helm',
+    },
+    {
+      customType: 'regex',
+      description: 'Process custom dependencies with # renovate: comments',
+      managerFilePatterns: [
+        '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
+      ],
+      matchStrings: [
+        '# renovate: datasource=(?<datasource>[a-z-]+?) depName=(?<depName>[^\\s]+?)(?: versioning=(?<versioning>[a-z-0-9]+?))?\\s+(?:\\w+:\\s+)+[\'"]?(?<currentValue>[^\\s\'"]+)',
+      ],
     },
     {
       customType: 'regex',

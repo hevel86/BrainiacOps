@@ -1,0 +1,14 @@
+apiVersion: tuppr.home-operations.com/v1alpha1
+kind: KubernetesUpgrade
+metadata:
+  name: kubernetes-upgrade
+  namespace: system-upgrade
+spec:
+  kubernetes:
+    # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
+    version: v1.35.1
+  maintenance:
+    windows:
+      - start: "0 3 * * 0"
+        duration: "4h"
+        timezone: "America/New_York"
