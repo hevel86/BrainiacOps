@@ -10,7 +10,7 @@ spec:
   source:
     chart: tuppr
     repoURL: oci://ghcr.io/home-operations/charts
-    targetRevision: 0.1.0
+    targetRevision: 0.0.72
     helm:
       values: |
         monitoring:
@@ -46,3 +46,6 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
