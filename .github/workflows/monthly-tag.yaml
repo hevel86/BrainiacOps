@@ -1,0 +1,24 @@
+name: Monthly Tag
+
+on:
+  schedule:
+    # Run at 00:00 on the 1st day of every month
+    - cron: '0 0 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create Monthly Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          ./scripts/monthly-tag.sh
