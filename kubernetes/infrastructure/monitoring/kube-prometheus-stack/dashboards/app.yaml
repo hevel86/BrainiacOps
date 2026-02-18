@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/hevel86/BrainiacOps.git
     targetRevision: HEAD
-    path: kubernetes/infrastructure/monitoring/kube-prometheus-stack/dashboards
+    path: kubernetes/infrastructure/monitoring/kube-prometheus-stack/dashboards/configmaps
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
