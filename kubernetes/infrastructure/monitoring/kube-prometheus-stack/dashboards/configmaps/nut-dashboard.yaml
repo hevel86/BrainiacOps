@@ -21,7 +21,7 @@ data:
           "id": 100,
           "panels": [],
           "repeat": "ups",
-          "repeatDirection": "h",
+          "repeatDirection": "v",
           "title": "UPS: $ups",
           "type": "row"
         },
@@ -379,13 +379,13 @@ data:
             "type": "datasource"
           },
           {
-            "current": {},
+            "current": { "text": "All", "value": "$__all" },
             "datasource": { "type": "prometheus", "uid": "${datasource}" },
             "definition": "label_values(network_ups_tools_ups_load, ups)",
             "hide": 0,
-            "includeAll": false,
+            "includeAll": true,
             "label": "UPS",
-            "multi": false,
+            "multi": true,
             "name": "ups",
             "options": [],
             "query": "label_values(network_ups_tools_ups_load, ups)",
