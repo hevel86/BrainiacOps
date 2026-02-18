@@ -4,3 +4,6 @@ namespace: argocd
 
 resources:
   - https://raw.githubusercontent.com/argoproj/argo-cd/v3.1.9/manifests/ha/install.yaml
+
+patches:
+  - path: redis-ha-haproxy-patch.yaml
