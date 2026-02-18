@@ -11,5 +11,22 @@ spec:
       app.kubernetes.io/name: nut-exporter
   endpoints:
   - port: http
+    path: /ups_metrics
     interval: 30s
     scrapeTimeout: 10s
+    params:
+      ups:
+      - ups1000
+    relabelings:
+    - sourceLabels: [__param_ups]
+      targetLabel: ups
+  - port: http
+    path: /ups_metrics
+    interval: 30s
+    scrapeTimeout: 10s
+    params:
+      ups:
+      - ups1500
+    relabelings:
+    - sourceLabels: [__param_ups]
+      targetLabel: ups

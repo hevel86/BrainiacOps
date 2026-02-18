@@ -17,16 +17,18 @@ spec:
     spec:
       containers:
       - name: nut-exporter
-        image: druggeri/nut_exporter:3.2.3
+        image: druggeri/nut_exporter:3.1.1
         ports:
         - containerPort: 9199
           name: http
         env:
-        - name: NUT_HOST
+        - name: NUT_EXPORTER_SERVER
           value: "batterypi.torquasmvo.internal"
-        - name: NUT_PORT
+        - name: NUT_EXPORTER_SERVERPORT
           value: "3493"
-        - name: NUT_USERNAME
+        - name: NUT_EXPORTER_USERNAME
           value: "upsmon_remote"
-        - name: NUT_PASSWORD
+        - name: NUT_EXPORTER_PASSWORD
           value: "hunter2"
+        - name: NUT_EXPORTER_VARIABLES
+          value: "battery.charge,battery.runtime,battery.voltage,battery.voltage.nominal,input.voltage,input.voltage.nominal,ups.load,ups.realpower.nominal,ups.status"
