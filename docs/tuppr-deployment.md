@@ -31,6 +31,13 @@ helm:
 2.  Regenerated Talos config (`talhelper genconfig`).
 3.  Applied the new configuration to all nodes (`talosctl apply-config`).
 
+## Issue 4: CRD Enum Validation Error
+**Symptom:** `tuppr` controller logs showed repeated errors: `Invalid value: "MaintenanceWindow"`.
+**Cause:** The status phase `MaintenanceWindow` was missing from the `enum` validation list in the CRD schema.
+**Fix:**
+1.  Edited `kubernetes-upgrades.yaml` and `talos-upgrades.yaml`.
+2.  Added `MaintenanceWindow` to the `status.phase` enum list.
+
 ## Verification
 - **Tuppr**: Ensure `tuppr`, `tuppr-crds`, and `tuppr-config` apps are `Synced` and `Healthy` in Argo CD.
 - **Connectivity**: Verify access to Argo CD UI and other services.
