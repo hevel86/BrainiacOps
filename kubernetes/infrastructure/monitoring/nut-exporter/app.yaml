@@ -3,14 +3,16 @@ kind: Application
 metadata:
   name: nut-exporter
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "50"
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
     path: kubernetes/infrastructure/monitoring/nut-exporter
+    directory:
+      exclude: 'app.yaml'
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
@@ -19,5 +21,4 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
+    - CreateNamespace=true
