@@ -111,6 +111,9 @@ controlPlane:
           scheduler:
             extraArgs:
               bind-address: 0.0.0.0
+          proxy:
+            extraArgs:
+              metrics-bind-address: 0.0.0.0
           apiServer:
             admissionControl:
               - name: PodSecurity
