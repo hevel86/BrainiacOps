@@ -26,3 +26,7 @@ spec:
           value: "batterypi.torquasmvo.internal"
         - name: NUT_PORT
           value: "3493"
+        - name: NUT_USERNAME
+          value: "upsmon_remote"
+        - name: NUT_PASSWORD
+          value: "hunter2"
