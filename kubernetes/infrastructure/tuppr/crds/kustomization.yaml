@@ -1,5 +1,5 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - tuppr.home-operations.com_kubernetesupgrades.yaml
-  - tuppr.home-operations.com_talosupgrades.yaml
+  - kubernetes-upgrades.yaml
+  - talos-upgrades.yaml
