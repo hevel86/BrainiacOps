@@ -16,6 +16,12 @@ spec:
       values: |
         prometheusOperator:
           replicas: 1
+        kubeProxy:
+          enabled: true
+          service:
+            enabled: true
+            selector:
+              k8s-app: kube-proxy
         kubeControllerManager:
           enabled: true
           service:
