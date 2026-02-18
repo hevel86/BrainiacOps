@@ -65,6 +65,7 @@
       datasourceTemplate: 'docker',
       versioningTemplate: 'docker',
     },
+    {
       customType: 'regex',
       description: 'Update Helm chart releases in Argo CD Applications',
       managerFilePatterns: [
@@ -337,7 +338,7 @@
       matchPackageNames: [
         'lscr.io/linuxserver/mylar3',
       ],
-      allowedVersions: '/^v?d+.d+.d+(?:-lsd+)?$/',
+      allowedVersions: '/^v?\\d+\\.\\d+\\.\\d+(?:-ls\\d+)?$/',
     },
     {
       description: 'Limit linuxserver tags to semver-style releases',
