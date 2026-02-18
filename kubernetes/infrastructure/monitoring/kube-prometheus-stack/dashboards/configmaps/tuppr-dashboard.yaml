@@ -632,41 +632,46 @@ data:
           "datasource": { "type": "prometheus", "uid": "${datasource}" },
           "fieldConfig": {
             "defaults": {
-              "color": { "mode": "thresholds" },
+              "color": { "mode": "fixed", "fixedColor": "green" },
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
-                  { "color": "green", "value": null },
-                  { "color": "yellow", "value": 1 },
-                  { "color": "red", "value": 2 }
+                  { "color": "green", "value": null }
                 ]
-              },
-              "mappings": [
-                { "options": { "0": { "text": "Healthy", "color": "green" } }, "type": "value" },
-                { "options": { "1": { "text": "Degraded", "color": "yellow" } }, "type": "value" },
-                { "options": { "2": { "text": "Faulted", "color": "red" } }, "type": "value" },
-                { "options": { "3": { "text": "Unknown", "color": "text" } }, "type": "value" }
-              ]
+              }
             },
-            "overrides": []
+            "overrides": [
+              {
+                "matcher": { "id": "byRegexp", "options": ".*degraded.*" },
+                "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "yellow" } }]
+              },
+              {
+                "matcher": { "id": "byRegexp", "options": ".*faulted.*" },
+                "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }]
+              },
+              {
+                "matcher": { "id": "byRegexp", "options": ".*unknown.*" },
+                "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "text" } }]
+              }
+            ]
           },
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 34 },
           "id": 23,
           "options": {
-            "colorMode": "value",
+            "colorMode": "background",
             "graphMode": "none",
             "justifyMode": "auto",
             "orientation": "horizontal",
             "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-            "textMode": "auto"
+            "textMode": "name"
           },
           "title": "Volume Robustness",
           "type": "stat",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "longhorn_volume_robustness{volume!=\"\"}",
-              "legendFormat": "{{ volume }}",
+              "expr": "longhorn_volume_robustness{volume!=\"\"} == 1",
+              "legendFormat": "{{ pvc }} ({{ state }})",
               "refId": "A"
             }
           ]
