@@ -516,16 +516,19 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 6, "w": 12, "x": 0, "y": 28 },
+          "gridPos": { "h": 8, "w": 16, "x": 0, "y": 28 },
           "id": 20,
           "options": {
+            "displayMode": "gradient",
+            "minVizHeight": 30,
+            "minVizWidth": 0,
             "orientation": "horizontal",
             "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-            "showThresholdLabels": false,
-            "showThresholdMarkers": true
+            "showUnfilled": true,
+            "valueMode": "text"
           },
           "title": "Node Storage Usage",
-          "type": "gauge",
+          "type": "bargauge",
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
@@ -554,7 +557,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 6, "w": 12, "x": 12, "y": 28 },
+          "gridPos": { "h": 8, "w": 8, "x": 16, "y": 28 },
           "id": 21,
           "options": {
             "colorMode": "background",
@@ -571,6 +574,113 @@ data:
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
               "expr": "longhorn_node_status{condition=\"schedulable\",condition_reason=\"\"}",
               "legendFormat": "{{ node }}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 4, "w": 8, "x": 0, "y": 36 },
+          "id": 24,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+            "textMode": "auto"
+          },
+          "title": "Healthy Volumes",
+          "type": "stat",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "count(longhorn_volume_robustness{state=\"healthy\"} == 1)",
+              "legendFormat": "Healthy",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 1 }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 4, "w": 8, "x": 8, "y": 36 },
+          "id": 25,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+            "textMode": "auto"
+          },
+          "title": "Degraded Volumes",
+          "type": "stat",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "count(longhorn_volume_robustness{state=\"degraded\"} == 1) OR on() vector(0)",
+              "legendFormat": "Degraded",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "red", "value": 1 }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 4, "w": 8, "x": 16, "y": 36 },
+          "id": 26,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+            "textMode": "auto"
+          },
+          "title": "Faulted Volumes",
+          "type": "stat",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "count(longhorn_volume_robustness{state=\"faulted\"} == 1) OR on() vector(0)",
+              "legendFormat": "Faulted",
               "refId": "A"
             }
           ]
@@ -605,7 +715,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 34 },
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 40 },
           "id": 22,
           "options": {
             "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -625,54 +735,6 @@ data:
               "expr": "longhorn_node_storage_usage_bytes",
               "legendFormat": "{{ node }} used",
               "refId": "B"
-            }
-          ]
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "${datasource}" },
-          "fieldConfig": {
-            "defaults": {
-              "color": { "mode": "fixed", "fixedColor": "green" },
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "green", "value": null }
-                ]
-              }
-            },
-            "overrides": [
-              {
-                "matcher": { "id": "byRegexp", "options": ".*degraded.*" },
-                "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "yellow" } }]
-              },
-              {
-                "matcher": { "id": "byRegexp", "options": ".*faulted.*" },
-                "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }]
-              },
-              {
-                "matcher": { "id": "byRegexp", "options": ".*unknown.*" },
-                "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "text" } }]
-              }
-            ]
-          },
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 34 },
-          "id": 23,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "orientation": "horizontal",
-            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-            "textMode": "name"
-          },
-          "title": "Volume Robustness",
-          "type": "stat",
-          "targets": [
-            {
-              "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "longhorn_volume_robustness{volume!=\"\"} == 1",
-              "legendFormat": "{{ pvc }} ({{ state }})",
-              "refId": "A"
             }
           ]
         }
