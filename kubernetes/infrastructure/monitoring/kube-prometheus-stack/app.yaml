@@ -19,6 +19,8 @@ spec:
         prometheus:
           prometheusSpec:
             replicas: 1
+            serviceMonitorNamespaceSelector: {}
+            serviceMonitorSelector: {}
           service:
             type: LoadBalancer
             loadBalancerIP: 10.0.0.230
@@ -38,6 +40,12 @@ spec:
             existingSecret: grafana-admin
             userKey: admin-user
             passwordKey: admin-password
+          sidecar:
+            dashboards:
+              enabled: true
+              label: grafana_dashboard
+              labelValue: "1"
+              searchNamespace: ALL
           service:
             type: LoadBalancer
             loadBalancerIP: 10.0.0.232
