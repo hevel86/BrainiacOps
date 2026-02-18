@@ -345,6 +345,7 @@ spec:
                   - Rebooting
                   - Completed
                   - Failed
+                  - MaintenanceWindow
                 description: Phase represents the current phase of the upgrade
                 type: string
             type: object
