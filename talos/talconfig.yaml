@@ -105,6 +105,12 @@ controlPlane:
           install:
             wipe: true
         cluster:
+          controllerManager:
+            extraArgs:
+              bind-address: 0.0.0.0
+          scheduler:
+            extraArgs:
+              bind-address: 0.0.0.0
           apiServer:
             admissionControl:
               - name: PodSecurity
