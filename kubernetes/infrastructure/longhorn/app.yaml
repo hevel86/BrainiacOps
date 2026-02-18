@@ -37,6 +37,9 @@ spec:
           createDefaultDiskLabeledNodes: true
         longhornUI:
           replicas: 3
+        metrics:
+          serviceMonitor:
+            enabled: true
   syncPolicy:
     automated:
       prune: true
