@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: nut-exporter
-        image: druggeri/nut_exporter:3.1.1
+        image: druggeri/nut_exporter:3.2.3
         ports:
         - containerPort: 9199
           name: http
