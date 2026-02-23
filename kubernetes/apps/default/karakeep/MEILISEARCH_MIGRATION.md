@@ -19,9 +19,9 @@ automation:
   deployment_strategy: Recreate
 
 current_state:
-  version: "v1.32.1"
-  last_migration: "2026-01-14"
-  document_count: 75
+  version: "v1.36.0"
+  last_migration: "2026-02-23"
+  document_count: 79
 
 prerequisites:
   - kubectl cluster access
@@ -452,6 +452,21 @@ migration:
   documents_migrated: N
   downtime_minutes: N
   notes: ""
+```
+
+### v1.32.1 → v1.36.0 (2026-02-23)
+
+```yaml
+migration:
+  date: "2026-02-23"
+  source_version: "v1.32.1"
+  target_version: "v1.36.0"
+  dump_file: "20260223-150128296.dump"
+  local_backup: "/tmp/karakeep-meili-20260223.dump"
+  status: completed
+  documents_migrated: 79
+  downtime_minutes: 6
+  notes: "Automated migration via Codex. Full dump/restore completed and verified on bookmarks index."
 ```
 
 ### v1.32.0 → v1.32.1 (2026-01-14)
