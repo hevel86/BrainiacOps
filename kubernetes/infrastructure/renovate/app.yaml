@@ -21,9 +21,11 @@ spec:
         env:
           LOG_LEVEL: info
           RENOVATE_NODE_OPTIONS: --max-old-space-size=1024
+          DOCKER_HUB_PASSWORD: $(DOCKERHUB_PASSWORD)
+          DOCKER_HUB_USERNAME: $(DOCKERHUB_USERNAME)
         extraEnvVars:
           - name: RENOVATE_HOST_RULES
-            value: '[{"matchHost":"docker.io","hostType":"docker","username":"$(DOCKERHUB_USERNAME)","password":"$(DOCKERHUB_PASSWORD)"},{"matchHost":"index.docker.io","hostType":"docker","username":"$(DOCKERHUB_USERNAME)","password":"$(DOCKERHUB_PASSWORD)"},{"matchHost":"registry-1.docker.io","hostType":"docker","username":"$(DOCKERHUB_USERNAME)","password":"$(DOCKERHUB_PASSWORD)"},{"matchHost":"auth.docker.io","hostType":"docker","username":"$(DOCKERHUB_USERNAME)","password":"$(DOCKERHUB_PASSWORD)"}]'
+            value: '[{"matchHost":"docker.io","hostType":"docker","username":"$(DOCKER_HUB_USERNAME)","password":"$(DOCKER_HUB_PASSWORD)"},{"matchHost":"index.docker.io","hostType":"docker","username":"$(DOCKER_HUB_USERNAME)","password":"$(DOCKER_HUB_PASSWORD)"},{"matchHost":"registry-1.docker.io","hostType":"docker","username":"$(DOCKER_HUB_USERNAME)","password":"$(DOCKER_HUB_PASSWORD)"},{"matchHost":"auth.docker.io","hostType":"docker","username":"$(DOCKER_HUB_USERNAME)","password":"$(DOCKER_HUB_PASSWORD)"}]'
         renovate:
           # Minimal JSON config: platform + repositories to scan.
           # Repository-local renovate.json drives behavior.
