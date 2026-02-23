@@ -94,7 +94,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "min(tuppr_maintenance_window_next_open_timestamp * 1000) filter_result (vector > 0)",
+              "expr": "min(tuppr_maintenance_window_next_open_timestamp > 0) * 1000",
               "legendFormat": "Next Window",
               "refId": "A"
             }
@@ -818,5 +818,5 @@ data:
       "timezone": "",
       "title": "Tuppr - Upgrade Controller",
       "uid": "tuppr-upgrades",
-      "version": 4
+      "version": 5
     }
