@@ -31,17 +31,22 @@ data:
               "color": { "mode": "thresholds" },
               "mappings": [
                 { "options": { "0": { "text": "Pending", "color": "text" } }, "type": "value" },
-                { "options": { "1": { "text": "In Progress", "color": "yellow" } }, "type": "value" },
-                { "options": { "2": { "text": "Completed", "color": "green" } }, "type": "value" },
-                { "options": { "3": { "text": "Failed", "color": "red" } }, "type": "value" }
+                { "options": { "1": { "text": "Health Checking", "color": "yellow" } }, "type": "value" },
+                { "options": { "2": { "text": "Draining", "color": "yellow" } }, "type": "value" },
+                { "options": { "3": { "text": "Upgrading", "color": "yellow" } }, "type": "value" },
+                { "options": { "4": { "text": "Rebooting", "color": "yellow" } }, "type": "value" },
+                { "options": { "5": { "text": "Completed", "color": "green" } }, "type": "value" },
+                { "options": { "6": { "text": "Failed", "color": "red" } }, "type": "value" },
+                { "options": { "7": { "text": "Maintenance Window", "color": "blue" } }, "type": "value" }
               ],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   { "color": "text", "value": null },
                   { "color": "yellow", "value": 1 },
-                  { "color": "green", "value": 2 },
-                  { "color": "red", "value": 3 }
+                  { "color": "green", "value": 5 },
+                  { "color": "red", "value": 6 },
+                  { "color": "blue", "value": 7 }
                 ]
               }
             },
@@ -62,7 +67,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "tuppr_talos_upgrade_phase",
+              "expr": "tuppr_talos_upgrade_phase OR on() vector(0)",
               "legendFormat": "{{ name }}",
               "refId": "A"
             }
@@ -100,7 +105,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "(tuppr_talos_upgrade_nodes_completed / tuppr_talos_upgrade_nodes_total) * 100",
+              "expr": "((tuppr_talos_upgrade_nodes_completed / tuppr_talos_upgrade_nodes_total) * 100) OR on() vector(0)",
               "legendFormat": "{{ name }}",
               "refId": "A"
             }
@@ -136,7 +141,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "tuppr_talos_upgrade_nodes_total",
+              "expr": "tuppr_talos_upgrade_nodes_total OR on() vector(0)",
               "legendFormat": "{{ name }}",
               "refId": "A"
             }
@@ -172,7 +177,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "tuppr_talos_upgrade_nodes_completed",
+              "expr": "tuppr_talos_upgrade_nodes_completed OR on() vector(0)",
               "legendFormat": "{{ name }}",
               "refId": "A"
             }
@@ -208,7 +213,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "tuppr_talos_upgrade_nodes_failed",
+              "expr": "tuppr_talos_upgrade_nodes_failed OR on() vector(0)",
               "legendFormat": "{{ name }}",
               "refId": "A"
             }
@@ -228,17 +233,22 @@ data:
               "color": { "mode": "thresholds" },
               "mappings": [
                 { "options": { "0": { "text": "Pending", "color": "text" } }, "type": "value" },
-                { "options": { "1": { "text": "In Progress", "color": "yellow" } }, "type": "value" },
-                { "options": { "2": { "text": "Completed", "color": "green" } }, "type": "value" },
-                { "options": { "3": { "text": "Failed", "color": "red" } }, "type": "value" }
+                { "options": { "1": { "text": "Health Checking", "color": "yellow" } }, "type": "value" },
+                { "options": { "2": { "text": "Draining", "color": "yellow" } }, "type": "value" },
+                { "options": { "3": { "text": "Upgrading", "color": "yellow" } }, "type": "value" },
+                { "options": { "4": { "text": "Rebooting", "color": "yellow" } }, "type": "value" },
+                { "options": { "5": { "text": "Completed", "color": "green" } }, "type": "value" },
+                { "options": { "6": { "text": "Failed", "color": "red" } }, "type": "value" },
+                { "options": { "7": { "text": "Maintenance Window", "color": "blue" } }, "type": "value" }
               ],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   { "color": "text", "value": null },
                   { "color": "yellow", "value": 1 },
-                  { "color": "green", "value": 2 },
-                  { "color": "red", "value": 3 }
+                  { "color": "green", "value": 5 },
+                  { "color": "red", "value": 6 },
+                  { "color": "blue", "value": 7 }
                 ]
               }
             },
@@ -259,7 +269,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "tuppr_kubernetes_upgrade_phase",
+              "expr": "tuppr_kubernetes_upgrade_phase OR on() vector(0)",
               "legendFormat": "{{ name }}",
               "refId": "A"
             }
@@ -302,7 +312,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "sum(tuppr_upgrade_jobs_active) by (upgrade_type)",
+              "expr": "sum(tuppr_upgrade_jobs_active) by (upgrade_type) OR on() vector(0)",
               "legendFormat": "{{ upgrade_type }}",
               "refId": "A"
             }
@@ -342,7 +352,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "tuppr_maintenance_window_active",
+              "expr": "tuppr_maintenance_window_active OR on() vector(0)",
               "legendFormat": "{{ name }}",
               "refId": "A"
             }
@@ -378,7 +388,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 11 },
+          "gridPos": { "h": 4, "w": 12, "x": 12, "y": 11 },
           "id": 9,
           "options": {
             "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true },
@@ -472,7 +482,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 19 },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 },
           "id": 11,
           "options": {
             "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -491,7 +501,7 @@ data:
         },
         {
           "collapsed": false,
-          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 27 },
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
           "id": 103,
           "title": "Longhorn Storage Health",
           "type": "row"
@@ -516,7 +526,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 8, "w": 16, "x": 0, "y": 28 },
+          "gridPos": { "h": 8, "w": 16, "x": 0, "y": 24 },
           "id": 20,
           "options": {
             "displayMode": "gradient",
@@ -557,7 +567,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 8, "w": 8, "x": 16, "y": 28 },
+          "gridPos": { "h": 8, "w": 8, "x": 16, "y": 24 },
           "id": 21,
           "options": {
             "colorMode": "background",
@@ -592,7 +602,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 4, "w": 8, "x": 0, "y": 36 },
+          "gridPos": { "h": 4, "w": 8, "x": 0, "y": 32 },
           "id": 24,
           "options": {
             "colorMode": "background",
@@ -607,7 +617,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "count(longhorn_volume_robustness{state=\"healthy\"} == 1)",
+              "expr": "count(longhorn_volume_robustness{state=\"healthy\"} == 1) OR on() vector(0)",
               "legendFormat": "Healthy",
               "refId": "A"
             }
@@ -628,7 +638,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 4, "w": 8, "x": 8, "y": 36 },
+          "gridPos": { "h": 4, "w": 8, "x": 8, "y": 32 },
           "id": 25,
           "options": {
             "colorMode": "background",
@@ -664,7 +674,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 4, "w": 8, "x": 16, "y": 36 },
+          "gridPos": { "h": 4, "w": 8, "x": 16, "y": 32 },
           "id": 26,
           "options": {
             "colorMode": "background",
@@ -715,7 +725,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 40 },
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 36 },
           "id": 22,
           "options": {
             "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -765,5 +775,5 @@ data:
       "timezone": "",
       "title": "Tuppr - Upgrade Controller",
       "uid": "tuppr-upgrades",
-      "version": 1
+      "version": 2
     }

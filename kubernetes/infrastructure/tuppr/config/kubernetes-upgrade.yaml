@@ -7,6 +7,14 @@ spec:
   kubernetes:
     # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
     version: v1.35.1
+  healthChecks:
+    - apiVersion: longhorn.io/v1beta2
+      kind: Volume
+      namespace: longhorn-system
+      name: "" # Check all volumes
+      expr: "object.status.robustness == 'healthy'"
+      description: "Ensure all Longhorn volumes are healthy"
+      timeout: "1h"
   maintenance:
     windows:
       - start: "0 3 * * 0"
