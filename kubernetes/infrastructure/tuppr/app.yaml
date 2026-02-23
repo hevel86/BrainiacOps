@@ -42,7 +42,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: oci://ghcr.io/home-operations/charts
+    repoURL: ghcr.io/home-operations/charts
     chart: tuppr
     targetRevision: "0.0.73"
     helm:
