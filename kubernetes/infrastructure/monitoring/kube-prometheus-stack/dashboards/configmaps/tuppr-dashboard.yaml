@@ -67,8 +67,8 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "tuppr_talos_upgrade_phase OR on() vector(0)",
-              "legendFormat": "{{ name }}",
+              "expr": "max(tuppr_talos_upgrade_phase) OR on() vector(0)",
+              "legendFormat": "Current Phase",
               "refId": "A"
             }
           ]
@@ -105,8 +105,8 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "((tuppr_talos_upgrade_nodes_completed / tuppr_talos_upgrade_nodes_total) * 100) OR on() vector(0)",
-              "legendFormat": "{{ name }}",
+              "expr": "((sum(tuppr_talos_upgrade_nodes_completed) / sum(tuppr_talos_upgrade_nodes_total)) * 100) OR on() vector(0)",
+              "legendFormat": "Progress",
               "refId": "A"
             }
           ]
@@ -141,8 +141,8 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "tuppr_talos_upgrade_nodes_total OR on() vector(0)",
-              "legendFormat": "{{ name }}",
+              "expr": "max(tuppr_talos_upgrade_nodes_total) OR on() vector(0)",
+              "legendFormat": "Total",
               "refId": "A"
             }
           ]
@@ -177,8 +177,8 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "tuppr_talos_upgrade_nodes_completed OR on() vector(0)",
-              "legendFormat": "{{ name }}",
+              "expr": "max(tuppr_talos_upgrade_nodes_completed) OR on() vector(0)",
+              "legendFormat": "Completed",
               "refId": "A"
             }
           ]
@@ -213,8 +213,8 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "tuppr_talos_upgrade_nodes_failed OR on() vector(0)",
-              "legendFormat": "{{ name }}",
+              "expr": "max(tuppr_talos_upgrade_nodes_failed) OR on() vector(0)",
+              "legendFormat": "Failed",
               "refId": "A"
             }
           ]
@@ -269,8 +269,8 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "tuppr_kubernetes_upgrade_phase OR on() vector(0)",
-              "legendFormat": "{{ name }}",
+              "expr": "max(tuppr_kubernetes_upgrade_phase) OR on() vector(0)",
+              "legendFormat": "Current Phase",
               "refId": "A"
             }
           ]
@@ -352,8 +352,8 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "tuppr_maintenance_window_active OR on() vector(0)",
-              "legendFormat": "{{ name }}",
+              "expr": "max(tuppr_maintenance_window_active) OR on() vector(0)",
+              "legendFormat": "Status",
               "refId": "A"
             }
           ]
@@ -775,5 +775,5 @@ data:
       "timezone": "",
       "title": "Tuppr - Upgrade Controller",
       "uid": "tuppr-upgrades",
-      "version": 2
+      "version": 3
     }
