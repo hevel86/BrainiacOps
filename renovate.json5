@@ -25,6 +25,7 @@
     'dockerfile',
     'helm-values',
     'kustomize',
+    'argocd',
     'custom.regex',
   ],
   labels: [
