@@ -1,4 +1,4 @@
-﻿apiVersion: longhorn.io/v1beta2
+apiVersion: longhorn.io/v1beta2
 kind: RecurringJob
 metadata:
   name: hourly-snap
