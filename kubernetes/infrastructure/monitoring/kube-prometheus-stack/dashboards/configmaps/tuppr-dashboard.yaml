@@ -43,7 +43,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+          "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
           "id": 8,
           "options": {
             "colorMode": "background",
@@ -79,7 +79,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 4, "w": 10, "x": 6, "y": 1 },
+          "gridPos": { "h": 4, "w": 8, "x": 4, "y": 1 },
           "id": 30,
           "options": {
             "colorMode": "background",
@@ -108,6 +108,41 @@ data:
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
+                  { "color": "blue", "value": null }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+          "id": 31,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+            "textMode": "name"
+          },
+          "title": "Controller Leader",
+          "type": "stat",
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "leader_election_master_status{name=\"bea89bcd.home-operations.com\"} == 1",
+              "legendFormat": "{{pod}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
                   { "color": "green", "value": null },
                   { "color": "orange", "value": 1 }
                 ]
@@ -115,7 +150,7 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 4, "w": 8, "x": 16, "y": 1 },
+          "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
           "id": 7,
           "options": {
             "colorMode": "background",
@@ -818,5 +853,5 @@ data:
       "timezone": "",
       "title": "Tuppr - Upgrade Controller",
       "uid": "tuppr-upgrades",
-      "version": 5
+      "version": 6
     }
