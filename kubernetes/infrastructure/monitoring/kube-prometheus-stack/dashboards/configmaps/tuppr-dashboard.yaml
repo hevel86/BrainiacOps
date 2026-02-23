@@ -129,8 +129,8 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "leader_election_master_status{name=\"bea89bcd.home-operations.com\"} == 1",
-              "legendFormat": "{{pod}}",
+              "expr": "label_replace(leader_election_master_status{name=\"bea89bcd.home-operations.com\"} == 1, \"pod\", \"$1\", \"instance\", \"(.*):.*\") * on(pod) group_left(node) kube_pod_info{namespace=\"system-upgrade\"}",
+              "legendFormat": "{{pod}} ({{node}})",
               "refId": "A"
             }
           ]
@@ -853,5 +853,5 @@ data:
       "timezone": "",
       "title": "Tuppr - Upgrade Controller",
       "uid": "tuppr-upgrades",
-      "version": 6
+      "version": 7
     }
