@@ -75,6 +75,7 @@ controlPlane:
     - |-
         machine:
           kubelet:
+            # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
             image: ghcr.io/siderolabs/kubelet:v1.35.1
             extraMounts:
               - destination: /var/mnt/longhorn

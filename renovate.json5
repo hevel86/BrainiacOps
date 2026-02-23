@@ -94,6 +94,7 @@
       description: 'Process custom dependencies with # renovate: comments',
       managerFilePatterns: [
         '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
+        '/^talos/talconfig\\.ya?ml$/',
       ],
       matchStrings: [
         '# renovate: datasource=(?<datasource>[a-z-]+?) depName=(?<depName>[^\\s]+?)(?: versioning=(?<versioning>[a-z-0-9]+?))?\\s+(?:\\w+:\\s+)+[\'"]?(?<currentValue>[^\\s\'"]+)',
