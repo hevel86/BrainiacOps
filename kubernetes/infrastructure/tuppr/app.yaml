@@ -42,14 +42,14 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/home-operations/tuppr.git
-    path: charts/tuppr
-    targetRevision: 0.0.72
+    repoURL: oci://ghcr.io/home-operations/charts
+    chart: tuppr
+    targetRevision: "0.0.73"
     helm:
       values: |
         replicaCount: 3
         image:
-          tag: "0.0.72"
+          tag: "0.0.73"
         monitoring:
           serviceMonitor:
             enabled: true
