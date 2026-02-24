@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jellystat
+  namespace: default
+  labels:
+    app: jellystat
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: jellystat.torquasmvo.internal
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.238
+  selector:
+    app: jellystat
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000

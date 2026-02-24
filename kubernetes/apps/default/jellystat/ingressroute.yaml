@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: jellystat
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`jellystat.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: jellystat
+          namespace: default
+          port: 3000
+  tls:
+    secretName: traefik-dashboard-tls

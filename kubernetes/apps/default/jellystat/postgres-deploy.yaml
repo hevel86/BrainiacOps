@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jellystat-postgres
+  namespace: default
+  labels:
+    app: jellystat-postgres
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: jellystat-postgres
+  template:
+    metadata:
+      labels:
+        app: jellystat-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:18.1
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: jellystat
+            - name: POSTGRES_DB
+              value: jellystat
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: jellystat-secrets
+                  key: JELLYSTAT_POSTGRES_PASSWORD
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: jellystat-postgres-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jellystat-postgres
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: jellystat-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
