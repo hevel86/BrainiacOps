@@ -25,7 +25,7 @@ MetalLB IPs: total=51 used=36 free=15
 | romm-svc | default | 10.0.0.216 |
 | plex | default | 10.0.0.217 |
 | jellyfin | default | 10.0.0.218 |
-| jellyseerr | default | 10.0.0.219 |
+| seerr | default | 10.0.0.219 |
 | semaphore-service | default | 10.0.0.221 |
 | gatus | monitoring | 10.0.0.223 |
 | transmission-vpn | default | 10.0.0.224 |

@@ -5,3 +5,4 @@ resources:
   - ingressroute.yaml
   - pvc.yaml
   - svc.yaml
+  - redirect-middleware.yaml

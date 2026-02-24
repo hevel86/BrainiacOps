@@ -1,0 +1,10 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: jellyseerr-to-seerr
+  namespace: kube-system
+spec:
+  redirectRegex:
+    regex: ^https?://jellyseerr.torquasmvo.com/(.*)
+    replacement: https://seerr.torquasmvo.com/${1}
+    permanent: true

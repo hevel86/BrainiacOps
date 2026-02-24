@@ -3,15 +3,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: jellyseerr
+  name: seerr
   namespace: default
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: jellyseerr.torquasmvo.internal
+    external-dns.alpha.kubernetes.io/hostname: seerr.torquasmvo.internal
 spec:
   type: LoadBalancer
   loadBalancerIP: 10.0.0.219
   selector:
-    app: jellyseerr
+    app: seerr
   ports:
     - name: http
       protocol: TCP

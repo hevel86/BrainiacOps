@@ -2,24 +2,37 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: jellyseerr
+  name: seerr
   labels:
-    app: jellyseerr
+    app: seerr
 spec:
   replicas: 1
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: jellyseerr
+      app: seerr
   template:
     metadata:
       labels:
-        app: jellyseerr
+        app: seerr
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      initContainers:
+      - name: fix-permissions
+        image: alpine:latest
+        command: ["sh", "-c", "chown -R 1000:1000 /app/config"]
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
       containers:
-      - name: jellyseerr
-        image: fallenbagel/jellyseerr:2.7.3
+      - name: seerr
+        image: ghcr.io/seerr/seerr:v3.0.1
         ports:
         - containerPort: 5055
         env:
@@ -33,13 +46,9 @@ spec:
         - name: config-volume
           mountPath: /app/config
         livenessProbe:
-          exec:
-            command:
-            - wget
-            - --no-verbose
-            - --tries=1
-            - --spider
-            - http://localhost:5055/api/v1/status
+          httpGet:
+            path: /api/v1/status
+            port: 5055
           initialDelaySeconds: 20
           periodSeconds: 15
           timeoutSeconds: 3
