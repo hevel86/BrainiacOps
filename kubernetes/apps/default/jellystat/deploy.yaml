@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: jellystat
-          image: cyfershepard/jellystat:V1.1.8
+          image: cyfershepard/jellystat:1.1.8
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000

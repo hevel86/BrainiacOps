@@ -34,8 +34,7 @@ spec:
                   key: JELLYSTAT_POSTGRES_PASSWORD
           volumeMounts:
             - name: postgres-data
-              mountPath: /var/lib/postgresql/data
-              subPath: postgres
+              mountPath: /var/lib/postgresql
       volumes:
         - name: postgres-data
           persistentVolumeClaim:
