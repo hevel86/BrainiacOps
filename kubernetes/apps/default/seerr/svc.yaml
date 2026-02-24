@@ -7,6 +7,7 @@ metadata:
   namespace: default
   annotations:
     external-dns.alpha.kubernetes.io/hostname: seerr.torquasmvo.internal
+    metallb.universe.tf/loadBalancerIPs: 10.0.0.219
 spec:
   type: LoadBalancer
   loadBalancerIP: 10.0.0.219
