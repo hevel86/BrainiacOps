@@ -15,6 +15,8 @@ spec:
       labels:
         app: jellyfin
     spec:
+      securityContext:
+        fsGroup: 1000
       containers:
         - name: jellyfin
           image: lscr.io/linuxserver/jellyfin:10.11.6
@@ -27,13 +29,17 @@ spec:
               value: "1000"
             - name: TZ
               value: "America/New_York"
+            - name: DOCKER_MODS
+              value: "linuxserver/mods:jellyfin-opencl-intel"
           resources:
             requests:
               gpu.intel.com/i915: "1"
               cpu: 1000m
-              memory: "6Gi"
+              memory: "4Gi"
             limits:
               gpu.intel.com/i915: "1"
+              cpu: "4000m"
+              memory: "12Gi"
           volumeMounts:
             - name: config
               mountPath: /config
@@ -43,11 +49,6 @@ spec:
               mountPath: /data/movies
             - name: jellyfin-transcode
               mountPath: /transcode
-          # resources:
-          #   limits:
-          #     nvidia.com/gpu: 1
-          securityContext:
-            privileged: true
       volumes:
         - name: config
           persistentVolumeClaim:
@@ -59,5 +60,6 @@ spec:
           persistentVolumeClaim:
             claimName: media-movies-pvc
         - name: jellyfin-transcode
-          persistentVolumeClaim:
-            claimName: jellyfin-zfstranscode-pvc
+          emptyDir:
+            medium: Memory
+            sizeLimit: 4Gi
