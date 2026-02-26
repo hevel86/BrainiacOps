@@ -123,7 +123,7 @@ spec:
                   name: tailscale
                   key: TS_AUTHKEY
             - name: TS_EXTRA_ARGS
-              value: "--hostname=semaphoreui-sidecar --accept-routes=true"
+              value: "--hostname=semaphoreui-sidecar --accept-routes=true --accept-dns=true --advertise-tags=tag:homelab"
             - name: POD_NAME
               valueFrom:
                 fieldRef:
