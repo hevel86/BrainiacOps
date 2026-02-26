@@ -9,7 +9,7 @@ metadata:
     external-dns.alpha.kubernetes.io/hostname: jellystat.torquasmvo.internal
 spec:
   type: LoadBalancer
-  loadBalancerIP: 10.0.0.238
+  loadBalancerIP: 10.0.0.239
   selector:
     app: jellystat
   ports:

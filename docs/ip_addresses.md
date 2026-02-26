@@ -1,8 +1,8 @@
 # Kubernetes Service IP Addresses
 
-Last updated: 2026-01-21 UTC
+Last updated: 2026-02-26 UTC
 MetalLB pool: 10.0.0.200-10.0.0.250
-MetalLB IPs: total=51 used=37 free=14
+MetalLB IPs: total=51 used=38 free=13
 
 | Service | Namespace | IP Address |
 | :------ | :-------- | :--------- |
@@ -42,4 +42,5 @@ MetalLB IPs: total=51 used=37 free=14
 | vikunja | default | 10.0.0.235 |
 | stirling-pdf | default | 10.0.0.236 |
 | it-tools | default | 10.0.0.237 |
-| jellystat | default | 10.0.0.238 |
+| gitea | default | 10.0.0.238 |
+| jellystat | default | 10.0.0.239 |
