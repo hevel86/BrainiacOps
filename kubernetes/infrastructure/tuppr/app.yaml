@@ -46,6 +46,7 @@ spec:
     chart: tuppr
     targetRevision: "0.0.73"
     helm:
+      skipCrds: true
       values: |
         replicaCount: 3
         image:
