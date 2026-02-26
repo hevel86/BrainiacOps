@@ -2,21 +2,21 @@
 
 This folder contains Tailscale integration resources for Kubernetes.
 
-## Generate an Auth Key
+## Authentication Methods
 
-1. Log in to the Tailscale admin console:  
-   https://login.tailscale.com/admin/settings/keys
+### 1. OAuth Clients (Recommended - Non-Expiring)
+Tailscale OAuth Clients allow you to generate a key that does **not expire** after 90 days.
 
-2. Generate a **reusable** auth key with auto-approval enabled (ephemeral keys will not persist across pod restarts).
+1. Log in to the [Tailscale Admin Console](https://login.tailscale.com/admin/settings/oauth).
+2. Create a new OAuth Client with:
+   - **Scopes:** `Devices: Read/Write`
+3. The format to use as the key is: `tskey-client-<client-id>-<client-secret>`.
+4. Store this key in your Bitwarden vault (linked to the BitwardenSecret in this folder).
 
-3. Save the key in a `Secret` manifest called `tailscale-secret.yaml`. Example:
+### 2. Standard Auth Keys (Expires every 90 days)
+1. Log in to the [Tailscale Admin Console](https://login.tailscale.com/admin/settings/keys).
+2. Generate a **reusable** auth key with auto-approval enabled.
+3. Save the key in your Bitwarden vault.
 
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: tailscale
-  namespace: default
-type: Opaque
-stringData:
-  TS_AUTHKEY: tskey-auth-abc123...
+## Kubernetes Configuration
+The `BitwardenSecret` in this folder pulls the key from your vault and maps it to a Kubernetes secret.
