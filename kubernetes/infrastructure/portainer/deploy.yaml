@@ -66,7 +66,7 @@ spec:
                   name: tailscale
                   key: TS_AUTHKEY
             - name: TS_EXTRA_ARGS
-              value: --hostname=portainer-sidecar --accept-routes=true --accept-dns=true
+              value: --accept-routes=true --accept-dns=true --advertise-tags=tag:homelab
             - name: POD_NAME
               valueFrom:
                 fieldRef:
