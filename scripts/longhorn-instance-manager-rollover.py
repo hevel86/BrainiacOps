@@ -15,7 +15,7 @@ import subprocess
 import sys
 import time
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Set, Tuple
 
 
 @dataclass(frozen=True)
@@ -40,6 +40,14 @@ class InstanceManagerStat:
     memory: str = "-"
 
 
+@dataclass
+class WorkloadPlan:
+    workload: Workload
+    volumes: List[str]
+    migrated: bool
+    reason: str
+
+
 def run(cmd: Sequence[str], expect_json: bool = False, allow_fail: bool = False):
     proc = subprocess.run(cmd, capture_output=True, text=True)
     if proc.returncode != 0 and not allow_fail:
@@ -62,6 +70,13 @@ def check_dependencies() -> None:
 def get_volumes() -> Dict:
     return run(
         ["kubectl", "-n", "longhorn-system", "get", "volumes.longhorn.io", "-o", "json"],
+        expect_json=True,
+    )
+
+
+def get_engines() -> Dict:
+    return run(
+        ["kubectl", "-n", "longhorn-system", "get", "engines.longhorn.io", "-o", "json"],
         expect_json=True,
     )
 
@@ -101,13 +116,13 @@ def resolve_workload(ns: str, wtype: str, wname: str, rs_cache: Dict[Tuple[str, 
     return None
 
 
-def discover_workloads(target_node: Optional[str]) -> List[Workload]:
+def discover_workload_volumes(target_node: Optional[str]) -> Dict[Workload, Set[str]]:
     vols = get_volumes()
     rs_cache: Dict[Tuple[str, str], Optional[Workload]] = {}
-    seen = set()
-    workloads: List[Workload] = []
+    workload_vols: Dict[Workload, Set[str]] = {}
 
     for item in vols.get("items", []):
+        volume_name = item.get("metadata", {}).get("name", "")
         st = item.get("status", {})
         if st.get("state") != "attached":
             continue
@@ -121,13 +136,51 @@ def discover_workloads(target_node: Optional[str]) -> List[Workload]:
             wl = resolve_workload(ns, ws.get("workloadType", ""), ws.get("workloadName", ""), rs_cache)
             if wl is None:
                 continue
-            key = (wl.namespace, wl.kind, wl.name)
-            if key not in seen:
-                seen.add(key)
-                workloads.append(wl)
+            if wl not in workload_vols:
+                workload_vols[wl] = set()
+            if volume_name:
+                workload_vols[wl].add(volume_name)
 
-    workloads.sort(key=lambda w: (w.namespace, w.kind, w.name))
-    return workloads
+    return workload_vols
+
+
+def build_workload_plans(workload_vols: Dict[Workload, Set[str]]) -> List[WorkloadPlan]:
+    engines = get_engines()
+    im_data = run(
+        ["kubectl", "-n", "longhorn-system", "get", "instancemanagers.longhorn.io", "-o", "json"],
+        expect_json=True,
+    )
+
+    im_image: Dict[str, str] = {}
+    for item in im_data.get("items", []):
+        im_image[item.get("metadata", {}).get("name", "")] = item.get("spec", {}).get("image", "")
+
+    vol_to_im: Dict[str, str] = {}
+    for item in engines.get("items", []):
+        vol_name = item.get("spec", {}).get("volumeName", "")
+        vol_to_im[vol_name] = item.get("status", {}).get("instanceManagerName", "")
+
+    plans: List[WorkloadPlan] = []
+    for wl in sorted(workload_vols.keys(), key=lambda w: (w.namespace, w.kind, w.name)):
+        volumes = sorted(workload_vols[wl])
+        pending: List[str] = []
+        for vol in volumes:
+            im_name = vol_to_im.get(vol, "")
+            image = im_image.get(im_name, "")
+            if "hotfix" in image:
+                continue
+            if image:
+                pending.append(f"{vol} ({image.split(':')[-1]})")
+            elif im_name:
+                pending.append(f"{vol} (unknown image via {im_name})")
+            else:
+                pending.append(f"{vol} (no instance-manager)")
+
+        migrated = len(pending) == 0 and len(volumes) > 0
+        reason = "all attached volumes on hotfix instance-manager" if migrated else "; ".join(pending)
+        plans.append(WorkloadPlan(workload=wl, volumes=volumes, migrated=migrated, reason=reason))
+
+    return plans
 
 
 def parse_top_memory_to_mib(value: str) -> float:
@@ -351,15 +404,15 @@ def bounce_workload(
         time.sleep(interval)
 
 
-def filter_workloads(
-    workloads: List[Workload], namespace: Optional[str], include: Optional[str], limit: Optional[int]
-) -> List[Workload]:
-    out = workloads
+def filter_plans(
+    plans: List[WorkloadPlan], namespace: Optional[str], include: Optional[str], limit: Optional[int]
+) -> List[WorkloadPlan]:
+    out = plans
     if namespace:
-        out = [w for w in out if w.namespace == namespace]
+        out = [p for p in out if p.workload.namespace == namespace]
     if include:
         pattern = re.compile(include)
-        out = [w for w in out if pattern.search(w.name)]
+        out = [p for p in out if pattern.search(p.workload.name)]
     if limit is not None and limit >= 0:
         out = out[:limit]
     return out
@@ -388,6 +441,11 @@ def parse_args() -> argparse.Namespace:
         default=20,
         help="Seconds to wait after scaling to 0 before scaling back up (bounce strategy)",
     )
+    p.add_argument(
+        "--no-skip-migrated",
+        action="store_true",
+        help="Process workloads even if all attached volumes are already on hotfix instance-managers",
+    )
     p.add_argument("--execute", action="store_true", help="Actually restart workloads (default is dry-run)")
     p.add_argument("--continue-on-error", action="store_true", help="Continue to next workload if one fails")
     return p.parse_args()
@@ -398,27 +456,40 @@ def main() -> int:
 
     try:
         check_dependencies()
-        workloads = discover_workloads(args.node)
-        workloads = filter_workloads(workloads, args.namespace, args.include, args.limit)
+        workload_vols = discover_workload_volumes(args.node)
+        plans = build_workload_plans(workload_vols)
+        plans = filter_plans(plans, args.namespace, args.include, args.limit)
 
-        if not workloads:
+        if not plans:
             print("No matching Longhorn-attached workloads found.")
             print_dashboard(args.node, header="Current Longhorn State")
             return 0
 
-        print(f"Found {len(workloads)} workload(s) to process:")
-        for idx, w in enumerate(workloads, 1):
-            print(f"  {idx:>2}. {w.namespace} {w.ref}")
+        selected = plans if args.no_skip_migrated else [p for p in plans if not p.migrated]
+        skipped = [p for p in plans if p.migrated]
+
+        print(f"Matched {len(plans)} workload(s):")
+        for idx, p in enumerate(plans, 1):
+            prefix = "SKIP" if p.migrated and not args.no_skip_migrated else "RUN "
+            print(f"  {idx:>2}. [{prefix}] {p.workload.namespace} {p.workload.ref}")
 
         print_dashboard(args.node, header="Pre-Run Metrics")
 
         if not args.execute:
+            if skipped and not args.no_skip_migrated:
+                print(f"\nWill auto-skip {len(skipped)} workload(s) already migrated to hotfix.")
             print("\nDry-run mode. Re-run with --execute to apply restarts.")
             return 0
 
+        if not selected:
+            print("\nAll matched workloads are already migrated; nothing to do.")
+            print_dashboard(args.node, header="Post-Run Metrics")
+            return 0
+
         failures = []
-        for idx, w in enumerate(workloads, 1):
-            print(f"\n## [{idx}/{len(workloads)}] {w.namespace} {w.ref}")
+        for idx, p in enumerate(selected, 1):
+            w = p.workload
+            print(f"\n## [{idx}/{len(selected)}] {w.namespace} {w.ref}")
             try:
                 if args.strategy == "bounce":
                     bounce_workload(
@@ -444,6 +515,8 @@ def main() -> int:
                 print(f"  - {w.namespace} {w.ref}: {msg}")
             return 1
 
+        if skipped and not args.no_skip_migrated:
+            print(f"\nSkipped {len(skipped)} workload(s) already migrated.")
         print("\nAll requested workloads processed successfully.")
         return 0
 
