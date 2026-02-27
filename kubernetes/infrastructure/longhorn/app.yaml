@@ -26,10 +26,19 @@ spec:
       values: |
         preUpgradeChecker:
           jobEnabled: false
+          upgradeVersionCheck: false
         persistence:
           reclaimPolicy: Retain
           defaultClass: true
           defaultClassReplicaCount: 3
+        image:
+          longhorn:
+            manager:
+              # renovate: datasource=docker depName=longhornio/longhorn-manager versioning=docker
+              tag: v1.11.0-hotfix-1
+            instanceManager:
+              # renovate: datasource=docker depName=longhornio/longhorn-instance-manager versioning=docker
+              tag: v1.11.0-hotfix-1
         defaultSettings:
           defaultReplicaCount: '3'
           defaultDataPath: /var/mnt/longhorn
