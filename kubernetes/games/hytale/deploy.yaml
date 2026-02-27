@@ -33,15 +33,21 @@ spec:
             - name: VIEW_DISTANCE
               value: "12"
             - name: ENABLE_BACKUPS
-              value: "TRUE"
+              value: "true"
             - name: BACKUP_FREQUENCY
               value: "30"
             - name: AUTH_MODE
               value: "authenticated"
             - name: ACCEPT_EARLY_PLUGINS
-              value: "FALSE"
+              value: "false"
             - name: DOWNLOAD_ON_START
-              value: "TRUE"
+              value: "true"
+            - name: DISABLE_SENTRY
+              value: "true"
+            - name: USE_AOT_CACHE
+              value: "true"
+            - name: MAX_MEMORY
+              value: "7G"
             - name: PUID
               value: "1000"
             - name: PGID
