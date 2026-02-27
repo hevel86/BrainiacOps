@@ -4,7 +4,7 @@ TALOSCONFIG = "{{env.HOME}}/.talos/talosconfig"
 SOPS_AGE_KEY_FILE = "{{env.HOME}}/.config/sops/age/keys.txt"
 
 [tools]
-"aqua:kubernetes/kubectl" = "v1.35.1"
+"aqua:kubernetes/kubectl" = "v1.35.2"
 "aqua:kubernetes-sigs/kustomize" = "kustomize/v5.8.0"
 "aqua:helm/helm" = "v4.1.1"
 "aqua:budimanjojo/talhelper" = "v3.1.5"
