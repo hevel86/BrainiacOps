@@ -57,7 +57,7 @@
     {
       customType: 'regex',
       description: 'Update Docker image tags in Kubernetes manifests',
-      fileMatch: [
+      managerFilePatterns: [
         '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
       ],
       matchStrings: [
@@ -69,14 +69,14 @@
     {
       customType: 'regex',
       description: 'Update Helm chart releases in Argo CD Applications',
-      fileMatch: [
+      managerFilePatterns: [
         '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
       ],
       matchStrings: [
-        'repoURL:\\s*(?<registryUrl>https?://\\S+)(?:[^\\n]|\\n(?!---))*?chart:\\s*(?<depName>[\\w./-]+)(?:[^\\n]|\\n(?!---))*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
-        'chart:\\s*(?<depName>[\\w./-]+)(?:[^\\n]|\\n(?!---))*?repoURL:\\s*(?<registryUrl>https?://\\S+)(?:[^\\n]|\\n(?!---))*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
-        'repoURL:\\s*(?<registryUrl>https?://\\S+)(?:[^\\n]|\\n(?!---))*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)(?:[^\\n]|\\n(?!---))*?chart:\\s*(?<depName>[\\w./-]+)',
-        'chart:\\s*(?<depName>[\\w./-]+)(?:[^\\n]|\\n(?!---))*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)(?:[^\\n]|\\n(?!---))*?repoURL:\\s*(?<registryUrl>https?://\\S+)'
+        'repoURL:\\s*(?<registryUrl>https?://\\S+)[\\s\\S]*?chart:\\s*(?<depName>[\\w./-]+)[\\s\\S]*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
+        'chart:\\s*(?<depName>[\\w./-]+)[\\s\\S]*?repoURL:\\s*(?<registryUrl>https?://\\S+)[\\s\\S]*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
+        'repoURL:\\s*(?<registryUrl>https?://\\S+)[\\s\\S]*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)[\\s\\S]*?chart:\\s*(?<depName>[\\w./-]+)',
+        'chart:\\s*(?<depName>[\\w./-]+)[\\s\\S]*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)[\\s\\S]*?repoURL:\\s*(?<registryUrl>https?://\\S+)'
       ],
       datasourceTemplate: 'helm',
       registryUrlTemplate: '{{registryUrl}}',
@@ -84,21 +84,21 @@
     {
       customType: 'regex',
       description: 'Update OCI Helm chart releases in Argo CD Applications',
-      fileMatch: [
+      managerFilePatterns: [
         '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
       ],
       matchStrings: [
-        'chart:\\s*(?<depName>[\\w./-]+)(?:[^\\n]|\\n(?!---))*?repoURL:\\s*(?<registryUrl>(?:oci://|ghcr\\.io)\\S+)(?:[^\\n]|\\n(?!---))*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
-        'repoURL:\\s*(?<registryUrl>(?:oci://|ghcr\\.io)\\S+)(?:[^\\n]|\\n(?!---))*?chart:\\s*(?<depName>[\\w./-]+)(?:[^\\n]|\\n(?!---))*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
-        'chart:\\s*(?<depName>[\\w./-]+)(?:[^\\n]|\\n(?!---))*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)(?:[^\\n]|\\n(?!---))*?repoURL:\\s*(?<registryUrl>(?:oci://|ghcr\\.io)\\S+)',
-        'repoURL:\\s*(?<registryUrl>(?:oci://|ghcr\\.io)\\S+)(?:[^\\n]|\\n(?!---))*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)(?:[^\\n]|\\n(?!---))*?chart:\\s*(?<depName>[\\w./-]+)'
+        'chart:\\s*(?<depName>[\\w./-]+)[\\s\\S]*?repoURL:\\s*(?<registryUrl>(?:oci://|ghcr\\.io)\\S+)[\\s\\S]*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
+        'repoURL:\\s*(?<registryUrl>(?:oci://|ghcr\\.io)\\S+)[\\s\\S]*?chart:\\s*(?<depName>[\\w./-]+)[\\s\\S]*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
+        'chart:\\s*(?<depName>[\\w./-]+)[\\s\\S]*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)[\\s\\S]*?repoURL:\\s*(?<registryUrl>(?:oci://|ghcr\\.io)\\S+)',
+        'repoURL:\\s*(?<registryUrl>(?:oci://|ghcr\\.io)\\S+)[\\s\\S]*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)[\\s\\S]*?chart:\\s*(?<depName>[\\w./-]+)'
       ],
       datasourceTemplate: 'docker',
     },
     {
       customType: 'regex',
       description: 'Process custom dependencies with # renovate: comments',
-      fileMatch: [
+      managerFilePatterns: [
         '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
         '/^talos/talconfig\\.ya?ml$/',
       ],
@@ -109,7 +109,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
+      managerFilePatterns: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -121,7 +121,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
+      managerFilePatterns: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -133,7 +133,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
+      managerFilePatterns: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -145,7 +145,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
+      managerFilePatterns: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -157,7 +157,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
+      managerFilePatterns: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -169,7 +169,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
+      managerFilePatterns: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -181,7 +181,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
+      managerFilePatterns: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -193,7 +193,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
+      managerFilePatterns: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -205,7 +205,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
+      managerFilePatterns: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -217,7 +217,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
+      managerFilePatterns: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -229,7 +229,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      fileMatch: [
+      managerFilePatterns: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -241,7 +241,7 @@
     {
       customType: 'regex',
       description: 'Update pipx-managed CLI versions in .mise.toml',
-      fileMatch: [
+      managerFilePatterns: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -252,7 +252,7 @@
     {
       customType: 'regex',
       description: 'Update Talos version in talconfig.yaml',
-      fileMatch: [
+      managerFilePatterns: [
         '/^talos/talconfig\\.ya?ml$/',
       ],
       matchStrings: [
@@ -265,7 +265,7 @@
     {
       customType: 'regex',
       description: 'Update Kubernetes version in talconfig.yaml',
-      fileMatch: [
+      managerFilePatterns: [
         '/^talos/talconfig\\.ya?ml$/',
       ],
       matchStrings: [
