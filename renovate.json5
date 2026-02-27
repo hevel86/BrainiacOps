@@ -313,6 +313,19 @@
       ],
     },
     {
+      description: 'Group kubelet image with Kubernetes version updates in talconfig.yaml',
+      matchDatasources: [
+        'docker',
+      ],
+      matchPackageNames: [
+        'ghcr.io/siderolabs/kubelet',
+      ],
+      matchFileNames: [
+        'talos/talconfig.yaml',
+      ],
+      groupName: 'Kubernetes',
+    },
+    {
       description: 'Group all patch updates',
       matchUpdateTypes: [
         'patch',
