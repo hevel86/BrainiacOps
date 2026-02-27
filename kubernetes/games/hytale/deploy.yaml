@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: hytale
-          image: indifferentbroccoli/hytale-server-docker:latest
+          image: indifferentbroccoli/hytale-server-docker:1.0.6
           ports:
             - containerPort: 5520
               protocol: UDP
