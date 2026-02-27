@@ -285,6 +285,72 @@ def restart_workload(w: Workload, timeout: int, interval: int, target_node: Opti
         time.sleep(interval)
 
 
+def get_replicas(w: Workload) -> int:
+    out = run(
+        [
+            "kubectl",
+            "-n",
+            w.namespace,
+            "get",
+            w.ref,
+            "-o",
+            "jsonpath={.spec.replicas}",
+        ]
+    ).strip()
+    if out == "":
+        return 1
+    return int(out)
+
+
+def scale_workload(w: Workload, replicas: int) -> None:
+    run(["kubectl", "-n", w.namespace, "scale", w.ref, f"--replicas={replicas}"])
+
+
+def wait_rollout(w: Workload, timeout: int) -> None:
+    run(["kubectl", "-n", w.namespace, "rollout", "status", w.ref, f"--timeout={timeout}s"])
+
+
+def bounce_workload(
+    w: Workload, timeout: int, interval: int, target_node: Optional[str], down_wait: int
+) -> None:
+    if w.kind not in ("deploy", "statefulset"):
+        # DaemonSets cannot scale to 0, fallback to rollout restart.
+        restart_workload(w, timeout=timeout, interval=interval, target_node=target_node)
+        return
+
+    original = get_replicas(w)
+    print(f"\n-- Bounce {w.namespace} {w.ref} (replicas {original} -> 0 -> {original})")
+    scale_workload(w, 0)
+    wait_rollout(w, timeout=timeout)
+    print_dashboard(target_node, header=f"{w.ref} scaled to 0")
+
+    if down_wait > 0:
+        print(f"Waiting {down_wait}s for detach to settle...")
+        time.sleep(down_wait)
+        print_dashboard(target_node, header=f"{w.ref} detach wait complete")
+
+    scale_workload(w, original)
+    start = time.time()
+    while True:
+        elapsed = int(time.time() - start)
+        status = subprocess.run(
+            ["kubectl", "-n", w.namespace, "rollout", "status", w.ref, "--timeout=5s"],
+            capture_output=True,
+            text=True,
+        )
+        print_dashboard(target_node, header=f"{w.ref} scale-up | t+{elapsed}s")
+        if status.returncode == 0:
+            msg = status.stdout.strip().splitlines()[-1] if status.stdout.strip() else "rollout complete"
+            print(f"Completed: {msg}")
+            return
+        if time.time() - start > timeout:
+            stderr = status.stderr.strip()
+            stdout = status.stdout.strip()
+            detail = stderr or stdout or "timeout waiting for rollout"
+            raise RuntimeError(f"Timed out waiting for {w.ref}: {detail}")
+        time.sleep(interval)
+
+
 def filter_workloads(
     workloads: List[Workload], namespace: Optional[str], include: Optional[str], limit: Optional[int]
 ) -> List[Workload]:
@@ -310,6 +376,18 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--limit", type=int, default=None, help="Max number of workloads to process")
     p.add_argument("--timeout", type=int, default=900, help="Rollout timeout per workload in seconds")
     p.add_argument("--interval", type=int, default=15, help="Dashboard refresh interval in seconds")
+    p.add_argument(
+        "--strategy",
+        choices=("rollout", "bounce"),
+        default="bounce",
+        help="How to cycle workloads; bounce does scale 0 -> original to force volume detach/reattach",
+    )
+    p.add_argument(
+        "--down-wait",
+        type=int,
+        default=20,
+        help="Seconds to wait after scaling to 0 before scaling back up (bounce strategy)",
+    )
     p.add_argument("--execute", action="store_true", help="Actually restart workloads (default is dry-run)")
     p.add_argument("--continue-on-error", action="store_true", help="Continue to next workload if one fails")
     return p.parse_args()
@@ -342,7 +420,16 @@ def main() -> int:
         for idx, w in enumerate(workloads, 1):
             print(f"\n## [{idx}/{len(workloads)}] {w.namespace} {w.ref}")
             try:
-                restart_workload(w, timeout=args.timeout, interval=args.interval, target_node=args.node)
+                if args.strategy == "bounce":
+                    bounce_workload(
+                        w,
+                        timeout=args.timeout,
+                        interval=args.interval,
+                        target_node=args.node,
+                        down_wait=args.down_wait,
+                    )
+                else:
+                    restart_workload(w, timeout=args.timeout, interval=args.interval, target_node=args.node)
             except Exception as exc:  # noqa: BLE001
                 failures.append((w, str(exc)))
                 print(f"ERROR: {exc}")
