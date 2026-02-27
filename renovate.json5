@@ -73,10 +73,10 @@
         '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
       ],
       matchStrings: [
-        'repoURL:\\s*(?<registryUrl>https?://\\S+)[\\s\\S]*?chart:\\s*(?<depName>[\\w./-]+)[\\s\\S]*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
-        'chart:\\s*(?<depName>[\\w./-]+)[\\s\\S]*?repoURL:\\s*(?<registryUrl>https?://\\S+)[\\s\\S]*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
-        'repoURL:\\s*(?<registryUrl>https?://\\S+)[\\s\\S]*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)[\\s\\S]*?chart:\\s*(?<depName>[\\w./-]+)',
-        'chart:\\s*(?<depName>[\\w./-]+)[\\s\\S]*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)[\\s\\S]*?repoURL:\\s*(?<registryUrl>https?://\\S+)'
+        'source:\\n(?:[ ]{4}[^\\n]*\\n)*?[ ]{4}repoURL:\\s*(?<registryUrl>https?://\\S+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}chart:\\s*(?<depName>[\\w./-]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
+        'source:\\n(?:[ ]{4}[^\\n]*\\n)*?[ ]{4}chart:\\s*(?<depName>[\\w./-]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}repoURL:\\s*(?<registryUrl>https?://\\S+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
+        'source:\\n(?:[ ]{4}[^\\n]*\\n)*?[ ]{4}repoURL:\\s*(?<registryUrl>https?://\\S+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}chart:\\s*(?<depName>[\\w./-]+)',
+        'source:\\n(?:[ ]{4}[^\\n]*\\n)*?[ ]{4}chart:\\s*(?<depName>[\\w./-]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}repoURL:\\s*(?<registryUrl>https?://\\S+)'
       ],
       datasourceTemplate: 'helm',
       registryUrlTemplate: '{{registryUrl}}',
@@ -88,12 +88,13 @@
         '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
       ],
       matchStrings: [
-        'chart:\\s*(?<depName>[\\w./-]+)[\\s\\S]*?repoURL:\\s*(?<registryUrl>(?:oci://|ghcr\\.io)\\S+)[\\s\\S]*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
-        'repoURL:\\s*(?<registryUrl>(?:oci://|ghcr\\.io)\\S+)[\\s\\S]*?chart:\\s*(?<depName>[\\w./-]+)[\\s\\S]*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
-        'chart:\\s*(?<depName>[\\w./-]+)[\\s\\S]*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)[\\s\\S]*?repoURL:\\s*(?<registryUrl>(?:oci://|ghcr\\.io)\\S+)',
-        'repoURL:\\s*(?<registryUrl>(?:oci://|ghcr\\.io)\\S+)[\\s\\S]*?targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)[\\s\\S]*?chart:\\s*(?<depName>[\\w./-]+)'
+        'source:\\n(?:[ ]{4}[^\\n]*\\n)*?[ ]{4}chart:\\s*(?<chartName>[\\w./-]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}repoURL:\\s*(?:oci://)?(?<registryPath>ghcr\\.io/\\S+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
+        'source:\\n(?:[ ]{4}[^\\n]*\\n)*?[ ]{4}repoURL:\\s*(?:oci://)?(?<registryPath>ghcr\\.io/\\S+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}chart:\\s*(?<chartName>[\\w./-]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
+        'source:\\n(?:[ ]{4}[^\\n]*\\n)*?[ ]{4}chart:\\s*(?<chartName>[\\w./-]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}repoURL:\\s*(?:oci://)?(?<registryPath>ghcr\\.io/\\S+)',
+        'source:\\n(?:[ ]{4}[^\\n]*\\n)*?[ ]{4}repoURL:\\s*(?:oci://)?(?<registryPath>ghcr\\.io/\\S+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}chart:\\s*(?<chartName>[\\w./-]+)'
       ],
       datasourceTemplate: 'docker',
+      depNameTemplate: '{{registryPath}}/{{chartName}}',
     },
     {
       customType: 'regex',
