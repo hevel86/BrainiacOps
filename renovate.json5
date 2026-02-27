@@ -57,7 +57,7 @@
     {
       customType: 'regex',
       description: 'Update Docker image tags in Kubernetes manifests',
-      managerFilePatterns: [
+      fileMatch: [
         '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
       ],
       matchStrings: [
@@ -69,7 +69,7 @@
     {
       customType: 'regex',
       description: 'Update Helm chart releases in Argo CD Applications',
-      managerFilePatterns: [
+      fileMatch: [
         '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
       ],
       matchStrings: [
@@ -84,7 +84,7 @@
     {
       customType: 'regex',
       description: 'Update OCI Helm chart releases in Argo CD Applications',
-      managerFilePatterns: [
+      fileMatch: [
         '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
       ],
       matchStrings: [
@@ -98,7 +98,7 @@
     {
       customType: 'regex',
       description: 'Process custom dependencies with # renovate: comments',
-      managerFilePatterns: [
+      fileMatch: [
         '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
         '/^talos/talconfig\\.ya?ml$/',
       ],
@@ -109,7 +109,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      managerFilePatterns: [
+      fileMatch: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -121,7 +121,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      managerFilePatterns: [
+      fileMatch: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -133,7 +133,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      managerFilePatterns: [
+      fileMatch: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -145,7 +145,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      managerFilePatterns: [
+      fileMatch: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -157,7 +157,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      managerFilePatterns: [
+      fileMatch: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -169,7 +169,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      managerFilePatterns: [
+      fileMatch: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -181,7 +181,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      managerFilePatterns: [
+      fileMatch: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -193,7 +193,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      managerFilePatterns: [
+      fileMatch: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -205,7 +205,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      managerFilePatterns: [
+      fileMatch: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -217,7 +217,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      managerFilePatterns: [
+      fileMatch: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -229,7 +229,7 @@
     {
       customType: 'regex',
       description: 'Update aqua-managed CLI versions in .mise.toml',
-      managerFilePatterns: [
+      fileMatch: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -241,7 +241,7 @@
     {
       customType: 'regex',
       description: 'Update pipx-managed CLI versions in .mise.toml',
-      managerFilePatterns: [
+      fileMatch: [
         '/^\\.mise\\.toml$/',
       ],
       matchStrings: [
@@ -252,7 +252,7 @@
     {
       customType: 'regex',
       description: 'Update Talos version in talconfig.yaml',
-      managerFilePatterns: [
+      fileMatch: [
         '/^talos/talconfig\\.ya?ml$/',
       ],
       matchStrings: [
@@ -265,7 +265,7 @@
     {
       customType: 'regex',
       description: 'Update Kubernetes version in talconfig.yaml',
-      managerFilePatterns: [
+      fileMatch: [
         '/^talos/talconfig\\.ya?ml$/',
       ],
       matchStrings: [
