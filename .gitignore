@@ -69,3 +69,6 @@ logs/
 talos/talconfig.json
 talos/og-example.yaml
 talconfig.json
+
+# Ignore pycache
+scripts/__pycache__/
