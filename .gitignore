@@ -72,3 +72,6 @@ talconfig.json
 
 # Ignore pycache
 scripts/__pycache__/
+
+# Ignore scratch folder
+scratch
