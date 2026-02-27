@@ -26,6 +26,7 @@ MetalLB IPs: total=51 used=38 free=13
 | plex | default | 10.0.0.217 |
 | jellyfin | default | 10.0.0.218 |
 | seerr | default | 10.0.0.219 |
+| hytale | default | 10.0.0.220 |
 | semaphore-service | default | 10.0.0.221 |
 | gatus | monitoring | 10.0.0.223 |
 | transmission-vpn | default | 10.0.0.224 |
