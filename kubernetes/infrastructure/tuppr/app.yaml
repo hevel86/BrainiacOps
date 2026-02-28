@@ -44,7 +44,7 @@ spec:
   source:
     repoURL: ghcr.io/home-operations/charts
     chart: tuppr
-    targetRevision: "0.0.73"
+    targetRevision: "0.0.75"
     helm:
       skipCrds: true
       values: |
