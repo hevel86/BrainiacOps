@@ -1,3 +1,19 @@
+# Talos/Kubernetes Upgrade Notes (v1.12.4 / v1.35.0)
+
+This document summarizes the successful upgrade process performed in February 2026.
+
+## Cluster Upgrade Overview
+
+- Talos upgraded to v1.12.4 via `tuppr` (all control-plane nodes).
+- Kubernetes v1.35.0 is current; target upgrade to v1.35.2 is pending for the next maintenance window.
+- Longhorn volume health checks integrated into the automated upgrade process.
+
+## Problems Observed
+
+- No significant issues reported; `tuppr` handled the Talos node transitions and health checks smoothly.
+
+---
+
 # Talos/Kubernetes Upgrade Notes (v1.12.0 / v1.35.0)
 
 This document summarizes the manual upgrade process and the issues encountered during the Kubernetes v1.35.0 rollout on the Talos cluster.
