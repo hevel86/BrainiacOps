@@ -25,8 +25,8 @@ This document provides comprehensive guidance for managing the Talos Linux clust
 - brainiac-02 (10.0.0.36) - Control Plane
 
 **Cluster Configuration**:
-- Talos Version: v1.11.5
-- Kubernetes Version: v1.34.1
+- Talos Version: v1.12.4
+- Kubernetes Version: v1.35.2
 - Cluster Endpoint (VIP): https://10.0.0.30:6443
 - Network Interface: enp2s0f1np1 (DHCP with VIP)
 - Pod Network: 10.244.0.0/16
@@ -943,5 +943,5 @@ If you prefer manual upgrades:
 
 ---
 
-**Last Updated**: 2025-11-21
-**Cluster Version**: Talos v1.11.5 / Kubernetes v1.34.1
+**Last Updated**: 2026-02-28
+**Cluster Version**: Talos v1.12.4 / Kubernetes v1.35.2
