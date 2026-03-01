@@ -44,6 +44,7 @@ spec:
           defaultDataPath: /var/mnt/longhorn
           defaultDataLocality: best-effort
           createDefaultDiskLabeledNodes: true
+          replicaReplenishmentWaitInterval: '60'
         longhornUI:
           replicas: 3
         metrics:
