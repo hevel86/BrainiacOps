@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: https://renovatebot.github.io/helm-charts
     chart: renovate
-    targetRevision: 46.44.1 # Pin to a specific version for Renovate to manage
+    targetRevision: 46.44.3 # Pin to a specific version for Renovate to manage
     helm:
       values: |
         # Provide envFrom + env so the container inherits all needed values
