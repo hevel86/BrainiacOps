@@ -23,8 +23,8 @@ BrainiacOps is the single source of truth for my homelab Kubernetes cluster. It 
 Automation is a core principle, with Renovate for dependency updates, GitHub Actions for CI/CD, and pre-commit hooks for code quality and security.
 
 **Cluster Configuration:**
-- **Operating System**: Talos Linux v1.12.0
-- **Kubernetes**: v1.35.0
+- **Operating System**: Talos Linux v1.12.4
+- **Kubernetes**: v1.35.2
 - **Nodes**: 3 control plane nodes (brainiac-00, brainiac-01, brainiac-02)
 - **GitOps Controller**: Argo CD
 
