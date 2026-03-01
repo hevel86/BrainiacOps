@@ -19,7 +19,7 @@ spec:
       serviceAccountName: semaphoreui-tailscale
       containers:
         - name: semaphore
-          image: semaphoreui/semaphore:v2.17.15
+          image: semaphoreui/semaphore:v2.17.16
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
