@@ -25,33 +25,32 @@ spec:
           type: RuntimeDefault
       containers:
       - name: alertmanager-ntfy
-        image: ghcr.io/alexbakker/alertmanager-ntfy:1.1.0
-        args:
-        - "--ntfy-baseurl"
-        - "https://ntfy.botty-mcbotface.com"
-        - "--ntfy-topic"
-        - "prometheus"
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop: ["ALL"]
+        image: ghcr.io/vitorfhc/promntfy:latest
         env:
-        - name: NTFY_TOKEN
+        - name: PROMNTFY_NTFY_URL
+          value: "https://ntfy.botty-mcbotface.com"
+        - name: PROMNTFY_NTFY_TOPIC
+          value: "prometheus"
+        - name: PROMNTFY_NTFY_TOKEN
           valueFrom:
             secretKeyRef:
               name: ntfy-token
               key: token
         ports:
-        - containerPort: 8000
+        - containerPort: 8080
           name: http
         livenessProbe:
           httpGet:
             path: /health
-            port: 8000
+            port: 8080
         readinessProbe:
           httpGet:
             path: /health
-            port: 8000
+            port: 8080
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
         resources:
           limits:
             memory: 64Mi
