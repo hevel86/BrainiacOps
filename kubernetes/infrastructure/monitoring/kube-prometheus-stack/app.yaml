@@ -77,10 +77,8 @@ spec:
                     - severity =~ "critical|warning"
             receivers:
               - name: "ntfy"
-                ntfy_configs:
+                webhook_configs:
                   - url: https://ntfy.botty-mcbotface.com/prometheus
-                    title: '{{ .Status | toUpper }}{{ if eq .Status "firing" }}: {{ .Alerts.Firing | len }}{{ end }} Prometheus Alert'
-                    message: '{{ range .Alerts }}{{ .Annotations.summary }}\n{{ end }}'
                     http_config:
                       bearer_token_file: /etc/alertmanager/secrets/ntfy-token/token
           service:
