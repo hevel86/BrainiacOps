@@ -25,7 +25,7 @@ spec:
           type: RuntimeDefault
       initContainers:
       - name: render-auth-config
-        image: busybox:1.36
+        image: registry.k8s.io/busybox:1.36.1
         command:
         - /bin/sh
         - -ec
@@ -40,7 +40,7 @@ spec:
           mountPath: /generated
       containers:
       - name: alertmanager-ntfy
-        image: ghcr.io/alexbakker/alertmanager-ntfy:1.1.0
+        image: ghcr.io/alexbakker/alertmanager-ntfy:latest
         args:
         - --configs
         - /etc/alertmanager-ntfy/config.yml,/etc/alertmanager-ntfy-generated/auth.yml
