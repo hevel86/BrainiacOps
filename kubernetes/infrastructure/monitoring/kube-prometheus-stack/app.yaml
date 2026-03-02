@@ -78,9 +78,11 @@ spec:
             receivers:
               - name: "ntfy"
                 webhook_configs:
-                  - url: https://ntfy.botty-mcbotface.com/prometheus?format=prometheus
+                  - url: https://ntfy.botty-mcbotface.com/prometheus
                     http_config:
                       bearer_token_file: /etc/alertmanager/secrets/ntfy-token/token
+                      headers:
+                        X-Format: prometheus
           service:
             type: LoadBalancer
             loadBalancerIP: 10.0.0.231
