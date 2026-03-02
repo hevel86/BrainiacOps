@@ -71,8 +71,6 @@ spec:
               {{- end }}
           alertmanagerSpec:
             replicas: 1
-            secrets:
-              - ntfy-token
           config:
             global:
               resolve_timeout: 5m
@@ -89,9 +87,7 @@ spec:
             receivers:
               - name: "ntfy"
                 webhook_configs:
-                  - url: https://ntfy.botty-mcbotface.com/prometheus
-                    http_config:
-                      bearer_token_file: /etc/alertmanager/secrets/ntfy-token/token
+                  - url: http://alertmanager-ntfy.monitoring.svc.cluster.local:8080
                     send_resolved: true
           service:
             type: LoadBalancer
