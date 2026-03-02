@@ -26,8 +26,11 @@ spec:
       containers:
       - name: alertmanager-ntfy
         image: ghcr.io/alexbakker/alertmanager-ntfy:1.1.0
-        args: ["--configs", "/app/config.yml"]
-        workingDir: /app
+        args:
+        - "--ntfy-baseurl"
+        - "https://ntfy.botty-mcbotface.com"
+        - "--ntfy-topic"
+        - "prometheus"
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -49,11 +52,6 @@ spec:
           httpGet:
             path: /health
             port: 8000
-        volumeMounts:
-        - name: config
-          mountPath: /app/config.yml
-          subPath: config.yml
-          readOnly: true
         resources:
           limits:
             memory: 64Mi
@@ -61,7 +59,3 @@ spec:
           requests:
             memory: 32Mi
             cpu: 10m
-      volumes:
-      - name: config
-        configMap:
-          name: alertmanager-ntfy-config
