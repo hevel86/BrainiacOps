@@ -77,8 +77,14 @@ spec:
                     - severity =~ "critical|warning"
             receivers:
               - name: "ntfy"
-                webhook_configs:
-                  - url: http://alertmanager-ntfy.monitoring.svc.cluster.local:8080/
+                slack_configs:
+                  - api_url: https://ntfy.botty-mcbotface.com/prometheus/slack
+                    http_config:
+                      bearer_token_file: /etc/alertmanager/secrets/ntfy-token/token
+                    channel: '#prometheus'
+                    send_resolved: true
+                    title: '{{ template "slack.default.title" . }}'
+                    text: '{{ template "slack.default.text" . }}'
           service:
             type: LoadBalancer
             loadBalancerIP: 10.0.0.231
