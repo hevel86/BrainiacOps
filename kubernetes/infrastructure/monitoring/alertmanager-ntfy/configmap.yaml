@@ -12,5 +12,8 @@ data:
       baseurl: https://ntfy.botty-mcbotface.com
       notification:
         topic: prometheus
-        title: '[{{ status | upper }}] {{ labels["alertname"] }}'
-        message: '{{ annotations["summary"] }}'
+        templates:
+          title: |
+            {{ if eq .Status "resolved" }}Resolved: {{ end }}{{ index .Annotations "summary" }}
+          description: |
+            {{ index .Annotations "description" }}
