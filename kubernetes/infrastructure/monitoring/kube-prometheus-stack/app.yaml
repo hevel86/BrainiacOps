@@ -77,10 +77,11 @@ spec:
                     - severity =~ "critical|warning"
             receivers:
               - name: "ntfy"
-                ntfy_configs:
-                  - url: https://ntfy.botty-mcbotface.com/prometheus
+                webhook_configs:
+                  - url: https://ntfy.botty-mcbotface.com/prometheus?format=prometheus
                     http_config:
                       bearer_token_file: /etc/alertmanager/secrets/ntfy-token/token
+                    send_resolved: true
           service:
             type: LoadBalancer
             loadBalancerIP: 10.0.0.231
