@@ -58,6 +58,17 @@ spec:
             annotations:
               external-dns.alpha.kubernetes.io/hostname: prometheus.torquasmvo.internal
         alertmanager:
+          templateFiles:
+            ntfy.tmpl: |
+              {{ define "ntfy.text" -}}
+              {{ if eq .Status "firing" }}🔥 Firing{{ else }}✅ Resolved{{ end }} ({{ .Alerts | len }})
+              {{ range .Alerts }}
+              ---
+              Summary: {{ .Annotations.summary }}
+              Description: {{ .Annotations.description }}
+              Severity: {{ .Labels.severity }}
+              {{ end }}
+              {{- end }}
           alertmanagerSpec:
             replicas: 1
             secrets:
@@ -78,7 +89,9 @@ spec:
             receivers:
               - name: "ntfy"
                 webhook_configs:
-                  - url: http://alertmanager-ntfy.monitoring.svc.cluster.local:8080/
+                  - url: https://ntfy.botty-mcbotface.com/prometheus
+                    http_config:
+                      bearer_token_file: /etc/alertmanager/secrets/ntfy-token/token
                     send_resolved: true
           service:
             type: LoadBalancer
