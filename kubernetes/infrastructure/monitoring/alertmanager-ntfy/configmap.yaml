@@ -6,7 +6,11 @@ metadata:
   namespace: monitoring
 data:
   config.yml: |
+    http:
+      addr: :8000
     ntfy:
-      url: "https://ntfy.botty-mcbotface.com"
-      topic: "prometheus"
-      token: "${NTFY_TOKEN}"
+      baseurl: https://ntfy.botty-mcbotface.com
+      notification:
+        topic: prometheus
+        title: '[{{ status | upper }}] {{ labels["alertname"] }}'
+        message: '{{ annotations["summary"] }}'

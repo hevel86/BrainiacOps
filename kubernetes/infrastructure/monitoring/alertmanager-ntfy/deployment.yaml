@@ -23,30 +23,37 @@ spec:
         fsGroup: 65534
         seccompProfile:
           type: RuntimeDefault
+      initContainers:
+      - name: render-auth-config
+        image: busybox:1.36
+        command:
+        - /bin/sh
+        - -ec
+        - |
+          token="$(cat /secrets/token)"
+          printf 'ntfy:\n  auth:\n    token: "%s"\n' "$token" > /generated/auth.yml
+        volumeMounts:
+        - name: ntfy-token
+          mountPath: /secrets
+          readOnly: true
+        - name: generated-config
+          mountPath: /generated
       containers:
       - name: alertmanager-ntfy
-        image: ghcr.io/vitorfhc/promntfy:latest
-        env:
-        - name: PROMNTFY_NTFY_URL
-          value: "https://ntfy.botty-mcbotface.com"
-        - name: PROMNTFY_NTFY_TOPIC
-          value: "prometheus"
-        - name: PROMNTFY_NTFY_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: ntfy-token
-              key: token
+        image: ghcr.io/alexbakker/alertmanager-ntfy:1.1.0
+        args:
+        - --configs
+        - /etc/alertmanager-ntfy/config.yml,/etc/alertmanager-ntfy-generated/auth.yml
         ports:
-        - containerPort: 8080
+        - containerPort: 8000
           name: http
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 8080
+        volumeMounts:
+        - name: alertmanager-ntfy-config
+          mountPath: /etc/alertmanager-ntfy
+          readOnly: true
+        - name: generated-config
+          mountPath: /etc/alertmanager-ntfy-generated
+          readOnly: true
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -58,3 +65,15 @@ spec:
           requests:
             memory: 32Mi
             cpu: 10m
+      volumes:
+      - name: alertmanager-ntfy-config
+        configMap:
+          name: alertmanager-ntfy-config
+      - name: ntfy-token
+        secret:
+          secretName: ntfy-token
+          items:
+          - key: token
+            path: token
+      - name: generated-config
+        emptyDir: {}
