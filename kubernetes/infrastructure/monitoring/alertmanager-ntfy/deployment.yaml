@@ -26,7 +26,6 @@ spec:
       containers:
       - name: alertmanager-ntfy
         image: ghcr.io/alexbakker/alertmanager-ntfy:1.1.0
-        args: ["--configs", "/etc/alertmanager-ntfy/config.yml"]
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -50,7 +49,8 @@ spec:
             port: 8000
         volumeMounts:
         - name: config
-          mountPath: /etc/alertmanager-ntfy
+          mountPath: /config.yml
+          subPath: config.yml
           readOnly: true
         resources:
           limits:
