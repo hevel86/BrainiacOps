@@ -18,12 +18,9 @@ spec:
     spec:
       containers:
       - name: alertmanager-ntfy
-        image: ghcr.io/alexbakker/alertmanager-ntfy:latest
+        image: ghcr.io/alexbakker/alertmanager-ntfy:1.0.1
+        args: ["-config", "/etc/alertmanager-ntfy/config.yml"]
         env:
-        - name: NTFY_URL
-          value: "https://ntfy.botty-mcbotface.com"
-        - name: NTFY_TOPIC
-          value: "prometheus"
         - name: NTFY_TOKEN
           valueFrom:
             secretKeyRef:
@@ -40,6 +37,10 @@ spec:
           httpGet:
             path: /health
             port: 8080
+        volumeMounts:
+        - name: config
+          mountPath: /etc/alertmanager-ntfy
+          readOnly: true
         resources:
           limits:
             memory: 64Mi
@@ -47,3 +48,7 @@ spec:
           requests:
             memory: 32Mi
             cpu: 10m
+      volumes:
+      - name: config
+        configMap:
+          name: alertmanager-ntfy-config
