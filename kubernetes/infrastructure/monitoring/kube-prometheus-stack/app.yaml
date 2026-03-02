@@ -78,7 +78,7 @@ spec:
             receivers:
               - name: "ntfy"
                 webhook_configs:
-                  - url: https://ntfy.botty-mcbotface.com/prometheus
+                  - url: https://ntfy.botty-mcbotface.com/prometheus?format=prometheus
                     http_config:
                       bearer_token_file: /etc/alertmanager/secrets/ntfy-token/token
           service:
