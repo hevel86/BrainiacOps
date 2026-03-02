@@ -7,6 +7,6 @@ metadata:
 data:
   config.yml: |
     ntfy:
-      baseurl: "https://ntfy.botty-mcbotface.com"
+      url: "https://ntfy.botty-mcbotface.com"
       topic: "prometheus"
       token: "${NTFY_TOKEN}"

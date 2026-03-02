@@ -26,6 +26,7 @@ spec:
       containers:
       - name: alertmanager-ntfy
         image: ghcr.io/alexbakker/alertmanager-ntfy:1.1.0
+        args: ["--configs", "/app/config.yml"]
         workingDir: /app
         securityContext:
           allowPrivilegeEscalation: false
