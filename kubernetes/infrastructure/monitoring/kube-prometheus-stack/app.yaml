@@ -78,7 +78,7 @@ spec:
             receivers:
               - name: "ntfy"
                 webhook_configs:
-                  - url: http://alertmanager-ntfy.monitoring.svc.cluster.local:8080/
+                  - url: http://alertmanager-ntfy.monitoring.svc.cluster.local:8080/webhook
                     send_resolved: true
           service:
             type: LoadBalancer
