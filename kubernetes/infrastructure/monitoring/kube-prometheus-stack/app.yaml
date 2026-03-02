@@ -60,6 +60,29 @@ spec:
         alertmanager:
           alertmanagerSpec:
             replicas: 1
+            secrets:
+              - ntfy-token
+          config:
+            global:
+              resolve_timeout: 5m
+            route:
+              group_by: ["alertname", "job"]
+              group_wait: 30s
+              group_interval: 5m
+              repeat_interval: 12h
+              receiver: "ntfy"
+              routes:
+                - receiver: "ntfy"
+                  matchers:
+                    - severity =~ "critical|warning"
+            receivers:
+              - name: "ntfy"
+                ntfy_configs:
+                  - url: https://ntfy.botty-mcbotface.com/prometheus
+                    title: '{{ .Status | toUpper }}{{ if eq .Status "firing" }}: {{ .Alerts.Firing | len }}{{ end }} Prometheus Alert'
+                    message: '{{ range .Alerts }}{{ .Annotations.summary }}\n{{ end }}'
+                    http_config:
+                      bearer_token_file: /etc/alertmanager/secrets/ntfy-token/token
           service:
             type: LoadBalancer
             loadBalancerIP: 10.0.0.231
