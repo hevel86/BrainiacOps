@@ -19,7 +19,6 @@ spec:
       containers:
       - name: alertmanager-ntfy
         image: ghcr.io/alexbakker/alertmanager-ntfy:1.0.1
-        args: ["-config", "/etc/alertmanager-ntfy/config.yml"]
         env:
         - name: NTFY_TOKEN
           valueFrom:
@@ -39,7 +38,8 @@ spec:
             port: 8080
         volumeMounts:
         - name: config
-          mountPath: /etc/alertmanager-ntfy
+          mountPath: /app/config.yml
+          subPath: config.yml
           readOnly: true
         resources:
           limits:
