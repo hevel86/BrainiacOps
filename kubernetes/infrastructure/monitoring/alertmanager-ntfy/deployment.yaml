@@ -1,0 +1,65 @@
+# kubernetes/infrastructure/monitoring/alertmanager-ntfy/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager-ntfy
+  namespace: monitoring
+  labels:
+    app: alertmanager-ntfy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alertmanager-ntfy
+  template:
+    metadata:
+      labels:
+        app: alertmanager-ntfy
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: alertmanager-ntfy
+        image: ghcr.io/alexbakker/alertmanager-ntfy:1.0.1
+        args: ["--configs", "/etc/alertmanager-ntfy/config.yml"]
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        env:
+        - name: NTFY_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: ntfy-token
+              key: token
+        ports:
+        - containerPort: 8000
+          name: http
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+        volumeMounts:
+        - name: config
+          mountPath: /etc/alertmanager-ntfy
+          readOnly: true
+        resources:
+          limits:
+            memory: 64Mi
+            cpu: 100m
+          requests:
+            memory: 32Mi
+            cpu: 10m
+      volumes:
+      - name: config
+        configMap:
+          name: alertmanager-ntfy-config

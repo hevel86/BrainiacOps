@@ -1,0 +1,12 @@
+# kubernetes/infrastructure/monitoring/alertmanager-ntfy/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-ntfy-config
+  namespace: monitoring
+data:
+  config.yml: |
+    ntfy:
+      baseurl: "https://ntfy.botty-mcbotface.com"
+      topic: "prometheus"
+      token: "${NTFY_TOKEN}"
