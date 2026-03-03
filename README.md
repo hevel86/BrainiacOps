@@ -1,16 +1,36 @@
 <div align="center">
   <img src="resources/assets/escaping_ship.png" align="center" width="200" alt="BrainiacOps Logo">
 
-  ### BrainiacOps
+  <h3>BrainiacOps</h3>
 
-  _GitOps home lab running Argo CD and self-hosted infrastructure on Talos Kubernetes_
+  <p><em>GitOps home lab running Argo CD and self-hosted infrastructure on Talos Kubernetes</em></p>
 </div>
 
 <div align="center">
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Renovate](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://renovatebot.com)
-[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/hevel86/BrainiacOps/kubeconform.yml?branch=master)](https://github.com/hevel86/BrainiacOps/actions/workflows/kubeconform.yml)
+[![Talos](https://img.shields.io/endpoint?url=https://kromgo.torquasmvo.com/talos_version&style=for-the-badge&logo=talos&logoColor=white&color=blue&label=%20)](https://talos.dev)&nbsp;&nbsp;
+[![Kubernetes](https://img.shields.io/endpoint?url=https://kromgo.torquasmvo.com/kubernetes_version&style=for-the-badge&logo=kubernetes&logoColor=white&color=blue&label=%20)](https://kubernetes.io)&nbsp;&nbsp;
+[![CI](https://img.shields.io/github/actions/workflow/status/hevel86/BrainiacOps/kubeconform.yml?branch=master&label=&logo=github&style=for-the-badge&color=blue)](https://github.com/hevel86/BrainiacOps/actions/workflows/kubeconform.yml)
+
+</div>
+
+<div align="center">
+
+[![Status Page](https://uptime-kuma.botty-mcbotface.com/api/badge/20/status?style=for-the-badge&logo=statuspage&logoColor=white)](https://status.torquasmvo.com)&nbsp;&nbsp;
+[![Plex](https://uptime-kuma.botty-mcbotface.com/api/badge/1/status?style=for-the-badge&logo=plex&logoColor=white)](https://plex.tv)
+
+</div>
+
+<div align="center">
+
+[![Age](https://kromgo.torquasmvo.com/cluster_age_days?format=badge&style=flat-square&label=Age)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
+[![Uptime](https://kromgo.torquasmvo.com/cluster_uptime_days?format=badge&style=flat-square&label=Uptime)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
+[![Nodes](https://kromgo.torquasmvo.com/cluster_node_count?format=badge&style=flat-square&label=Nodes)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
+[![Pods](https://kromgo.torquasmvo.com/cluster_pod_count?format=badge&style=flat-square&label=Pods)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
+[![CPU](https://kromgo.torquasmvo.com/cluster_cpu_usage?format=badge&style=flat-square&label=CPU)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
+[![Memory](https://kromgo.torquasmvo.com/cluster_memory_usage?format=badge&style=flat-square&label=Memory)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
+[![Alerts](https://kromgo.torquasmvo.com/cluster_alert_count?format=badge&style=flat-square&label=Alerts)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
+![License](https://img.shields.io/github/license/hevel86/BrainiacOps?style=flat-square)
 
 </div>
 
@@ -91,7 +111,7 @@ kubectl apply -f kubernetes/bootstrap/apps-external-app.yaml
 
 Once these steps are completed, Argo CD will take over and continuously reconcile the state of the cluster with the manifests in this repository.
 
-**For comprehensive deployment instructions, troubleshooting, and operational guidance, see [deployment.md](deployment.md).**
+**For comprehensive deployment instructions, troubleshooting, and operational guidance, see [deployment.md](docs/deployment.md).**
 
 ## Mise En Place Tooling
 
@@ -114,12 +134,11 @@ This project follows a set of conventions to maintain code quality and consisten
 
 - **Mise En Place**: Use `.mise.toml` to install and pin CLI dependencies (via aqua + pipx) and to provide consistent environment configuration for `KUBECONFIG`, `TALOSCONFIG`, and `SOPS_AGE_KEY_FILE`.
 - **Kustomize:** Used extensively to manage Kubernetes configurations, with a preference for overlays and shared bases (`_shared` directory) to reduce duplication.
-- **Pre-commit Hooks:** Before committing any changes, a pre-commit hook runs to:
-    - Ensure YAML files have a trailing newline to comply with `yamllint` rules.
-    To enable the hooks, run:
-    ```bash
-    git config core.hooksPath .githooks
-    ```
+- **Pre-commit Hooks:** Before committing any changes, a pre-commit hook ensures YAML files have a trailing newline to comply with `yamllint` rules.
+  Enable the hooks locally:
+  ```bash
+  git config core.hooksPath .githooks
+  ```
 - **Manifest Validation:** All Kubernetes manifests are validated against their schemas using `kubeconform`. This is enforced in the CI pipeline.
 - **Linting:** `yamllint` is used to enforce YAML best practices, with a custom configuration defined in `.yamllint.yaml`.
 - **Secrets Management:** Secrets are managed outside of the repository using the Bitwarden Secrets Operator.
