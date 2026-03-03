@@ -7,7 +7,7 @@ data:
   config.yaml: |
     metrics:
       - name: talos_version
-        query: 'label_replace(kube_node_info, "talos_ver", "$1", "os_image", "Talos (v[0-9.]+)")'
+        query: 'label_replace(kube_node_info, "talos_ver", "$1", "os_image", "Talos \\(v([0-9.]+)\\)")'
         label: "talos_ver"
         colors:
           - { color: "blue", min: 0, max: 0 }
