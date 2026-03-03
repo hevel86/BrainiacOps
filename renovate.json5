@@ -296,6 +296,15 @@
   ],
   packageRules: [
     {
+      description: 'Group tuppr updates',
+      matchPackageNames: [
+        'home-operations/tuppr',
+        'ghcr.io/home-operations/charts/tuppr',
+        'ghcr.io/home-operations/tuppr',
+      ],
+      groupName: 'tuppr',
+    },
+    {
       description: 'Group Talos Linux updates (talconfig)',
       matchDatasources: [
         'github-releases',
