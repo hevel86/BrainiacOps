@@ -46,7 +46,8 @@ spec:
           periodSeconds: 10
         volumeMounts:
         - name: config
-          mountPath: /kromgo
+          mountPath: /kromgo/config.yaml
+          subPath: config.yaml
           readOnly: true
       volumes:
       - name: config
