@@ -9,7 +9,7 @@ data:
     ui:
       title: BrainiacOps Status
       header: Core services health
-      logo: ""
+      logo: "https://raw.githubusercontent.com/hevel86/BrainiacOps/master/resources/assets/symbol.png"
     endpoints:
       - name: argocd
         group: platform
