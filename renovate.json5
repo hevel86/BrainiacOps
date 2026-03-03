@@ -280,6 +280,19 @@
       depNameTemplate: 'kubernetes/kubernetes',
       versioningTemplate: 'semver',
     },
+    {
+      customType: 'regex',
+      description: 'Update Argo CD HA install URL in bootstrap kustomization',
+      managerFilePatterns: [
+        '/^kubernetes/bootstrap/argocd-install/kustomization\\.ya?ml$/',
+      ],
+      matchStrings: [
+        'https://raw\\.githubusercontent\\.com/argoproj/argo-cd/(?<currentValue>v[0-9.]+)/manifests/ha/install\\.yaml',
+      ],
+      datasourceTemplate: 'github-releases',
+      depNameTemplate: 'argoproj/argo-cd',
+      versioningTemplate: 'semver',
+    },
   ],
   packageRules: [
     {
