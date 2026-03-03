@@ -21,6 +21,8 @@ spec:
         ports:
         - name: http
           containerPort: 8080
+        - name: health
+          containerPort: 8888
         env:
         - name: PROMETHEUS_URL
           value: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090"
@@ -35,13 +37,13 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: http
+            port: health
           initialDelaySeconds: 10
           periodSeconds: 30
         readinessProbe:
           httpGet:
             path: /health
-            port: http
+            port: health
           initialDelaySeconds: 5
           periodSeconds: 10
         volumeMounts:
