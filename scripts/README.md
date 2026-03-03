@@ -1,12 +1,12 @@
 # Scripts
 
-Helper scripts for Longhorn volume management and operations.
+Helper scripts for cluster operations, Longhorn volume management, and infrastructure maintenance.
 
 ## Prerequisites
-- `kubectl` configured to the cluster with Longhorn installed
-- `python3` (for analyze-pvc-usage.sh)
-- `jq` (for restore scripts)
-- Access to the Longhorn backup target (default NFS path is baked into the scripts)
+- `kubectl` configured to the cluster
+- `python3` (for `analyze-pvc-usage.sh`, `longhorn-instance-manager-rollover.py`)
+- `jq` (for restore scripts and `clean-pvc-last-applied.sh`)
+- Access to the Longhorn backup target (default NFS path is baked into the restore scripts)
 
 ## analyze-pvc-usage.sh
 Analyze Longhorn PVC storage allocation and actual usage across the cluster.
@@ -23,7 +23,36 @@ Generates a comprehensive markdown report at `docs/longhorn-pvc-usage.md` contai
 - Volumes at/over capacity requiring immediate action
 - Storage efficiency breakdown by category
 
-Run this periodically to track storage utilization and identify optimization opportunities.
+Run periodically to track storage utilization and identify optimization opportunities.
+
+## longhorn-instance-manager-rollover.py
+Roll Longhorn-attached workloads one-by-one to migrate them off old instance-manager instances (e.g., after a Longhorn upgrade). Shows live migration metrics as each workload cycles.
+
+```bash
+# dry-run: show what would be restarted and current migration state
+python3 longhorn-instance-manager-rollover.py
+
+# execute restarts with default bounce strategy
+python3 longhorn-instance-manager-rollover.py --execute
+
+# target a specific node only
+python3 longhorn-instance-manager-rollover.py --execute --node brainiac-01
+
+# use rollout restart instead of scale-to-zero bounce
+python3 longhorn-instance-manager-rollover.py --execute --strategy rollout
+```
+
+Key flags:
+- `--execute` – Perform restarts (default is dry-run)
+- `--node NODE` – Only process workloads whose attached volume is on this node
+- `--namespace NS` – Only process workloads in this namespace
+- `--include REGEX` – Regex filter on workload names
+- `--limit N` – Max number of workloads to process
+- `--strategy {bounce,rollout}` – `bounce` (default) scales to 0 then back up to force volume detach/reattach; `rollout` does a rolling restart
+- `--down-wait N` – Seconds to wait after scale-to-0 before scaling back up (default: 20)
+- `--timeout N` – Rollout timeout per workload in seconds (default: 900)
+- `--continue-on-error` – Continue to next workload if one fails
+- `--no-skip-migrated` – Process workloads even if already on the new instance-manager
 
 ## longhorn-restore-backups.sh
 Restore **all** Longhorn volumes from their latest backups.
@@ -64,7 +93,7 @@ kubectl -n <ns> annotate pvc <pvc-name> kubectl.kubernetes.io/last-applied-confi
 ```
 
 ## clean-pvc-last-applied.sh
-Remove the kubectl last-applied annotation from PVCs (default namespace: `default`) to clear stale, immutable patches.
+Remove the kubectl last-applied annotation from PVCs to clear stale, immutable patches.
 
 ```bash
 # clean default namespace
@@ -74,5 +103,36 @@ Remove the kubectl last-applied annotation from PVCs (default namespace: `defaul
 NAMESPACE=media ./clean-pvc-last-applied.sh
 ```
 
-## Notes
-- `longhorn-restore-mylar3.sh` is kept as a single-volume test/example; it mirrors the same options but targets only the mylar3 PVC.
+## update-ip-addresses.sh
+Query the cluster for all LoadBalancer services and regenerate `docs/ip_addresses.md` with a current IP inventory table. Also reads the MetalLB pool configuration and reports total/used/free IP counts.
+
+```bash
+./update-ip-addresses.sh
+```
+
+Writes output to `docs/ip_addresses.md`. Requires `kubectl` and `python3` (used internally to count pool IPs).
+
+## monthly-tag.sh
+Create a dated Git tag (`YYYY.MM.DD`) for the current state of the repo. Auto-commits any uncommitted changes before tagging.
+
+```bash
+./monthly-tag.sh
+```
+
+Pushes both the commit (if any) and the tag to `origin`. Skips tag creation if the tag already exists.
+
+## technitium/manage.py
+Unified management tool for the Technitium DNS cluster (Proxmox LXC nodes).
+
+```bash
+python3 technitium/manage.py <command> [options]
+```
+
+Commands:
+- `status` – Check cluster status, blocklists, and sync state
+- `setup` – Run initial setup (zones, settings) on Primary/Secondary nodes
+- `reverse-dns` – Configure conditional forwarder zones for reverse DNS on all nodes
+- `forwarders` – Update upstream DNS providers
+- `import` – Migrate records from a Pi-hole Teleporter ZIP
+- `analyze` – Analyze NXDOMAIN query logs
+
