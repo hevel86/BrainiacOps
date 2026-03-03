@@ -16,13 +16,6 @@
 
 <div align="center">
 
-[![Status Page](https://uptime-kuma.botty-mcbotface.com/api/badge/20/status?style=for-the-badge&logo=statuspage&logoColor=white)](https://status.torquasmvo.com)&nbsp;&nbsp;
-[![Plex](https://uptime-kuma.botty-mcbotface.com/api/badge/1/status?style=for-the-badge&logo=plex&logoColor=white)](https://plex.tv)
-
-</div>
-
-<div align="center">
-
 [![Age](https://img.shields.io/endpoint?url=https://kromgo.torquasmvo.com/cluster_age_days&style=flat-square&label=Age)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
 [![Uptime](https://img.shields.io/endpoint?url=https://kromgo.torquasmvo.com/cluster_uptime_days&style=flat-square&label=Uptime)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
 [![Nodes](https://img.shields.io/endpoint?url=https://kromgo.torquasmvo.com/cluster_node_count&style=flat-square&label=Nodes)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
