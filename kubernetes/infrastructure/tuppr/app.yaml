@@ -49,8 +49,6 @@ spec:
       skipCrds: true
       values: |
         replicaCount: 3
-        image:
-          tag: "0.0.73"
         monitoring:
           serviceMonitor:
             enabled: true
