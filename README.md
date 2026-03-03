@@ -63,6 +63,9 @@ Automation is a core principle, with Renovate for dependency updates, GitHub Act
 - `kubernetes/games/`: Holds configurations for game servers, such as Minecraft.
 - `kubernetes/storage/`: Defines PersistentVolumes for the media stack, ensuring data persistence across pod restarts.
 - `kubernetes/testing/`: A sandbox for temporary experiments, benchmark jobs, and validation manifests.
+- `talos/`: Talos Linux cluster configuration. `talconfig.yaml` is the source of truth for node topology and extensions; `talsecret.sops.yaml` holds encrypted cluster secrets; `clusterconfig/` contains generated machine configs (gitignored). See `talos/README.md` for operational procedures.
+- `scripts/`: Helper scripts for cluster operations, Longhorn volume management, IP inventory generation, and DNS cluster management. See `scripts/README.md`.
+- `docs/`: Operational documentation including the deployment guide, Longhorn PVC usage reports, IP address inventory, and runbooks.
 - `.github/workflows/`: Contains CI pipelines, including a `kubeconform` workflow to validate all Kubernetes manifests against their schemas.
 - `.githooks/`: Includes a custom Git hook that runs on pre-commit to enforce YAML linting rules.
 - `renovate.json5`: The configuration for the Renovate bot, defining how dependencies are updated, grouped, and managed.
