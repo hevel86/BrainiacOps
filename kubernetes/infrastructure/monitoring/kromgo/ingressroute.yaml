@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: kromgo
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`kromgo.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: kromgo
+          namespace: monitoring
+          port: 80
+  tls:
+    secretName: traefik-dashboard-tls

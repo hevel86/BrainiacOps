@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kromgo
+  namespace: monitoring
+data:
+  config.yaml: |
+    metrics:
+      - name: talos_version
+        query: 'label_replace(kube_node_info, "talos_ver", "$1", "os_image", "Talos (v[0-9.]+)")'
+        label: "talos_ver"
+        colors:
+          - { color: "blue", min: 0, max: 0 }
+
+      - name: kubernetes_version
+        query: 'kubernetes_build_info'
+        label: "git_version"
+        colors:
+          - { color: "blue", min: 0, max: 0 }
+
+      - name: cluster_node_count
+        query: 'count(kube_node_info)'
+        colors:
+          - { color: "red", min: 0, max: 2 }
+          - { color: "brightgreen", min: 3, max: 100 }
+
+      - name: cluster_pod_count
+        query: 'count(kube_pod_info)'
+        colors:
+          - { color: "brightgreen", min: 0, max: 999 }
+
+      - name: cluster_cpu_usage
+        query: 'round(100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100), 0.1)'
+        suffix: "%"
+        colors:
+          - { color: "brightgreen", min: 0, max: 50 }
+          - { color: "orange", min: 50, max: 75 }
+          - { color: "red", min: 75, max: 100 }
+
+      - name: cluster_memory_usage
+        query: 'round((1 - sum(node_memory_MemAvailable_bytes) / sum(node_memory_MemTotal_bytes)) * 100, 0.1)'
+        suffix: "%"
+        colors:
+          - { color: "brightgreen", min: 0, max: 50 }
+          - { color: "orange", min: 50, max: 75 }
+          - { color: "red", min: 75, max: 100 }
+
+      - name: cluster_age_days
+        query: 'round((time() - min(kube_namespace_created{namespace="kube-system"})) / 86400)'
+        suffix: "d"
+        colors:
+          - { color: "brightgreen", min: 0, max: 36500 }
+
+      - name: cluster_uptime_days
+        query: 'round(min(time() - node_boot_time_seconds) / 86400)'
+        suffix: "d"
+        colors:
+          - { color: "brightgreen", min: 0, max: 36500 }
+
+      - name: cluster_alert_count
+        query: 'count(ALERTS{alertstate="firing",alertname!~"Watchdog|InfoInhibitor"}) or vector(0)'
+        colors:
+          - { color: "brightgreen", min: 0, max: 0 }
+          - { color: "orange", min: 1, max: 5 }
+          - { color: "red", min: 5, max: 100 }
