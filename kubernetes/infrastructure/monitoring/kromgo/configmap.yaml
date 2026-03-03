@@ -12,8 +12,8 @@ data:
 
     metrics:
       - name: talos_version
-        query: 'max(node_os_info{id="talos"}) by (version)'
-        label: "version"
+        query: 'max(node_os_info) by (version_id)'
+        label: "version_id"
         title: Talos
         colors:
           - { color: "blue", min: 0, max: 0 }
