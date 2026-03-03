@@ -39,7 +39,7 @@ data:
           - { color: "brightgreen", min: 0, max: 999 }
 
       - name: cluster_cpu_usage
-        query: 'round(avg(1 - rate(node_cpu_seconds_total{mode="idle",instance!=""}[5m])) * 100, 0.1)'
+        query: 'round(avg(1 - rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100, 0.1)'
         suffix: "%"
         title: CPU
         colors:
@@ -48,7 +48,7 @@ data:
           - { color: "red", min: 75, max: 100 }
 
       - name: cluster_memory_usage
-        query: 'round(sum(node_memory_MemTotal_bytes{instance!=""} - node_memory_MemAvailable_bytes{instance!=""}) / sum(node_memory_MemTotal_bytes{instance!=""}) * 100, 0.1)'
+        query: 'round(sum(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / sum(node_memory_MemTotal_bytes) * 100, 0.1)'
         suffix: "%"
         title: Memory
         colors:
@@ -64,7 +64,7 @@ data:
           - { color: "brightgreen", min: 0, max: 36500 }
 
       - name: cluster_uptime_days
-        query: 'round(avg(node_time_seconds{instance!=""} - node_boot_time_seconds{instance!=""}) / 86400)'
+        query: 'round(avg(node_time_seconds - node_boot_time_seconds) / 86400)'
         suffix: "d"
         title: Uptime
         colors:

@@ -23,13 +23,13 @@
 
 <div align="center">
 
-[![Age](https://kromgo.torquasmvo.com/cluster_age_days?format=badge&style=flat-square&label=Age)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![Uptime](https://kromgo.torquasmvo.com/cluster_uptime_days?format=badge&style=flat-square&label=Uptime)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![Nodes](https://kromgo.torquasmvo.com/cluster_node_count?format=badge&style=flat-square&label=Nodes)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![Pods](https://kromgo.torquasmvo.com/cluster_pod_count?format=badge&style=flat-square&label=Pods)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![CPU](https://kromgo.torquasmvo.com/cluster_cpu_usage?format=badge&style=flat-square&label=CPU)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![Memory](https://kromgo.torquasmvo.com/cluster_memory_usage?format=badge&style=flat-square&label=Memory)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
-[![Alerts](https://kromgo.torquasmvo.com/cluster_alert_count?format=badge&style=flat-square&label=Alerts)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
+[![Age](https://img.shields.io/endpoint?url=https://kromgo.torquasmvo.com/cluster_age_days&style=flat-square&label=Age)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
+[![Uptime](https://img.shields.io/endpoint?url=https://kromgo.torquasmvo.com/cluster_uptime_days&style=flat-square&label=Uptime)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
+[![Nodes](https://img.shields.io/endpoint?url=https://kromgo.torquasmvo.com/cluster_node_count&style=flat-square&label=Nodes)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
+[![Pods](https://img.shields.io/endpoint?url=https://kromgo.torquasmvo.com/cluster_pod_count&style=flat-square&label=Pods)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
+[![CPU](https://img.shields.io/endpoint?url=https://kromgo.torquasmvo.com/cluster_cpu_usage&style=flat-square&label=CPU)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
+[![Memory](https://img.shields.io/endpoint?url=https://kromgo.torquasmvo.com/cluster_memory_usage&style=flat-square&label=Memory)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
+[![Alerts](https://img.shields.io/endpoint?url=https://kromgo.torquasmvo.com/cluster_alert_count&style=flat-square&label=Alerts)](https://github.com/kashalls/kromgo)&nbsp;&nbsp;
 ![License](https://img.shields.io/github/license/hevel86/BrainiacOps?style=flat-square)
 
 </div>
