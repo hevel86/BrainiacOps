@@ -72,6 +72,8 @@ BrainiacOps/
 │   │   │   ├── sonarr/        # TV management
 │   │   │   └── [other apps]
 │   │   └── external/          # Externally-managed apps
+│   ├── games/                  # Game server configurations (Minecraft, etc.)
+│   ├── storage/                # PersistentVolume definitions for media stack
 │   └── testing/               # Experiments and benchmarks
 ├── talos/                      # Talos Linux cluster configuration
 │   ├── talconfig.yaml         # Source of truth (talhelper input)
@@ -321,6 +323,7 @@ See `talos/README.md` for detailed guide. Summary:
 2. GitHub Actions runs kubeconform validation
 3. Review and merge PR
 4. If Talos tools changed: run `talhelper genconfig`
+5. If Argo CD version changed: manually run `kubectl apply -k kubernetes/bootstrap/argocd-install`
 
 ## Common Issues
 
@@ -388,5 +391,5 @@ BrainiacOps is a GitOps repository where all cluster state is declared in Git. C
 
 ---
 
-**Last Updated**: 2025-11-21
-**Cluster Version**: Talos v1.11.5, Kubernetes v1.34.1
+**Last Updated**: 2026-03-05
+**Cluster Version**: Talos v1.12.4, Kubernetes v1.35.2
