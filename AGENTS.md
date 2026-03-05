@@ -1,4 +1,4 @@
-# Gemini Project: BrainiacOps
+# BrainiacOps
 
 ## Critical Rules
 
@@ -9,112 +9,385 @@
 - **Talos secrets** must only exist in `talsecret.sops.yaml` (encrypted with SOPS+age)
 - When in doubt, ask before committing anything that could contain sensitive data
 
-## Project Overview
+### GitOps Security Best Practices for Scripts
 
-This repository, BrainiacOps, is a GitOps-managed home lab running on a Kubernetes cluster. It uses an "app-of-apps" pattern with Argo CD to declaratively manage infrastructure, self-hosted applications, and media automation services.
+When creating scripts that query cluster data or generate reports:
 
-The core of the project is the `kubernetes` directory, which is organized into several subdirectories:
+**Safe to commit:**
+- Scripts that query cluster metadata (PVC names, sizes, namespaces, storage classes)
+- Generated reports with operational data (storage usage, resource allocations)
+- Scripts that read non-sensitive Kubernetes resources (Deployments, PVCs, ConfigMaps)
+- Documentation and analysis based on public cluster information
 
-*   `bootstrap`: Contains the initial manifests to install Argo CD and seed the app-of-apps controller.
-*   `infrastructure`: Manages cluster-level services such as Traefik for ingress, MetalLB for load balancing, Longhorn for persistent storage, and cert-manager for TLS certificates. It also includes monitoring tools like Kube Prometheus Stack and Gatus.
-*   `apps`: Contains user-facing applications, primarily for media automation. This includes popular services like Jellyfin, Plex, Radarr, Sonarr, and Transmission.
-*   `games`:  Holds configurations for game servers, such as Minecraft.
-*   `storage`: Defines PersistentVolumes for the media stack.
-*   `testing`: A sandbox for temporary experiments and benchmarks.
+**Never commit:**
+- Scripts that output Secret contents, even if base64-encoded
+- Volume UUIDs or internal identifiers that could aid unauthorized access
+- Scripts that dump environment variables or pod configurations with secrets
+- IP addresses of services outside the cluster (internal IPs like node IPs are OK)
+- Any script output containing passwords, tokens, or API keys
+- Backup URLs or storage credentials
 
-The project emphasizes automation and security with tools like:
+**Best practices:**
+- Use temporary files in `/tmp` for intermediate data, clean up after execution
+- Filter sensitive fields before writing output (e.g., exclude `data` field from Secrets)
+- Document what data the script accesses and outputs
+- For cluster analysis scripts: focus on metadata, not content
+- If a script must handle secrets, document that it should NOT be run in CI/CD
 
-*   **Renovate:** A self-hosted bot that automatically updates dependencies.
-*   **GitHub Actions:** Used for continuous integration to validate Kubernetes manifests with `kubeconform`.
-*   **Pre-commit hooks:** Enforce YAML style basics (final newline) to keep `yamllint` happy.
-*   **Bitwarden Secrets Operator:** Injects secrets into the cluster, keeping sensitive data out of the Git repository.
+## Executive Summary
 
-## Architecture & Patterns
+**BrainiacOps** is a GitOps-managed home lab Kubernetes cluster using Argo CD as the single source of truth. It follows a declarative, infrastructure-as-code approach with heavy emphasis on automation, security, and maintainability.
 
-*   Argo CD uses an app-of-apps pattern with `directory.recurse` to discover any `app.yaml` automatically.
-*   Sync ordering is controlled with waves: -2 (PVs), 0 (core infra), 1 (infra dependencies), 30 (user apps).
-*   Storage is Longhorn-backed; `longhorn-prod` uses 3 replicas with `dataLocality: best-effort` and aggressive pod deletion for failover.
-*   Talos must be installed with the factory installer schematic to retain extensions:
-    * `talosImageURL: factory.talos.dev/installer/284a1fe978ff4e6221a0e95fc1d01278bab28729adcb54bb53f7b0d3f2951dcc`
+**Key Characteristics**:
+- GitOps controller: Argo CD (declarative, automated sync)
+- Operating system: Talos Linux (immutable, minimal, secure)
+- Container orchestration: Kubernetes v1.35.2
+- Storage backend: Longhorn distributed storage
+- Networking: Traefik + MetalLB + Tailscale
+- Secrets: Bitwarden Secrets Operator (no secrets in Git)
+- Dependency automation: Renovate with custom regex managers
+- CI/CD validation: GitHub Actions + kubeconform
+- Tool version management: mise + aqua
 
-## Building and Running
+## Repository Structure
 
-To bootstrap a new cluster with this GitOps setup, follow these steps:
+```
+BrainiacOps/
+├── kubernetes/
+│   ├── bootstrap/              # Argo CD installation & app-of-apps seed
+│   ├── infrastructure/         # Platform services (sync-wave 0-1)
+│   │   ├── metallb/           # Load balancer (IPs: 10.0.0.200-10.0.0.250)
+│   │   ├── traefik/           # Ingress controller
+│   │   ├── cert-manager/      # TLS certificates (Cloudflare)
+│   │   ├── longhorn/          # Distributed block storage
+│   │   ├── bitwarden/         # Bitwarden Secrets Operator
+│   │   ├── monitoring/        # Prometheus + Grafana + Gatus
+│   │   └── [other infra]
+│   ├── apps/                   # User-facing applications
+│   │   ├── default/           # Primary namespace (30+ apps)
+│   │   │   ├── plex/          # Media server
+│   │   │   ├── radarr/        # Movie management
+│   │   │   ├── sonarr/        # TV management
+│   │   │   └── [other apps]
+│   │   └── external/          # Externally-managed apps
+│   ├── games/                  # Game server configurations (Minecraft, etc.)
+│   ├── storage/                # PersistentVolume definitions for media stack
+│   └── testing/               # Experiments and benchmarks
+├── talos/                      # Talos Linux cluster configuration
+│   ├── talconfig.yaml         # Source of truth (talhelper input)
+│   ├── talsecret.sops.yaml    # Encrypted secrets (age+SOPS)
+│   ├── clusterconfig/         # Generated configs (gitignored)
+│   └── README.md              # Comprehensive management guide
+├── .mise.toml                  # Tool version management
+├── renovate.json5              # Dependency automation config
+└── .github/workflows/          # CI/CD validation
+```
 
-1.  **Create the Argo CD namespace:**
-    ```bash
-    kubectl apply -f kubernetes/bootstrap/argocd-namespace.yaml
-    ```
+## Core Concepts
 
-2.  **Install Argo CD:**
-    ```bash
-    kubectl apply -k kubernetes/bootstrap/argocd-install
-    ```
+### App-of-Apps Pattern
 
-3.  **Seed the infrastructure app-of-apps:**
-    ```bash
-    kubectl apply -f kubernetes/bootstrap/infrastructure-app.yaml
-    ```
+Argo CD Applications act as parent controllers that discover child Applications via `directory.recurse` and `include: "**/app.yaml"`. This enables declarative, hierarchical deployment without hardcoding app lists.
 
-4.  **(Optional) Enable application trees:**
-    ```bash
-    kubectl apply -f kubernetes/bootstrap/apps-app.yaml
-    kubectl apply -f kubernetes/bootstrap/apps-external-app.yaml
-    ```
+**Deployment Order (Sync Waves)**:
+- Wave -2: PersistentVolumes
+- Wave 0: Infrastructure core (MetalLB, Longhorn, cert-manager secrets)
+- Wave 1: Infrastructure dependencies (cert-manager config)
+- Wave 30: User applications
 
-Once these steps are completed, Argo CD will take over and continuously reconcile the state of the cluster with the manifests in this repository.
+### Configuration Workflow
 
-## Quick Tooling Setup & Validation
+```
+talconfig.yaml + talsecret.sops.yaml
+         ↓
+   talhelper genconfig
+         ↓
+clusterconfig/*.yaml (machine configs)
+         ↓
+   talosctl apply-config
+         ↓
+   Talos Node Configuration
+```
 
-*   Install pinned tool versions and trust repo config: `mise install` then `mise trust .mise.toml`.
-*   Validate manifests before merging: `kustomize build <path> | kubeconform -strict -` and `yamllint <path>/`.
+### Talos Factory Installer Pattern
 
-## Development Conventions
+**Critical**: The `talosImageURL` in `talconfig.yaml` must point to the factory installer with schematic ID:
 
-This project follows a set of conventions to maintain code quality and consistency:
+```yaml
+talosImageURL: factory.talos.dev/installer/284a1fe978ff4e6221a0e95fc1d01278bab28729adcb54bb53f7b0d3f2951dcc
+```
 
-*   **Kustomize:** Used extensively to manage Kubernetes configurations, with a preference for overlays and shared bases (`_shared` directory) to reduce duplication.
-*   **Pre-commit Hooks:** Before committing any changes, a pre-commit hook runs to:
-    *   Ensure YAML files have a trailing newline to comply with `yamllint` rules.
-    To enable the hooks, run:
-    ```bash
-    git config core.hooksPath .githooks
-    ```
-*   **Manifest Validation:** All Kubernetes manifests are validated against their schemas using `kubeconform`. This is enforced in the CI pipeline.
-*   **Linting:** `yamllint` is used to enforce YAML best practices, with a custom configuration defined in `.yamllint.yaml`.
-*   **Secrets Management:** Secrets are managed outside of the repository using the Bitwarden Secrets Operator.
+This ensures system extensions (Intel GPU, iSCSI, NUT, etc.) persist through installation. If using the base installer (`ghcr.io/siderolabs/installer`), extensions will disappear after reboot.
 
-## Common Workflows
+## Common Commands
 
-*   Add an app: create `kubernetes/apps/default/<name>/` with `app.yaml`, `kustomization.yaml`, manifests, and set sync wave `30`.
-*   Add infrastructure: create under `kubernetes/infrastructure/<name>/` with sync wave `0` or `1`.
-*   Talos config pipeline: `talconfig.yaml + talsecret.sops.yaml` → `talhelper genconfig` → `clusterconfig/*.yaml` → `talosctl apply-config`.
-*   Talos operations (examples): `talosctl -n 10.0.0.34 services`, `talosctl get disks --nodes 10.0.0.36 --insecure`, `talosctl apply-config --insecure --nodes 10.0.0.36 --file clusterconfig/talos-rao-brainiac-02.yaml`.
-*   Kubernetes checks: `kubectl get nodes -o wide`, `kubectl get applications -n argocd`, `argocd app sync <app-name>`.
+### Tool Setup
 
-## Cluster Details
+```bash
+# Install all pinned tools
+mise install
 
-*   Cluster name: `talos-rao`; Talos v1.12.1, Kubernetes v1.35.0.
-*   Control plane nodes: brainiac-00 (10.0.0.34), brainiac-01 (10.0.0.35), brainiac-02 (10.0.0.36); VIP 10.0.0.30.
-*   DNS: Technitium HA Cluster (192.168.1.7, 192.168.1.8) with DoH and 0.0.0.0 blocking.
-*   Networks: Pod CIDR 10.244.0.0/16, Service CIDR 10.96.0.0/12, MetalLB pool 10.0.0.200-10.0.0.250.
-*   System extensions (all nodes): i915, intel-ice-firmware, intel-ucode, iscsi-tools, mei, nut-client, nvme-cli, thunderbolt, util-linux-tools.
+# Trust repo config for first-time use
+mise trust .mise.toml
+```
 
-## Current Cluster Status (as of 2026-01-14)
+### Kubernetes Operations
 
-The cluster is fully operational, healthy, and up-to-date.
+```bash
+# View cluster state
+kubectl get nodes -o wide
+kubectl get pods -A
+kubectl get applications -n argocd
 
-1.  **State:** All three control plane nodes are active and in quorum.
-2.  **DNS Migration:** Legacy Pi-hole instances have been replaced by a High-Availability Technitium DNS cluster running in Proxmox LXCs. 
-3.  **Security:** External DNS queries are encrypted via DNS-over-HTTPS (DoH) to Quad9.
-4.  **Optimizations:** Blocking mode is set to `0.0.0.0` to minimize log noise and prevent search domain suffixing.
-5.  **Recent Activity:** Management script `scripts/technitium/manage.py` was unified to include log analysis tools.
+# Sync an Argo CD app
+argocd app sync <app-name>
+
+# Validate manifests
+kustomize build kubernetes/apps/default/plex | kubeconform -strict -
+yamllint kubernetes/apps/default/plex/
+```
+
+### Talos Cluster Management
+
+```bash
+# View node status
+talosctl -n 10.0.0.34 services
+talosctl -n 10.0.0.34 etcd members
+
+# Check disks before installation
+talosctl get disks --nodes 10.0.0.36 --insecure
+
+# Generate machine configs from talconfig.yaml
+cd talos && talhelper genconfig
+
+# Apply config to new node
+talosctl apply-config \
+  --insecure \
+  --nodes 10.0.0.36 \
+  --file clusterconfig/talos-rao-brainiac-02.yaml
+
+# Verify extensions after boot
+talosctl -n 10.0.0.36 get extensions
+
+# Upgrade Talos
+talosctl upgrade \
+  --nodes 10.0.0.35 \
+  --image factory.talos.dev/metal-installer/284a...dcc:v1.11.5
+```
+
+### Secret Management
+
+```bash
+# Decrypt Talos secrets
+sops -d talos/talsecret.sops.yaml
+
+# Edit encrypted secrets
+sops talos/talsecret.sops.yaml
+```
+
+## Key Architecture Patterns
+
+### GitOps Bootstrap Process
+
+1. `kubectl apply` creates Argo CD namespace and resources
+2. Argo CD starts and initializes
+3. `infrastructure-app.yaml` is applied (parent Application)
+4. Argo CD syncs all `app.yaml` files in `kubernetes/infrastructure/` recursively
+5. Infrastructure deploys with sync-wave ordering (0 → 1)
+6. User apps deploy with wave 30 (after infrastructure ready)
+
+Adding new components is as simple as creating an `app.yaml` file—the parent Application discovers it automatically.
+
+### Dependency Management via Renovate
+
+Renovate creates PRs automatically for:
+- Docker image tags in manifests (custom regex manager)
+- Helm chart versions (complex multiline regex)
+- CLI tool versions in `.mise.toml` (aqua/pipx managers)
+
+All PRs are validated by kubeconform CI before merge.
+
+### Storage Architecture
+
+- **PersistentVolumes** define Longhorn-backed storage
+- **PersistentVolumeClaims** are claimed by apps
+- Longhorn auto-configures disks >= 1.5TB on each node
+- System disks use disk selectors (NVMe <= 600GB)
+
+**High Availability Configuration**:
+- `longhorn-prod` StorageClass: 3 replicas, `dataLocality: best-effort`
+- `node-down-pod-deletion-policy`: `delete-both-statefulset-and-deployment-pod` (enables automatic pod failover)
+- Default replica count: 3 (data on all nodes)
+- On node failure: Longhorn deletes stuck pods, Kubernetes reschedules to healthy node, volume attaches using remaining replicas
+
+### Secret Management
+
+**Runtime secrets**: Bitwarden Secrets Operator injects from Bitwarden vault into Kubernetes Secrets (never in Git)
+
+**Talos secrets**: `talsecret.sops.yaml` encrypted with SOPS+age (contains cluster certificates, tokens, etcd crypto)
+
+### Pre-commit Security
+
+On `git commit`:
+1. YAML files checked for trailing newlines
+2. Commit fails if YAML invalid
+
+## Current Cluster Details
+
+**Cluster Name**: talos-rao
+
+**Control Plane Nodes**:
+- brainiac-00 (10.0.0.34)
+- brainiac-01 (10.0.0.35)
+- brainiac-02 (10.0.0.36)
+
+**DNS Infrastructure**:
+- Primary: dns1.torquasmvo.internal (192.168.1.7)
+- Secondary: dns2.torquasmvo.internal (192.168.1.8)
+- Optimization: DoH + 0.0.0.0 Blocking mode
+
+**Configuration**:
+- Talos v1.12.4, Kubernetes v1.35.2
+- VIP: 10.0.0.30 (HA endpoint)
+- Pod CIDR: 10.244.0.0/16
+- Service CIDR: 10.96.0.0/12
+- MetalLB pool: 10.0.0.200-10.0.0.250
+
+**System Extensions** (all nodes):
+- siderolabs/i915 (Intel GPU for transcoding)
+- siderolabs/intel-ice-firmware
+- siderolabs/intel-ucode
+- siderolabs/iscsi-tools
+- siderolabs/mei
+- siderolabs/nut-client (UPS monitoring)
+- siderolabs/nvme-cli
+- siderolabs/thunderbolt
+- siderolabs/util-linux-tools
+
+## Status (as of 2026-01-14)
+
+The cluster is fully operational and healthy. The HA control plane is established across three nodes, and all infrastructure services (Argo CD, Longhorn, Technitium DNS) are synchronized and stable.
 
 
-A detailed guide for these steps has been created in `talos/README.md`.
+## Development Workflows
 
-## Common Issues & Notes
+### Adding New Applications
 
-*   Missing extensions after boot usually means the base Talos installer was used; switch to the factory installer URL above and reapply configs.
-*   If an Argo CD Application will not sync, check the Application description and `argocd-app-controller` logs; common causes are missing namespaces or missing injected secrets.
-*   Renovate PRs are validated by kubeconform in CI; test locally before merge when regex managers touch manifests.
+1. Create directory: `kubernetes/apps/default/myapp/`
+2. Create `app.yaml` (Argo CD Application resource)
+3. Create `kustomization.yaml` and manifests
+4. Set sync wave: `argocd.argoproj.io/sync-wave: "30"`
+5. Enable auto-sync in Application spec
+6. Parent Application discovers it automatically
+
+### Adding New Infrastructure
+
+Same as apps but:
+- Place in `kubernetes/infrastructure/mycomponent/`
+- Use sync wave 0 or 1
+- Infrastructure parent Application discovers automatically
+
+### Adding Nodes to Talos Cluster
+
+See `talos/README.md` for detailed guide. Summary:
+
+1. Edit `talos/talconfig.yaml`:
+   - Add node to `nodes` list
+   - Add IP to `additionalApiServerCertSans`
+
+2. Generate configs:
+   ```bash
+   cd talos && talhelper genconfig
+   ```
+
+3. Check disks on new node:
+   ```bash
+   talosctl get disks --nodes 10.0.0.36 --insecure
+   ```
+
+4. Apply config:
+   ```bash
+   talosctl apply-config --insecure --nodes 10.0.0.36 --file clusterconfig/talos-rao-brainiac-02.yaml
+   ```
+
+5. Verify extensions:
+   ```bash
+   talosctl -n 10.0.0.36 get extensions
+   ```
+
+### Updating Dependencies
+
+1. Renovate creates PR automatically
+2. GitHub Actions runs kubeconform validation
+3. Review and merge PR
+4. If Talos tools changed: run `talhelper genconfig`
+5. If Argo CD version changed: manually run `kubectl apply -k kubernetes/bootstrap/argocd-install`
+
+## Common Issues
+
+### Extensions Missing After Node Boot
+
+**Cause**: `talconfig.yaml` uses base installer instead of factory installer
+
+**Fix**: Update `talosImageURL` to factory URL with schematic, regenerate configs, reapply
+
+### Argo CD App Won't Sync
+
+**Diagnosis**:
+```bash
+kubectl describe application -n argocd myapp
+kubectl logs -n argocd deployment/argocd-app-controller
+```
+
+**Common causes**: Missing namespace, secret not injected, resource conflict
+
+### Renovate PR Fails CI
+
+**Fix**: Test locally before approving:
+```bash
+kustomize build kubernetes/apps/default/myapp | kubeconform -strict -
+```
+
+## Important Files
+
+- `README.md` - Project overview
+- `deployment.md` - **Comprehensive deployment guide (bootstrap, troubleshooting, operations)**
+- `talos/README.md` - **Comprehensive Talos management guide (22KB)**
+- `renovate.json5` - Dependency automation strategy
+- `.mise.toml` - Tool versions
+- `talos/talconfig.yaml` - Cluster topology
+
+## Quick Reference
+
+```bash
+# Setup
+mise install && mise trust .mise.toml
+
+# Cluster state
+kubectl get nodes,pods -A
+kubectl get applications -n argocd -o wide
+
+# Talos operations
+talosctl -n 10.0.0.34 services
+talosctl -n 10.0.0.34 etcd members
+cd talos && talhelper genconfig
+
+# Validation
+kustomize build kubernetes/apps/default/myapp | kubeconform -strict -
+yamllint kubernetes/apps/default/myapp/
+sops -d talos/talsecret.sops.yaml
+```
+
+## Summary
+
+BrainiacOps is a GitOps repository where all cluster state is declared in Git. Changes flow: Git → Argo CD → Kubernetes. The system is automation-heavy (Renovate, GitHub Actions, pre-commit hooks) and security-conscious (no secrets in Git). Refer to `talos/README.md` for operational procedures—it contains 22KB of detailed documentation on node management, troubleshooting, and best practices.
+
+**Most common tasks**:
+- Adding apps: Create `kubernetes/apps/default/myapp/app.yaml`
+- Managing cluster: Use `talosctl` for Talos, `kubectl` for Kubernetes
+- Troubleshooting: Check Argo CD app status, review logs with `kubectl logs` or `talosctl logs`
+
+---
+
+**Last Updated**: 2026-03-05
+**Cluster Version**: Talos v1.12.4, Kubernetes v1.35.2
