@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: maintainerr
-          image: ghcr.io/maintainerr/maintainerr:v2.26.1
+          image: ghcr.io/maintainerr/maintainerr:v3.0.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 6246
