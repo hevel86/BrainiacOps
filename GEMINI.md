@@ -280,7 +280,7 @@ The cluster is fully operational and healthy. The HA control plane is establishe
 
 1. Create directory: `kubernetes/apps/default/myapp/`
 2. Create `app.yaml` (Argo CD Application resource)
-3. Create `kustomization.yaml` and manifests
+3. Create `kustomization.yaml` and manifests (**CRITICAL**: Do NOT include `app.yaml` in `kustomization.yaml` as it is managed by the parent "apps" Application)
 4. Set sync wave: `argocd.argoproj.io/sync-wave: "30"`
 5. Enable auto-sync in Application spec
 6. Parent Application discovers it automatically
