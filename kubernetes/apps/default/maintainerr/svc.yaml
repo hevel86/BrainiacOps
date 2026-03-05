@@ -1,0 +1,19 @@
+# kubernetes/apps/default/maintainerr/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: maintainerr
+  namespace: default
+  labels:
+    app: maintainerr
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: maintainerr.torquasmvo.internal
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.0.0.240
+  selector:
+    app: maintainerr
+  ports:
+    - name: http
+      port: 6246
+      targetPort: 6246

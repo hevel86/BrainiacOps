@@ -1,0 +1,48 @@
+# kubernetes/apps/default/maintainerr/deploy.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maintainerr
+  namespace: default
+  labels:
+    app: maintainerr
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: maintainerr
+  template:
+    metadata:
+      labels:
+        app: maintainerr
+    spec:
+      containers:
+        - name: maintainerr
+          image: ghcr.io/maintainerr/maintainerr:v2.26.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 6246
+          env:
+            - name: TZ
+              value: "America/New_York"
+          volumeMounts:
+            - name: config
+              mountPath: /opt/data
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 6246
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 6246
+            initialDelaySeconds: 60
+            periodSeconds: 20
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: maintainerr-config

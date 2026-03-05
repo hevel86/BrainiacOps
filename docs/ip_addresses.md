@@ -45,3 +45,4 @@ MetalLB IPs: total=51 used=38 free=13
 | it-tools | default | 10.0.0.237 |
 | gitea | default | 10.0.0.238 |
 | jellystat | default | 10.0.0.239 |
+| maintainerr | default | 10.0.0.240 |
