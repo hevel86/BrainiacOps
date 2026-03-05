@@ -68,6 +68,7 @@ BrainiacOps/
 │   │   └── [other infra]
 │   ├── apps/                   # User-facing applications
 │   │   ├── default/           # Primary namespace (30+ apps)
+│   │   │   ├── maintainerr/   # Media maintenance automation
 │   │   │   ├── plex/          # Media server
 │   │   │   ├── radarr/        # Movie management
 │   │   │   ├── sonarr/        # TV management
@@ -212,6 +213,7 @@ All PRs are validated by kubeconform CI before merge.
 
 ### Storage Architecture
 
+- **Default StorageClass**: Use `longhorn-prod` for all new PVCs.
 - **PersistentVolumes** define Longhorn-backed storage
 - **PersistentVolumeClaims** are claimed by apps
 - Longhorn auto-configures disks >= 1.5TB on each node
