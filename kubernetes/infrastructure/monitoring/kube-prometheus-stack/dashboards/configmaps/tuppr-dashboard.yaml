@@ -221,7 +221,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "max(tuppr_talos_upgrade_phase) OR on() vector(0)",
+              "expr": "max by(name) (\n  (tuppr_talos_upgrade_phase{phase=\"Pending\"} == 1) * 0 or\n  (tuppr_talos_upgrade_phase{phase=\"HealthChecking\"} == 1) * 1 or\n  (tuppr_talos_upgrade_phase{phase=\"Draining\"} == 1) * 2 or\n  (tuppr_talos_upgrade_phase{phase=\"Upgrading\"} == 1) * 3 or\n  (tuppr_talos_upgrade_phase{phase=\"Rebooting\"} == 1) * 4 or\n  (tuppr_talos_upgrade_phase{phase=\"Completed\"} == 1) * 5 or\n  (tuppr_talos_upgrade_phase{phase=\"Failed\"} == 1) * 6 or\n  (tuppr_talos_upgrade_phase{phase=\"MaintenanceWindow\"} == 1) * 7\n) OR on() vector(0)",
               "legendFormat": "Current Phase",
               "refId": "A"
             }
@@ -423,7 +423,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "max(tuppr_kubernetes_upgrade_phase) OR on() vector(0)",
+              "expr": "max by(name) (\n  (tuppr_kubernetes_upgrade_phase{phase=\"Pending\"} == 1) * 0 or\n  (tuppr_kubernetes_upgrade_phase{phase=\"HealthChecking\"} == 1) * 1 or\n  (tuppr_kubernetes_upgrade_phase{phase=\"Draining\"} == 1) * 2 or\n  (tuppr_kubernetes_upgrade_phase{phase=\"Upgrading\"} == 1) * 3 or\n  (tuppr_kubernetes_upgrade_phase{phase=\"Rebooting\"} == 1) * 4 or\n  (tuppr_kubernetes_upgrade_phase{phase=\"Completed\"} == 1) * 5 or\n  (tuppr_kubernetes_upgrade_phase{phase=\"Failed\"} == 1) * 6 or\n  (tuppr_kubernetes_upgrade_phase{phase=\"MaintenanceWindow\"} == 1) * 7\n) OR on() vector(0)",
               "legendFormat": "Current Phase",
               "refId": "A"
             }
