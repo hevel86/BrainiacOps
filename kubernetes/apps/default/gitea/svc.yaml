@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: gitea
   namespace: default
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: gitea.torquasmvo.internal
   labels:
     app: gitea
 spec:
