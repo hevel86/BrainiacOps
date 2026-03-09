@@ -32,3 +32,9 @@ data:
   GITEA__service__SHOW_REGISTRATION_BUTTON: "false"
   GITEA__repository__DEFAULT_BRANCH: "master"
   GITEA__repository__PREFERRED_LICENSES: "MIT"
+
+  # Actions (CI/CD)
+  GITEA__actions__ENABLED: "true"
+
+  # Packages / Container Registry
+  GITEA__packages__ENABLED: "true"
