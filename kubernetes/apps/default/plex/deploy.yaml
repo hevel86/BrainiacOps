@@ -42,7 +42,7 @@ spec:
             - name: UMASK # File creation mask for permissions
               value: "022"
             - name: VERSION # Version tag for the image, can be used to control updates
-              value: "latest"
+              value: "docker"
           resources:
             requests:
               gpu.intel.com/i915: "1"
