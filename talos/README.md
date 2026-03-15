@@ -732,7 +732,7 @@ Use the `talosctl upgrade` command, specifying the node to upgrade and the targe
 ```bash
 talosctl upgrade \
   --nodes 10.0.0.35 \
-  --image factory.talos.dev/metal-installer/284a1fe978ff4e6221a0e95fc1d01278bab28729adcb54bb53f7b0d3f2951dcc:v1.11.5
+  --image factory.talos.dev/metal-installer/284a1fe978ff4e6221a0e95fc1d01278bab28729adcb54bb53f7b0d3f2951dcc:v1.12.5
 ```
 
 Replace `10.0.0.35` with the IP address of the node you are upgrading.
