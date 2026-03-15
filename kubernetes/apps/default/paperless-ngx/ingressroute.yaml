@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: paperless
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`paperless.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: paperless-ngx
+          namespace: default
+          port: 8000
+  tls:
+    secretName: traefik-dashboard-tls
