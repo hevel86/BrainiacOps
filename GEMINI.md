@@ -394,5 +394,5 @@ BrainiacOps is a GitOps repository where all cluster state is declared in Git. C
 
 ---
 
-**Last Updated**: 2026-03-05
-**Cluster Version**: Talos v1.12.4, Kubernetes v1.35.2
+**Last Updated**: 2026-03-15
+**Cluster Version**: Talos v1.12.5, Kubernetes v1.35.2
