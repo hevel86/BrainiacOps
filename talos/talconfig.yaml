@@ -69,6 +69,13 @@ controlPlane:
   patches:
     - |-
         machine:
+          time:
+            servers:
+              - time.cloudflare.com
+              - 0.us.pool.ntp.org
+              - 1.us.pool.ntp.org
+    - |-
+        machine:
           nodeLabels:
             node.kubernetes.io/exclude-from-external-load-balancers:
               $$patch: delete
@@ -132,3 +139,15 @@ controlPlane:
               kubernetes:
                 disabled: true
               service: {}
+    - |-
+        machine:
+          registries:
+            config:
+              docker.io:
+                auth:
+                  username: ${DOCKER_USERNAME}
+                  password: ${DOCKER_PASSWORD}
+            mirrors:
+              docker.io:
+                endpoints:
+                  - https://registry-1.docker.io
