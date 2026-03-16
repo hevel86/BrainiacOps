@@ -36,80 +36,94 @@ spec:
                   # Point to the secret-mounted config
                   export TALOSCONFIG=/var/run/secrets/talos.dev/config
                   
-                  # Get nodes list from environment
+                  # Configuration
                   NODES="10.0.0.34 10.0.0.35 10.0.0.36"
+                  THRESHOLD=50.0
                   
-                  # Get status to find the leader
-                  echo "Fetching etcd status..."
-                  # Use one node initially to get the cluster status
-                  RAW_STATUS=$(talosctl -n 10.0.0.34 etcd status | grep "10.0.0.34")
-                  
-                  # Find the leader member ID. It's the 8th column due to spaces in "MB (XX%)".
-                  LEADER_ID=$(echo "$RAW_STATUS" | awk '{print $8}' | tr -d '\r')
-                  
-                  # Arrays for sorting
-                  NON_LEADERS=""
-                  LEADER=""
-                  
-                  echo "Analyzing fragmentation..."
+                  # 1. Identify the leader robustly
+                  echo "Identifying current etcd leader..."
+                  LEADER_ID=""
                   for NODE in $NODES; do
-                    # Get status for this specific node
-                    NODE_STATUS=$(talosctl -n $NODE etcd status | grep "$NODE")
+                    # Try to get status from each node until one responds
+                    RAW_STATUS=$(talosctl -n $NODE etcd status 2>/dev/null | grep "$NODE" || true)
+                    if [ -n "$RAW_STATUS" ]; then
+                      # Column 8 is the leader ID in the space-separated output
+                      LEADER_ID=$(echo "$RAW_STATUS" | awk '{print $8}' | tr -d '\r')
+                      if [ -n "$LEADER_ID" ]; then
+                        echo "Found leader member ID: $LEADER_ID (via $NODE)"
+                        break
+                      fi
+                    fi
+                  done
+                  
+                  if [ -z "$LEADER_ID" ]; then
+                    echo "Error: Could not determine etcd leader. Aborting to prevent unsafe execution."
+                    exit 1
+                  fi
+                  
+                  # 2. Analyze fragmentation across all nodes
+                  echo ""
+                  echo "Analyzing fragmentation (Threshold: $THRESHOLD% usage)..."
+                  NON_LEADERS_PLAN=""
+                  LEADER_PLAN=""
+                  
+                  for NODE in $NODES; do
+                    NODE_STATUS=$(talosctl -n $NODE etcd status 2>/dev/null | grep "$NODE" || true)
                     
                     if [ -z "$NODE_STATUS" ]; then
-                      echo "Warning: Could not get status for $NODE"
+                      echo "Warning: Could not get status for $NODE. Skipping."
                       continue
                     fi
                     
-                    # Output format is:
-                    # NODE MEMBER DB SIZE IN USE LEADER
-                    # 10.0.0.34 22353e8ece256e71 102 MB 34 MB (32.98%) 48693b819bb1f01a 
-                    
-                    # Extract used percentage from the parentheses
+                    # Extract usage % and member ID
                     PCT_STR=$(echo "$NODE_STATUS" | grep -o -E '\([0-9.]+%\)' | sed -e 's/(//' -e 's/%)//' | tr -d '\r')
-                    
-                    # Extract member ID (2nd column)
                     MEMBER_ID=$(echo "$NODE_STATUS" | awk '{print $2}' | tr -d '\r')
                     
-                    # Ensure we have a valid number
                     if [ -z "$PCT_STR" ]; then
-                      echo "Warning: Could not determine usage for $NODE"
+                      echo "Warning: Could not determine usage for $NODE. Skipping."
                       continue
                     fi
                     
-                    # Compare if less than 50% (using awk for float comparison)
-                    NEEDS_DEFRAG=$(awk -v pct="$PCT_STR" 'BEGIN { if (pct < 50.0) print "1"; else print "0" }')
+                    # Boolean for defrag need
+                    NEEDS_DEFRAG=$(awk -v pct="$PCT_STR" -v thr="$THRESHOLD" 'BEGIN { if (pct < thr) print "1"; else print "0" }')
                     
-                    if [ "$MEMBER_ID" = "$LEADER_ID" ]; then
-                      echo "Node $NODE (Member $MEMBER_ID) [LEADER] usage: $PCT_STR%"
-                    else
-                      echo "Node $NODE (Member $MEMBER_ID) usage: $PCT_STR%"
-                    fi
+                    # Tag output for clarity
+                    NODE_TAG="[FOLLOWER]"
+                    [ "$MEMBER_ID" = "$LEADER_ID" ] && NODE_TAG="[LEADER]"
+                    
+                    echo "Node $NODE (Member $MEMBER_ID) $NODE_TAG usage: $PCT_STR%"
                     
                     if [ "$NEEDS_DEFRAG" -eq "1" ]; then
                       echo "  -> Requires defragmentation."
                       if [ "$MEMBER_ID" = "$LEADER_ID" ]; then
-                        LEADER=$NODE
+                        LEADER_PLAN="$NODE"
                       else
-                        NON_LEADERS="$NON_LEADERS $NODE"
+                        NON_LEADERS_PLAN="$NON_LEADERS_PLAN $NODE"
                       fi
                     else
-                      echo "  -> Usage >= 50%. Skipping."
+                      echo "  -> Usage >= $THRESHOLD%. Skipping."
                     fi
                   done
                   
-                  # Execute defragmentation
-                  # Always do non-leaders first, then leader last
-                  for NODE in $NON_LEADERS; do
-                    echo "Defragmenting non-leader node $NODE..."
+                  # 3. Execution Phase
+                  echo ""
+                  echo "=== Execution Plan ==="
+                  [ -n "$NON_LEADERS_PLAN" ] && echo "Step 1: Defragment followers: $NON_LEADERS_PLAN" || echo "Step 1: No followers require defragmentation."
+                  [ -n "$LEADER_PLAN" ] && echo "Step 2: Defragment leader last: $LEADER_PLAN" || echo "Step 2: Leader does not require defragmentation."
+                  echo "======================"
+                  echo ""
+                  
+                  for NODE in $NON_LEADERS_PLAN; do
+                    echo "Executing: Defragment follower node $NODE..."
                     talosctl -n $NODE etcd defrag
-                    # Wait a bit for cluster to stabilize
-                    sleep 5
+                    echo "Waiting 10s for cluster stability..."
+                    sleep 10
                   done
                   
-                  if [ -n "$LEADER" ]; then
-                    echo "Defragmenting leader node $LEADER..."
-                    talosctl -n $LEADER etcd defrag
+                  if [ -n "$LEADER_PLAN" ]; then
+                    echo "Executing: Defragment leader node $LEADER_PLAN..."
+                    talosctl -n $LEADER_PLAN etcd defrag
+                    echo "Leader defragmentation complete."
                   fi
                   
                   echo "Defragmentation process complete."
