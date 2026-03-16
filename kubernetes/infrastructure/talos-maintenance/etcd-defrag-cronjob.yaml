@@ -47,8 +47,6 @@ spec:
                   # Find the leader member ID. It's the 8th column due to spaces in "MB (XX%)".
                   LEADER_ID=$(echo "$RAW_STATUS" | awk '{print $8}' | tr -d '\r')
                   
-                  echo "DEBUG: LEADER_ID is '$LEADER_ID'"
-                  
                   # Arrays for sorting
                   NON_LEADERS=""
                   LEADER=""
