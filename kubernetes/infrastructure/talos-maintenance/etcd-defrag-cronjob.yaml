@@ -38,7 +38,7 @@ spec:
                   
                   # Configuration
                   NODES="10.0.0.34 10.0.0.35 10.0.0.36"
-                  THRESHOLD=100.0
+                  THRESHOLD=50.0
                   
                   # 1. Identify the leader robustly
                   echo "Identifying current etcd leader..."
