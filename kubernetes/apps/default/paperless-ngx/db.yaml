@@ -33,8 +33,7 @@ spec:
                   key: PAPERLESS_DBPASS
           volumeMounts:
             - name: db-data
-              mountPath: /var/lib/postgresql/data
-              subPath: postgres
+              mountPath: /var/lib/postgresql
       volumes:
         - name: db-data
           persistentVolumeClaim:
