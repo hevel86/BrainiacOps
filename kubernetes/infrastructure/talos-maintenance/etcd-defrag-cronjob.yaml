@@ -4,7 +4,7 @@ metadata:
   name: etcd-defrag
   namespace: system-upgrade
 spec:
-  schedule: "0 3 * * 0" # Every Sunday at 3am
+  schedule: "0 0 * * 0" # Every Sunday at midnight
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
