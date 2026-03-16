@@ -45,7 +45,9 @@ spec:
                   RAW_STATUS=$(talosctl -n 10.0.0.34 etcd status | grep "10.0.0.34")
                   
                   # Find the leader member ID. It's the 8th column due to spaces in "MB (XX%)".
-                  LEADER_ID=$(echo "$RAW_STATUS" | awk '{print $8}')
+                  LEADER_ID=$(echo "$RAW_STATUS" | awk '{print $8}' | tr -d '\r')
+                  
+                  echo "DEBUG: LEADER_ID is '$LEADER_ID'"
                   
                   # Arrays for sorting
                   NON_LEADERS=""
@@ -66,10 +68,10 @@ spec:
                     # 10.0.0.34 22353e8ece256e71 102 MB 34 MB (32.98%) 48693b819bb1f01a 
                     
                     # Extract used percentage from the parentheses
-                    PCT_STR=$(echo "$NODE_STATUS" | grep -o -E '\([0-9.]+%\)' | sed -e 's/(//' -e 's/%)//')
+                    PCT_STR=$(echo "$NODE_STATUS" | grep -o -E '\([0-9.]+%\)' | sed -e 's/(//' -e 's/%)//' | tr -d '\r')
                     
                     # Extract member ID (2nd column)
-                    MEMBER_ID=$(echo "$NODE_STATUS" | awk '{print $2}')
+                    MEMBER_ID=$(echo "$NODE_STATUS" | awk '{print $2}' | tr -d '\r')
                     
                     # Ensure we have a valid number
                     if [ -z "$PCT_STR" ]; then
@@ -80,7 +82,11 @@ spec:
                     # Compare if less than 50% (using awk for float comparison)
                     NEEDS_DEFRAG=$(awk -v pct="$PCT_STR" 'BEGIN { if (pct < 50.0) print "1"; else print "0" }')
                     
-                    echo "Node $NODE (Member $MEMBER_ID) usage: $PCT_STR%"
+                    if [ "$MEMBER_ID" = "$LEADER_ID" ]; then
+                      echo "Node $NODE (Member $MEMBER_ID) [LEADER] usage: $PCT_STR%"
+                    else
+                      echo "Node $NODE (Member $MEMBER_ID) usage: $PCT_STR%"
+                    fi
                     
                     if [ "$NEEDS_DEFRAG" -eq "1" ]; then
                       echo "  -> Requires defragmentation."
