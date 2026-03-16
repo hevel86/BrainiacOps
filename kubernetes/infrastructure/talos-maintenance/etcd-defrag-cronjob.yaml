@@ -1,0 +1,151 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: etcd-defrag
+  namespace: system-upgrade
+spec:
+  schedule: "0 3 * * 0" # Every Sunday at 3am
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 86400
+      template:
+        spec:
+          restartPolicy: OnFailure
+          securityContext:
+            seccompProfile:
+              type: RuntimeDefault
+          initContainers:
+            - name: download-talosctl
+              image: alpine:3.19
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+                  apk add --no-cache curl
+                  export TALOS_VERSION="v1.12.5"
+                  echo "Downloading talosctl $TALOS_VERSION..."
+                  curl -sL -o /workspace/talosctl https://github.com/siderolabs/talos/releases/download/$TALOS_VERSION/talosctl-linux-amd64
+                  chmod +x /workspace/talosctl
+              volumeMounts:
+                - name: workspace
+                  mountPath: /workspace
+              securityContext:
+                allowPrivilegeEscalation: false
+                runAsNonRoot: false
+                runAsUser: 0
+          containers:
+            - name: etcd-defrag
+              # renovate: datasource=docker depName=alpine
+              image: alpine:3.23.3
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+                  # we need jq to parse JSON. let's just use awk to do it without installing jq.
+                  # or run as root to install it. we will run as root to be simple, since the namespace requires privileged anyway.
+                  apk add --no-cache jq
+                  
+                  # Point to the secret-mounted config
+                  export TALOSCONFIG=/var/run/secrets/talos.dev/config
+                  # Add workspace to PATH
+                  export PATH=$PATH:/workspace
+                  
+                  # Get nodes list from environment
+                  NODES="10.0.0.34 10.0.0.35 10.0.0.36"
+                  
+                  # Get status to find the leader
+                  echo "Fetching etcd status..."
+                  # Use one node initially to get the cluster status
+                  RAW_STATUS=$(talosctl -n 10.0.0.34 etcd status | grep "10.0.0.34")
+                  
+                  # Find the leader member ID. It's the 5th column.
+                  LEADER_ID=$(echo "$RAW_STATUS" | awk '{print $5}')
+                  
+                  # Arrays for sorting
+                  NON_LEADERS=""
+                  LEADER=""
+                  
+                  echo "Analyzing fragmentation..."
+                  for NODE in $NODES; do
+                    # Get status for this specific node
+                    NODE_STATUS=$(talosctl -n $NODE etcd status | grep "$NODE")
+                    
+                    if [ -z "$NODE_STATUS" ]; then
+                      echo "Warning: Could not get status for $NODE"
+                      continue
+                    fi
+                    
+                    # Output format is:
+                    # NODE MEMBER DB SIZE IN USE LEADER
+                    # 10.0.0.34 22353e8ece256e71 102 MB 34 MB (32.98%) 48693b819bb1f01a 
+                    
+                    # Extract used percentage from the parentheses
+                    PCT_STR=$(echo "$NODE_STATUS" | grep -o -E '\([0-9.]+%\)' | sed -e 's/(//' -e 's/%)//')
+                    
+                    # Extract member ID (2nd column)
+                    MEMBER_ID=$(echo "$NODE_STATUS" | awk '{print $2}')
+                    
+                    # Ensure we have a valid number
+                    if [ -z "$PCT_STR" ]; then
+                      echo "Warning: Could not determine usage for $NODE"
+                      continue
+                    fi
+                    
+                    # Compare if less than 50% (using awk for float comparison)
+                    NEEDS_DEFRAG=$(awk -v pct="$PCT_STR" 'BEGIN { if (pct < 50.0) print "1"; else print "0" }')
+                    
+                    echo "Node $NODE (Member $MEMBER_ID) usage: $PCT_STR%"
+                    
+                    if [ "$NEEDS_DEFRAG" -eq "1" ]; then
+                      echo "  -> Requires defragmentation."
+                      if [ "$MEMBER_ID" = "$LEADER_ID" ]; then
+                        LEADER=$NODE
+                      else
+                        NON_LEADERS="$NON_LEADERS $NODE"
+                      fi
+                    else
+                      echo "  -> Usage >= 50%. Skipping."
+                    fi
+                  done
+                  
+                  # Execute defragmentation
+                  # Always do non-leaders first, then leader last
+                  for NODE in $NON_LEADERS; do
+                    echo "Defragmenting non-leader node $NODE..."
+                    talosctl -n $NODE etcd defrag
+                    # Wait a bit for cluster to stabilize
+                    sleep 5
+                  done
+                  
+                  if [ -n "$LEADER" ]; then
+                    echo "Defragmenting leader node $LEADER..."
+                    talosctl -n $LEADER etcd defrag
+                  fi
+                  
+                  echo "Defragmentation process complete."
+
+              volumeMounts:
+                - name: talos-secrets
+                  mountPath: /var/run/secrets/talos.dev
+                - name: workspace
+                  mountPath: /workspace
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: false
+                runAsNonRoot: false
+                runAsUser: 0
+                seccompProfile:
+                  type: RuntimeDefault
+                capabilities:
+                  drop: ["ALL"]
+          volumes:
+            - name: talos-secrets
+              secret:
+                secretName: tuppr-talosconfig
+            - name: workspace
+              emptyDir: {}
