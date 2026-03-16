@@ -44,8 +44,8 @@ spec:
                   # Use one node initially to get the cluster status
                   RAW_STATUS=$(talosctl -n 10.0.0.34 etcd status | grep "10.0.0.34")
                   
-                  # Find the leader member ID. It's the 5th column.
-                  LEADER_ID=$(echo "$RAW_STATUS" | awk '{print $5}')
+                  # Find the leader member ID. It's the 8th column due to spaces in "MB (XX%)".
+                  LEADER_ID=$(echo "$RAW_STATUS" | awk '{print $8}')
                   
                   # Arrays for sorting
                   NON_LEADERS=""
