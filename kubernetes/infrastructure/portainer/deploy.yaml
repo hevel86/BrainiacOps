@@ -47,7 +47,7 @@ spec:
               port: 9443
               scheme: HTTPS
         - name: tailscale
-          image: tailscale/tailscale:stable
+          image: tailscale/tailscale:v1.94.2
           imagePullPolicy: Always
           securityContext:
             privileged: true
