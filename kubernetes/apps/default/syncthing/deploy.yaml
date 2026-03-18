@@ -45,7 +45,7 @@ spec:
             - name: sync-saves
               mountPath: /sync_saves
             - name: obsidian-vault
-              mountPath: /sync_saves/obsidian
+              mountPath: /obsidian
         - name: tailscale
           image: tailscale/tailscale:v1.94.2
           securityContext:
