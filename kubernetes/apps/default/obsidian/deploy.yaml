@@ -38,12 +38,17 @@ spec:
           volumeMounts:
             - name: obsidian-config
               mountPath: /config
+            - name: obsidian-vault
+              mountPath: /vault
             - name: obsidian-shm
               mountPath: /dev/shm
       volumes:
         - name: obsidian-config
           persistentVolumeClaim:
             claimName: obsidian-config-lh
+        - name: obsidian-vault
+          persistentVolumeClaim:
+            claimName: obsidian-vault-nfs-pvc
         - name: obsidian-shm
           emptyDir:
             medium: Memory
