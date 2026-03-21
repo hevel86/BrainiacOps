@@ -21,7 +21,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: paperless-ngx
-          image: ghcr.io/paperless-ngx/paperless-ngx:2.20.11
+          image: ghcr.io/paperless-ngx/paperless-ngx:2.20.13
           ports:
             - containerPort: 8000
               name: http
