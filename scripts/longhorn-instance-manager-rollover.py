@@ -144,7 +144,7 @@ def discover_workload_volumes(target_node: Optional[str]) -> Dict[Workload, Set[
     return workload_vols
 
 
-def build_workload_plans(workload_vols: Dict[Workload, Set[str]]) -> List[WorkloadPlan]:
+def build_workload_plans(workload_vols: Dict[Workload, Set[str]], target_pattern: str) -> List[WorkloadPlan]:
     engines = get_engines()
     im_data = run(
         ["kubectl", "-n", "longhorn-system", "get", "instancemanagers.longhorn.io", "-o", "json"],
@@ -167,7 +167,7 @@ def build_workload_plans(workload_vols: Dict[Workload, Set[str]]) -> List[Worklo
         for vol in volumes:
             im_name = vol_to_im.get(vol, "")
             image = im_image.get(im_name, "")
-            if "hotfix" in image:
+            if target_pattern in image:
                 continue
             if image:
                 pending.append(f"{vol} ({image.split(':')[-1]})")
@@ -177,7 +177,7 @@ def build_workload_plans(workload_vols: Dict[Workload, Set[str]]) -> List[Worklo
                 pending.append(f"{vol} (no instance-manager)")
 
         migrated = len(pending) == 0 and len(volumes) > 0
-        reason = "all attached volumes on hotfix instance-manager" if migrated else "; ".join(pending)
+        reason = f"all attached volumes on {target_pattern} instance-manager" if migrated else "; ".join(pending)
         plans.append(WorkloadPlan(workload=wl, volumes=volumes, migrated=migrated, reason=reason))
 
     return plans
@@ -271,7 +271,7 @@ def get_node_memory(target_node: Optional[str]) -> str:
     return "n/a"
 
 
-def print_dashboard(target_node: Optional[str], header: str = "") -> None:
+def print_dashboard(target_node: Optional[str], target_pattern: str, header: str = "") -> None:
     stats = get_instance_manager_stats()
 
     if target_node:
@@ -283,7 +283,7 @@ def print_dashboard(target_node: Optional[str], header: str = "") -> None:
 
     for s in stats:
         mem_mib = parse_top_memory_to_mib(s.memory)
-        if "hotfix" in s.image:
+        if target_pattern in s.image:
             new_mem_mib += mem_mib
             new_engines += s.engines
             new_replicas += s.replicas
@@ -311,7 +311,7 @@ def print_dashboard(target_node: Optional[str], header: str = "") -> None:
         print(f"  {s.node:<12} {s.name:<44} {er:<8} {s.memory:<8} {image_tag}")
 
 
-def restart_workload(w: Workload, timeout: int, interval: int, target_node: Optional[str]) -> None:
+def restart_workload(w: Workload, timeout: int, interval: int, target_node: Optional[str], target_pattern: str) -> None:
     print(f"\n-- Restarting {w.namespace} {w.ref}")
     run(["kubectl", "-n", w.namespace, "rollout", "restart", w.ref])
 
@@ -323,7 +323,7 @@ def restart_workload(w: Workload, timeout: int, interval: int, target_node: Opti
             capture_output=True,
             text=True,
         )
-        print_dashboard(target_node, header=f"{w.ref} | t+{elapsed}s")
+        print_dashboard(target_node, target_pattern, header=f"{w.ref} | t+{elapsed}s")
         if status.returncode == 0:
             msg = status.stdout.strip().splitlines()[-1] if status.stdout.strip() else "rollout complete"
             print(f"Completed: {msg}")
@@ -364,23 +364,23 @@ def wait_rollout(w: Workload, timeout: int) -> None:
 
 
 def bounce_workload(
-    w: Workload, timeout: int, interval: int, target_node: Optional[str], down_wait: int
+    w: Workload, timeout: int, interval: int, target_node: Optional[str], target_pattern: str, down_wait: int
 ) -> None:
     if w.kind not in ("deploy", "statefulset"):
         # DaemonSets cannot scale to 0, fallback to rollout restart.
-        restart_workload(w, timeout=timeout, interval=interval, target_node=target_node)
+        restart_workload(w, timeout=timeout, interval=interval, target_node=target_node, target_pattern=target_pattern)
         return
 
     original = get_replicas(w)
     print(f"\n-- Bounce {w.namespace} {w.ref} (replicas {original} -> 0 -> {original})")
     scale_workload(w, 0)
     wait_rollout(w, timeout=timeout)
-    print_dashboard(target_node, header=f"{w.ref} scaled to 0")
+    print_dashboard(target_node, target_pattern, header=f"{w.ref} scaled to 0")
 
     if down_wait > 0:
         print(f"Waiting {down_wait}s for detach to settle...")
         time.sleep(down_wait)
-        print_dashboard(target_node, header=f"{w.ref} detach wait complete")
+        print_dashboard(target_node, target_pattern, header=f"{w.ref} detach wait complete")
 
     scale_workload(w, original)
     start = time.time()
@@ -391,7 +391,7 @@ def bounce_workload(
             capture_output=True,
             text=True,
         )
-        print_dashboard(target_node, header=f"{w.ref} scale-up | t+{elapsed}s")
+        print_dashboard(target_node, target_pattern, header=f"{w.ref} scale-up | t+{elapsed}s")
         if status.returncode == 0:
             msg = status.stdout.strip().splitlines()[-1] if status.stdout.strip() else "rollout complete"
             print(f"Completed: {msg}")
@@ -430,6 +430,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--timeout", type=int, default=900, help="Rollout timeout per workload in seconds")
     p.add_argument("--interval", type=int, default=15, help="Dashboard refresh interval in seconds")
     p.add_argument(
+        "--target",
+        default="hotfix",
+        help="Image pattern (e.g. 'hotfix' or 'v1.11.1') that identifies the target instance manager image",
+    )
+    p.add_argument(
         "--strategy",
         choices=("rollout", "bounce"),
         default="bounce",
@@ -444,7 +449,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--no-skip-migrated",
         action="store_true",
-        help="Process workloads even if all attached volumes are already on hotfix instance-managers",
+        help="Process workloads even if all attached volumes are already on target instance-managers",
     )
     p.add_argument("--execute", action="store_true", help="Actually restart workloads (default is dry-run)")
     p.add_argument("--continue-on-error", action="store_true", help="Continue to next workload if one fails")
@@ -457,12 +462,12 @@ def main() -> int:
     try:
         check_dependencies()
         workload_vols = discover_workload_volumes(args.node)
-        plans = build_workload_plans(workload_vols)
+        plans = build_workload_plans(workload_vols, args.target)
         plans = filter_plans(plans, args.namespace, args.include, args.limit)
 
         if not plans:
             print("No matching Longhorn-attached workloads found.")
-            print_dashboard(args.node, header="Current Longhorn State")
+            print_dashboard(args.node, args.target, header="Current Longhorn State")
             return 0
 
         selected = plans if args.no_skip_migrated else [p for p in plans if not p.migrated]
@@ -473,17 +478,17 @@ def main() -> int:
             prefix = "SKIP" if p.migrated and not args.no_skip_migrated else "RUN "
             print(f"  {idx:>2}. [{prefix}] {p.workload.namespace} {p.workload.ref}")
 
-        print_dashboard(args.node, header="Pre-Run Metrics")
+        print_dashboard(args.node, args.target, header="Pre-Run Metrics")
 
         if not args.execute:
             if skipped and not args.no_skip_migrated:
-                print(f"\nWill auto-skip {len(skipped)} workload(s) already migrated to hotfix.")
+                print(f"\nWill auto-skip {len(skipped)} workload(s) already migrated to {args.target}.")
             print("\nDry-run mode. Re-run with --execute to apply restarts.")
             return 0
 
         if not selected:
-            print("\nAll matched workloads are already migrated; nothing to do.")
-            print_dashboard(args.node, header="Post-Run Metrics")
+            print(f"\nAll matched workloads are already migrated to {args.target}; nothing to do.")
+            print_dashboard(args.node, args.target, header="Post-Run Metrics")
             return 0
 
         failures = []
@@ -497,17 +502,24 @@ def main() -> int:
                         timeout=args.timeout,
                         interval=args.interval,
                         target_node=args.node,
+                        target_pattern=args.target,
                         down_wait=args.down_wait,
                     )
                 else:
-                    restart_workload(w, timeout=args.timeout, interval=args.interval, target_node=args.node)
+                    restart_workload(
+                        w,
+                        timeout=args.timeout,
+                        interval=args.interval,
+                        target_node=args.node,
+                        target_pattern=args.target,
+                    )
             except Exception as exc:  # noqa: BLE001
                 failures.append((w, str(exc)))
                 print(f"ERROR: {exc}")
                 if not args.continue_on_error:
                     break
 
-        print_dashboard(args.node, header="Post-Run Metrics")
+        print_dashboard(args.node, args.target, header="Post-Run Metrics")
 
         if failures:
             print("\nFailures:")
