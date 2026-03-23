@@ -44,8 +44,6 @@ spec:
               mountPath: /config
             - name: sync-saves
               mountPath: /sync_saves
-            - name: obsidian-vault
-              mountPath: /obsidian
         - name: tailscale
           image: tailscale/tailscale:v1.94.2
           securityContext:
@@ -86,9 +84,6 @@ spec:
         - name: sync-saves
           persistentVolumeClaim:
             claimName: syncthing-sync-saves-pvc
-        - name: obsidian-vault
-          persistentVolumeClaim:
-            claimName: obsidian-vault-nfs-pvc
         - name: dev-net-tun
           hostPath:
             path: /dev/net/tun
