@@ -21,7 +21,7 @@ spec:
   source:
     repoURL: https://charts.longhorn.io
     chart: longhorn
-    targetRevision: 1.11.0
+    targetRevision: 1.11.1
     helm:
       values: |
         preUpgradeChecker:
@@ -35,10 +35,10 @@ spec:
           longhorn:
             manager:
               # renovate: datasource=docker depName=longhornio/longhorn-manager versioning=docker
-              tag: v1.11.0-hotfix-1
+              tag: v1.11.1
             instanceManager:
               # renovate: datasource=docker depName=longhornio/longhorn-instance-manager versioning=docker
-              tag: v1.11.0-hotfix-1
+              tag: v1.11.1
         defaultSettings:
           defaultReplicaCount: '3'
           defaultDataPath: /var/mnt/longhorn
