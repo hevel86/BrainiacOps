@@ -431,8 +431,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--interval", type=int, default=15, help="Dashboard refresh interval in seconds")
     p.add_argument(
         "--target",
-        default="hotfix",
-        help="Image pattern (e.g. 'hotfix' or 'v1.11.1') that identifies the target instance manager image",
+        default="v1.11.1",
+        help="Image pattern (e.g. 'v1.11.1') that identifies the target instance manager image",
     )
     p.add_argument(
         "--strategy",
