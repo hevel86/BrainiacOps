@@ -65,7 +65,7 @@ data:
       - name: plex
         group: media
         description: Plex media server identity endpoint should be reachable
-        url: http://plex.default.svc.cluster.local:32400/identity
+        url: https://plex.default.svc.cluster.local:32400/identity
         interval: 1m
         conditions:
           - "[STATUS] == 200"
