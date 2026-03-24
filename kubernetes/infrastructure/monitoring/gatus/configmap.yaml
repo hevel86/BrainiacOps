@@ -66,6 +66,8 @@ data:
         group: media
         description: Plex media server identity endpoint should be reachable
         url: https://plex.default.svc.cluster.local:32400/identity
+        client:
+          insecure: true
         interval: 1m
         conditions:
           - "[STATUS] == 200"
