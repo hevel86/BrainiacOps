@@ -40,7 +40,7 @@ spec:
           mountPath: /generated
       containers:
       - name: alertmanager-ntfy
-        image: ghcr.io/alexbakker/alertmanager-ntfy:1.2.0
+        image: ghcr.io/alexbakker/alertmanager-ntfy:1.2.1
         args:
         - --configs
         - /etc/alertmanager-ntfy/config.yml,/etc/alertmanager-ntfy-generated/auth.yml
