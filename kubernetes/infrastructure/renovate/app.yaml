@@ -19,7 +19,7 @@ spec:
           - secretRef:
               name: renovate-secrets
         env:
-          LOG_LEVEL: info
+          LOG_LEVEL: debug
           RENOVATE_NODE_OPTIONS: --max-old-space-size=1024
           RENOVATE_USE_CLOUD_METADATA_SERVICES: "false"
           RENOVATE_DETECT_HOST_RULES_FROM_ENV: "true"
