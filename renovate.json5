@@ -61,7 +61,7 @@
         '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
       ],
       matchStrings: [
-        'image:\\s*[\'"]?(?<depName>[a-zA-Z0-9_./-]+):(?<currentValue>[a-zA-Z0-9._-]+)',
+        'image:\\s*[\'"]?(?<depName>[a-zA-Z0-9_./-]+):(?<currentValue>[a-zA-Z0-9._-]+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?',
       ],
       datasourceTemplate: 'docker',
       versioningTemplate: 'docker',
