@@ -40,9 +40,6 @@
     'renovate',
     'dashboard',
   ],
-  reviewers: [
-    'hevel86',
-  ],
   assignees: [
     'hevel86',
   ],
