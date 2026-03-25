@@ -378,14 +378,14 @@
       ],
     },
     {
-      description: 'Allow mylar3 only semver ls tags',
+      description: 'Pin digests for mylar3 LinuxServer image',
       matchDatasources: [
         'docker',
       ],
       matchPackageNames: [
         'lscr.io/linuxserver/mylar3',
       ],
-      allowedVersions: '/^v?\\d+\\.\\d+\\.\\d+(?:-ls\\d+)?$/',
+      pinDigests: true,
     },
     {
       description: 'Limit linuxserver tags to semver-style releases',
