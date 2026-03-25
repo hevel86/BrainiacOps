@@ -23,17 +23,6 @@ spec:
           RENOVATE_NODE_OPTIONS: --max-old-space-size=1024
           RENOVATE_USE_CLOUD_METADATA_SERVICES: "false"
           RENOVATE_DETECT_HOST_RULES_FROM_ENV: "true"
-        extraEnvVars:
-          - name: DOCKER_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: renovate-secrets
-                key: DOCKERHUB_USERNAME
-          - name: DOCKER_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: renovate-secrets
-                key: DOCKERHUB_PASSWORD
         renovate:
           # Minimal JSON config: platform + repositories to scan.
           # Repository-local renovate.json drives behavior.
