@@ -21,6 +21,7 @@ spec:
         env:
           LOG_LEVEL: info
           RENOVATE_NODE_OPTIONS: --max-old-space-size=1024
+          RENOVATE_USE_CLOUD_METADATA_SERVICES: "false"
           DOCKER_HUB_PASSWORD: $(DOCKERHUB_PASSWORD)
           DOCKER_HUB_USERNAME: $(DOCKERHUB_USERNAME)
         extraEnvVars:
