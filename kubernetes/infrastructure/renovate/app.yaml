@@ -22,8 +22,6 @@ spec:
           LOG_LEVEL: debug
           RENOVATE_NODE_OPTIONS: --max-old-space-size=1024
           RENOVATE_USE_CLOUD_METADATA_SERVICES: "false"
-          RENOVATE_DETECT_HOST_RULES_FROM_ENV: "true"
-          GHCR_IO_USERNAME: hevel86
         renovate:
           # Minimal JSON config: platform + repositories to scan.
           # Repository-local renovate.json drives behavior.
