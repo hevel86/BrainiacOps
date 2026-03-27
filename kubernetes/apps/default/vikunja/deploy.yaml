@@ -22,7 +22,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: vikunja
-          image: ghcr.io/vikunja/vikunja:2.2.2
+          image: vikunja/vikunja:2.2.2
           imagePullPolicy: IfNotPresent
           env:
             - name: TZ

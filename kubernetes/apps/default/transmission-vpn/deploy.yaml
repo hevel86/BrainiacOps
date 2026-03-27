@@ -22,7 +22,7 @@ spec:
           - 1.1.1.1
       containers:
         - name: transmission-vpn
-          image: ghcr.io/haugene/transmission-openvpn:5.4.1
+          image: haugene/transmission-openvpn:5.4.1
           imagePullPolicy: IfNotPresent
           securityContext:
             privileged: true
