@@ -9,6 +9,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **NEVER commit secrets, passwords, API keys, or tokens** - Use Bitwarden Secrets Operator references instead
 - **NEVER hardcode sensitive values** in manifests - Reference `BitwardenSecret` resources
 - **Talos secrets** must only exist in `talsecret.sops.yaml` (encrypted with SOPS+age)
+- **NEVER auto-stage (`git add`) or auto-commit changes** - The user will perform all Git operations manually. Reading git logs for context is permitted.
+- **Do not rely on manual `kubectl scale`, pod deletion, or ad hoc Argo CD changes for persistent fixes** - If Argo CD manages the resource, make the desired state change in Git first or Argo CD may self-heal it back.
+- **If a Longhorn-backed PVC is accidentally replaced, recover the retained volume before restarting the workload** - Prefer reusing the existing Longhorn volume via PV/PVC rebind or Longhorn's `Create PV/PVC`; do not assume a newly created PVC will reattach old data.
 - When in doubt, ask before committing anything that could contain sensitive data
 
 ### GitOps Security Best Practices for Scripts
@@ -220,9 +223,15 @@ All PRs are validated by kubeconform CI before merge.
 
 **High Availability Configuration**:
 - `longhorn-prod` StorageClass: 3 replicas, `dataLocality: best-effort`
+- `longhorn-prod` reclaim policy: `Retain` (deleted claims do not automatically destroy the underlying data volume)
 - `node-down-pod-deletion-policy`: `delete-both-statefulset-and-deployment-pod` (enables automatic pod failover)
 - Default replica count: 3 (data on all nodes)
 - On node failure: Longhorn deletes stuck pods, Kubernetes reschedules to healthy node, volume attaches using remaining replicas
+
+**Operational Recovery Pattern**:
+- If a workload must stay down, change replicas in Git or disable Argo CD auto-sync/self-heal before scaling manually
+- If a PVC was recreated and bound to a new empty Longhorn volume, keep the workload scaled to 0 until the correct retained volume is rebound
+- Prefer Longhorn volume recovery or PV/PVC rebind over creating a brand-new empty PVC when the goal is to restore prior data
 
 ### Secret Management
 
@@ -393,5 +402,5 @@ BrainiacOps is a GitOps repository where all cluster state is declared in Git. C
 
 ---
 
-**Last Updated**: 2026-03-05
-**Cluster Version**: Talos v1.12.4, Kubernetes v1.35.2
+**Last Updated**: 2026-03-27
+**Cluster Version**: Talos v1.12.5, Kubernetes v1.35.2
