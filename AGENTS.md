@@ -7,6 +7,7 @@
 - **NEVER commit secrets, passwords, API keys, or tokens** - Use Bitwarden Secrets Operator references instead
 - **NEVER hardcode sensitive values** in manifests - Reference `BitwardenSecret` resources
 - **Talos secrets** must only exist in `talsecret.sops.yaml` (encrypted with SOPS+age)
+- **NEVER auto-stage (`git add`) or auto-commit changes** - The user will perform all Git operations manually. Reading git logs for context is permitted.
 - When in doubt, ask before committing anything that could contain sensitive data
 
 ### GitOps Security Best Practices for Scripts
@@ -391,5 +392,5 @@ BrainiacOps is a GitOps repository where all cluster state is declared in Git. C
 
 ---
 
-**Last Updated**: 2026-03-05
-**Cluster Version**: Talos v1.12.4, Kubernetes v1.35.2
+**Last Updated**: 2026-03-15
+**Cluster Version**: Talos v1.12.5, Kubernetes v1.35.2
