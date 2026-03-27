@@ -20,9 +20,9 @@ spec:
       jsonPointers:
         - /spec/volumeName
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+    #automated:
+    #  prune: true
+    #  selfHeal: true
     syncOptions:
       - RespectIgnoreDifferences=true
       - CreateNamespace=true
