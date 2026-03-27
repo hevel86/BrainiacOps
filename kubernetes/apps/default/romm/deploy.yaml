@@ -44,7 +44,7 @@ spec:
       containers:
         # --- ROMM Application Container ---
         - name: romm
-          image: rommapp/romm:4.7.0 # Pinned version for predictable deployments
+          image: ghcr.io/rommapp/romm:4.7.0 # Pinned version for predictable deployments
           ports:
             - containerPort: 8080
           envFrom:
@@ -108,4 +108,3 @@ spec:
         - name: romm-config
           persistentVolumeClaim:
             claimName: romm-config-pvc
-
