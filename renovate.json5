@@ -395,6 +395,26 @@
       pinDigests: true,
     },
     {
+      description: 'Pin digests for plex LinuxServer image',
+      matchDatasources: [
+        'docker',
+      ],
+      matchPackageNames: [
+        'lscr.io/linuxserver/plex',
+      ],
+      pinDigests: true,
+    },
+    {
+      description: 'Pin digests for jellyfin LinuxServer image',
+      matchDatasources: [
+        'docker',
+      ],
+      matchPackageNames: [
+        'lscr.io/linuxserver/jellyfin',
+      ],
+      pinDigests: true,
+    },
+    {
       description: 'Limit linuxserver tags to semver-style releases',
       matchDatasources: [
         'docker',
