@@ -385,6 +385,16 @@
       pinDigests: true,
     },
     {
+      description: 'Pin digests for prowlarr LinuxServer image',
+      matchDatasources: [
+        'docker',
+      ],
+      matchPackageNames: [
+        'lscr.io/linuxserver/prowlarr',
+      ],
+      pinDigests: true,
+    },
+    {
       description: 'Limit linuxserver tags to semver-style releases',
       matchDatasources: [
         'docker',
