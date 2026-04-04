@@ -419,7 +419,7 @@
       matchDatasources: [
         'docker',
       ],
-      allowedVersions: '/^\\d{1,3}\\.\\d+\\.\\d+(?:-[A-Za-z0-9._-]+)?$/',
+      allowedVersions: '/^\\d{1,3}\\.\\d+\\.\\d+(?:\\.\\d+)?(?:-[A-Za-z0-9._-]+)?$/',
       matchPackageNames: [
         'lscr.io/linuxserver/{/,}**',
       ],
