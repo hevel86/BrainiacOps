@@ -382,6 +382,7 @@
       matchPackageNames: [
         'lscr.io/linuxserver/mylar3',
       ],
+      allowedVersions: '/^latest$/',
       pinDigests: true,
     },
     {
@@ -392,6 +393,7 @@
       matchPackageNames: [
         'lscr.io/linuxserver/prowlarr',
       ],
+      allowedVersions: '/^latest$/',
       pinDigests: true,
     },
     {
@@ -402,6 +404,7 @@
       matchPackageNames: [
         'lscr.io/linuxserver/plex',
       ],
+      allowedVersions: '/^latest$/',
       pinDigests: true,
     },
     {
@@ -412,6 +415,7 @@
       matchPackageNames: [
         'lscr.io/linuxserver/jellyfin',
       ],
+      allowedVersions: '/^latest$/',
       pinDigests: true,
     },
     {
