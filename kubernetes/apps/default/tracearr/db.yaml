@@ -17,6 +17,23 @@ spec:
       labels:
         app: tracearr-db
     spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      initContainers:
+        - name: init-db-permissions
+          image: public.ecr.aws/docker/library/busybox:1.37
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - mkdir -p /mnt/pgdata && chown 1000:1000 /mnt/pgdata && chmod 700 /mnt/pgdata
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            - name: db-data
+              mountPath: /mnt
       containers:
         - name: timescaledb
           image: timescale/timescaledb-ha:pg18.1-ts2.25.0
