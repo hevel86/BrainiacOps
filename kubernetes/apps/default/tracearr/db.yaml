@@ -47,6 +47,7 @@ spec:
           volumeMounts:
             - name: db-data
               mountPath: /home/postgres/pgdata/data
+              subPath: pgdata
             - name: dshm
               mountPath: /dev/shm
           readinessProbe:
