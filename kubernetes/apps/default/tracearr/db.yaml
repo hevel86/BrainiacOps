@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tracearr-db
+  namespace: default
+  labels:
+    app: tracearr-db
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: tracearr-db
+  template:
+    metadata:
+      labels:
+        app: tracearr-db
+    spec:
+      containers:
+        - name: timescaledb
+          image: timescale/timescaledb-ha:pg18.1-ts2.25.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - postgres
+            - -c
+            - timescaledb.license=timescale
+            - -c
+            - timescaledb.max_tuples_decompressed_per_dml_transaction=0
+            - -c
+            - max_locks_per_transaction=4096
+            - -c
+            - timescaledb.telemetry_level=off
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_USER
+              value: tracearr
+            - name: POSTGRES_DB
+              value: tracearr
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tracearr-secrets
+                  key: TRACEARR_DB_PASSWORD
+          volumeMounts:
+            - name: db-data
+              mountPath: /home/postgres/pgdata/data
+            - name: dshm
+              mountPath: /dev/shm
+          readinessProbe:
+            tcpSocket:
+              port: postgres
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: tracearr-db-pvc
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tracearr-db
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: tracearr-db
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres

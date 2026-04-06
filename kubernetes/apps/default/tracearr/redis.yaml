@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tracearr-redis
+  namespace: default
+  labels:
+    app: tracearr-redis
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: tracearr-redis
+  template:
+    metadata:
+      labels:
+        app: tracearr-redis
+    spec:
+      containers:
+        - name: redis
+          image: public.ecr.aws/docker/library/redis:8-alpine
+          imagePullPolicy: IfNotPresent
+          command:
+            - redis-server
+            - --appendonly
+            - "yes"
+          ports:
+            - containerPort: 6379
+              name: redis
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+          readinessProbe:
+            tcpSocket:
+              port: redis
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: tracearr-redis-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tracearr-redis
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: tracearr-redis
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: redis

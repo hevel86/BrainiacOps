@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tracearr
+  namespace: default
+  labels:
+    app: tracearr
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: tracearr
+  template:
+    metadata:
+      labels:
+        app: tracearr
+    spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: tracearr
+          image: ghcr.io/connorgallopo/tracearr:1.4.27
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: HOST
+              value: 0.0.0.0
+            - name: PORT
+              value: "3000"
+            - name: TZ
+              value: America/New_York
+            - name: TRACEARR_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tracearr-secrets
+                  key: TRACEARR_DB_PASSWORD
+            - name: DATABASE_URL
+              value: postgres://tracearr:$(TRACEARR_DB_PASSWORD)@tracearr-db:5432/tracearr
+            - name: REDIS_URL
+              value: redis://tracearr-redis:6379
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: tracearr-secrets
+                  key: TRACEARR_JWT_SECRET
+            - name: COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: tracearr-secrets
+                  key: TRACEARR_COOKIE_SECRET
+            - name: CORS_ORIGIN
+              value: "*"
+            - name: LOG_LEVEL
+              value: info
+          volumeMounts:
+            - name: backups
+              mountPath: /data/backup
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 20
+      volumes:
+        - name: backups
+          persistentVolumeClaim:
+            claimName: tracearr-backups-pvc

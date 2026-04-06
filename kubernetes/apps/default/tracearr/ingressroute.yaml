@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: tracearr
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`tracearr.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: tracearr
+          namespace: default
+          port: 3000
+  tls:
+    secretName: traefik-dashboard-tls
