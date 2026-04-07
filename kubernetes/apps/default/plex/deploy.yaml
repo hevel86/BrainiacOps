@@ -30,7 +30,7 @@ spec:
       hostNetwork: true
       containers:
         - name: plex # Name of the container within the Pod
-          image: lscr.io/linuxserver/plex:latest # Docker image for Plex
+          image: lscr.io/linuxserver/plex:1.43.0 # Docker image for Plex
           imagePullPolicy: Always # Pull latest until Renovate pins a digest
           env: # Environment variables passed to the Plex container
             - name: TZ # Timezone setting for Plex
