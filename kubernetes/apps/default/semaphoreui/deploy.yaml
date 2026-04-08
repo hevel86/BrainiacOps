@@ -105,7 +105,7 @@ spec:
             runAsUser: 1001
             runAsGroup: 1001
         - name: tailscale
-          image: tailscale/tailscale:v1.94.2
+          image: tailscale/tailscale:v1.96.5
           securityContext:
             privileged: true
             capabilities:
