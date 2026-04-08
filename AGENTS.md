@@ -9,7 +9,9 @@
 - **Talos secrets** must only exist in `talsecret.sops.yaml` (encrypted with SOPS+age)
 - **NEVER auto-stage (`git add`) or auto-commit changes** - The user will perform all Git operations manually. Reading git logs for context is permitted.
 - **Do not rely on manual `kubectl scale`, pod deletion, or ad hoc Argo CD changes for persistent fixes** - If Argo CD manages the resource, make the desired state change in Git first or Argo CD may self-heal it back.
+- **Child Argo CD app `Application` manifests under `kubernetes/apps/` and `kubernetes/games/` must include `resources-finalizer.argocd.argoproj.io`** - Without it, removing an app from Git can delete the Argo CD `Application` object but orphan the workload resources in-cluster.
 - **If a Longhorn-backed PVC is accidentally replaced, recover the retained volume before restarting the workload** - Prefer reusing the existing Longhorn volume via PV/PVC rebind or Longhorn's `Create PV/PVC`; do not assume a newly created PVC will reattach old data.
+- **Shared storage that should outlive an individual app must live in shared/infrastructure Git, not in the app's own directory** - App-local PVCs are expected to be deleted when the app is removed from Git.
 - When in doubt, ask before committing anything that could contain sensitive data
 
 ### GitOps Security Best Practices for Scripts
@@ -92,6 +94,8 @@ BrainiacOps/
 ### App-of-Apps Pattern
 
 Argo CD Applications act as parent controllers that discover child Applications via `directory.recurse` and `include: "**/app.yaml"`. This enables declarative, hierarchical deployment without hardcoding app lists.
+
+Child app `Application` manifests are expected to carry the Argo CD deletion finalizer `resources-finalizer.argocd.argoproj.io` so app removal from Git cascades cleanly to the resources that app owns.
 
 **Deployment Order (Sync Waves)**:
 - Wave -2: PersistentVolumes
@@ -230,6 +234,7 @@ All PRs are validated by kubeconform CI before merge.
 - If a workload must stay down, change replicas in Git or disable Argo CD auto-sync/self-heal before scaling manually
 - If a PVC was recreated and bound to a new empty Longhorn volume, keep the workload scaled to 0 until the correct retained volume is rebound
 - Prefer Longhorn volume recovery or PV/PVC rebind over creating a brand-new empty PVC when the goal is to restore prior data
+- Shared RWX/NFS claims that multiple apps mount, or claims that should survive app deletion, should be owned by infrastructure apps such as `media-pvc`, not by the consuming app
 
 ### Secret Management
 
