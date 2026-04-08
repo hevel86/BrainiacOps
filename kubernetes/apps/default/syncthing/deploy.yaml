@@ -45,7 +45,7 @@ spec:
             - name: sync-saves
               mountPath: /sync_saves
         - name: tailscale
-          image: tailscale/tailscale:v1.94.2
+          image: tailscale/tailscale:v1.96.5
           securityContext:
             privileged: true
             capabilities:
