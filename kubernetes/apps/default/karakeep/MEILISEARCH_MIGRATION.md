@@ -19,9 +19,9 @@ automation:
   deployment_strategy: Recreate
 
 current_state:
-  version: "v1.36.0"
-  last_migration: "2026-02-23"
-  document_count: 79
+  version: "v1.41.0"
+  last_migration: "2026-04-12"
+  document_count: 122
 
 prerequisites:
   - kubectl cluster access
@@ -452,6 +452,21 @@ migration:
   documents_migrated: N
   downtime_minutes: N
   notes: ""
+```
+
+### v1.36.0 → v1.41.0 (2026-04-12)
+
+```yaml
+migration:
+  date: "2026-04-12"
+  source_version: "v1.36.0"
+  target_version: "v1.41.0"
+  dump_file: "20260412-203031989.dump"
+  local_backup: "/tmp/karakeep-meili-20260412.dump"
+  status: completed
+  documents_migrated: 122
+  downtime_minutes: 3
+  notes: "Automated migration via Codex. Live cluster was still running v1.36.0 while the repo manifest was already pinned to v1.41.0; completed dump/restore, verified bookmarks index, then removed the import flag and staged dump."
 ```
 
 ### v1.32.1 → v1.36.0 (2026-02-23)
