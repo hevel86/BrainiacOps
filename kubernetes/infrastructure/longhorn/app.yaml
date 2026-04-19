@@ -44,11 +44,10 @@ spec:
           defaultDataPath: /var/mnt/longhorn
           defaultDataLocality: best-effort
           createDefaultDiskLabeledNodes: true
-          # Throttle recovery storms after multi-node maintenance; 1 is slow but reduces rebuild churn.
+          # 5 is a balanced limit for recovery storms; higher risks overwhelming surviving nodes, lower is too slow.
           concurrentReplicaRebuildPerNodeLimit: '5'
           # 1800s (30m): prevents unnecessary replica rebuilds during node reboots/upgrades
-          # Lowering this causes Longhorn to aggressively rebuild replicas mid-reboot, hammering I/O
-          replicaReplenishmentWaitInterval: '0'
+          replicaReplenishmentWaitInterval: '1800'
         longhornUI:
           replicas: 3
         metrics:
