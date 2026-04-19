@@ -237,6 +237,9 @@ All PRs are validated by kubeconform CI before merge.
 - If a PVC was recreated and bound to a new empty Longhorn volume, keep the workload scaled to 0 until the correct retained volume is rebound
 - Prefer Longhorn volume recovery or PV/PVC rebind over creating a brand-new empty PVC when the goal is to restore prior data
 - Shared RWX/NFS claims that multiple apps mount, or claims that should survive app deletion, should be owned by infrastructure apps such as `media-pvc`, not by the consuming app
+- **Recovery from Multi-Node Failure / Partition**:
+    - **Symptoms**: Volumes stuck `degraded`, engines reporting "connection refused" or "no route to host" to replica IPs.
+    - **Resolution**: Restart `longhorn-manager` and all `instance-manager` pods (starting with the "surviving" node); manually delete `stopped` replicas belonging to degraded volumes; temporarily increase `concurrentReplicaRebuildPerNodeLimit` in `kubernetes/infrastructure/longhorn/app.yaml`.
 
 ### Secret Management
 
@@ -365,6 +368,14 @@ kubectl logs -n argocd deployment/argocd-app-controller
 ```bash
 kustomize build kubernetes/apps/default/myapp | kubeconform -strict -
 ```
+
+### Recovery from Multi-Node Failure / Partition
+- **Symptoms**: Volumes stuck `degraded`, engines reporting "connection refused" or "no route to host" to replica IPs.
+- **Cause**: Engines holding stale IP/port mappings for replicas on recovered nodes, or "ghost" stopped replicas blocking new syncs.
+- **Resolution**:
+    1. **Refresh Managers**: Restart `longhorn-manager` and all `instance-manager` pods (starting with the "surviving" node) to force engines to refresh connection states.
+    2. **Purge Stale Replicas**: Manually delete `stopped` replicas belonging to degraded volumes to force fresh rebuilds.
+    3. **Increase Throughput**: Temporarily increase `concurrentReplicaRebuildPerNodeLimit` in `kubernetes/infrastructure/longhorn/app.yaml` to accelerate clearing the backlog.
 
 ## Important Files
 
