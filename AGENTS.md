@@ -236,8 +236,15 @@ All PRs are validated by kubeconform CI before merge.
 - Prefer Longhorn volume recovery or PV/PVC rebind over creating a brand-new empty PVC when the goal is to restore prior data
 - Shared RWX/NFS claims that multiple apps mount, or claims that should survive app deletion, should be owned by infrastructure apps such as `media-pvc`, not by the consuming app
 - **Recovery from Multi-Node Failure / Partition**:
-    - **Symptoms**: Volumes stuck `degraded`, engines reporting "connection refused" or "no route to host" to replica IPs.
-    - **Resolution**: Restart `longhorn-manager` and all `instance-manager` pods (starting with the "surviving" node); manually delete `stopped` replicas belonging to degraded volumes; temporarily increase `concurrentReplicaRebuildPerNodeLimit` in `kubernetes/infrastructure/longhorn/app.yaml`.
+    - **Symptoms**: Volumes stuck `degraded`, engines reporting "connection refused" or "no route to host" to replica IPs, "Metadata conflict errors" in logs, or engines stuck with 1/3 replicas despite all nodes being `Ready`.
+    - **Resolution**:
+        1. **Silence GitOps Automation**: Disable Argo CD sync and self-heal for Longhorn to prevent "Object has been modified" conflict storms:
+           `kubectl patch application -n argocd longhorn --type=merge -p '{"spec":{"syncPolicy":null}}'`
+        2. **Eliminate Cooling-Off Periods**: Set `replicaReplenishmentWaitInterval` to `0` in the Longhorn UI or via GitOps (this triggers immediate replenishment).
+        3. **Purge Ghost Replicas**: Delete all replicas in a `stopped` state to force the manager to schedule fresh ones with updated network paths:
+           `kubectl get replicas.longhorn.io -n longhorn-system -o json | jq -r '.items[] | select(.status.currentState == "stopped") | .metadata.name' | xargs -r kubectl delete replica.longhorn.io -n longhorn-system`
+        4. **Refresh Management Layer**: Restart `longhorn-manager` and `instance-manager` pods (starting with the surviving node) to clear stale metadata and hung sockets.
+        5. **Throttle Throughput**: Use `concurrentReplicaRebuildPerNodeLimit` (set to 5 or 10) to manage the recovery storm without overwhelming the surviving nodes.
 
 ### Secret Management
 
@@ -368,12 +375,16 @@ kustomize build kubernetes/apps/default/myapp | kubeconform -strict -
 ```
 
 ### Recovery from Multi-Node Failure / Partition
-- **Symptoms**: Volumes stuck `degraded`, engines reporting "connection refused" or "no route to host" to replica IPs.
+- **Symptoms**: Volumes stuck `degraded`, engines reporting "connection refused" or "no route to host" to replica IPs, "Metadata conflict errors" in logs, or engines stuck with 1/3 replicas despite all nodes being `Ready`.
 - **Cause**: Engines holding stale IP/port mappings for replicas on recovered nodes, or "ghost" stopped replicas blocking new syncs.
 - **Resolution**:
-    1. **Refresh Managers**: Restart `longhorn-manager` and all `instance-manager` pods (starting with the "surviving" node) to force engines to refresh connection states.
-    2. **Purge Stale Replicas**: Manually delete `stopped` replicas belonging to degraded volumes to force fresh rebuilds.
-    3. **Increase Throughput**: Temporarily increase `concurrentReplicaRebuildPerNodeLimit` in `kubernetes/infrastructure/longhorn/app.yaml` to accelerate clearing the backlog.
+    1. **Silence GitOps Automation**: Disable Argo CD sync and self-heal for Longhorn to prevent "Object has been modified" conflict storms:
+       `kubectl patch application -n argocd longhorn --type=merge -p '{"spec":{"syncPolicy":null}}'`
+    2. **Eliminate Cooling-Off Periods**: Set `replicaReplenishmentWaitInterval` to `0` in the Longhorn UI or via GitOps (this triggers immediate replenishment).
+    3. **Purge Ghost Replicas**: Delete all replicas in a `stopped` state to force the manager to schedule fresh ones with updated network paths:
+       `kubectl get replicas.longhorn.io -n longhorn-system -o json | jq -r '.items[] | select(.status.currentState == "stopped") | .metadata.name' | xargs -r kubectl delete replica.longhorn.io -n longhorn-system`
+    4. **Refresh Management Layer**: Restart `longhorn-manager` and `instance-manager` pods (starting with the surviving node) to clear stale metadata and hung sockets.
+    5. **Throttle Throughput**: Use `concurrentReplicaRebuildPerNodeLimit` (set to 5 or 10) to manage the recovery storm without overwhelming the surviving nodes.
 
 ## Important Files
 
