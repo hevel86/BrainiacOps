@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: gitea
-          image: gitea/gitea:1.25.5
+          image: gitea/gitea:1.26.0
           ports:
             - name: http
               containerPort: 3000
