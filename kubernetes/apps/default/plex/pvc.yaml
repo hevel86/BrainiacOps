@@ -100,6 +100,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: plex-config-pvc
   namespace: default
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 spec:
   accessModes:
     - ReadWriteOnce # Required for Longhorn volumes
