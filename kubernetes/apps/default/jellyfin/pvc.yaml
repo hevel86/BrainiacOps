@@ -3,6 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: jellyfin-config-lh
   namespace: default
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 spec:
   accessModes:
     - ReadWriteOnce
