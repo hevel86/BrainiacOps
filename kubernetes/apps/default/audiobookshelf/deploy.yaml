@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: audiobookshelf
-          image: ghcr.io/advplyr/audiobookshelf:2.33.1
+          image: ghcr.io/advplyr/audiobookshelf:2.33.2
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
