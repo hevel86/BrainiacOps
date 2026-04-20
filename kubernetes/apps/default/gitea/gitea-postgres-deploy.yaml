@@ -6,6 +6,8 @@ metadata:
     app: gitea-postgres
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: gitea-postgres
