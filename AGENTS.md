@@ -10,6 +10,8 @@
 - **NEVER auto-stage (`git add`) or auto-commit changes** - The user will perform all Git operations manually. Reading git logs for context is permitted.
 - **Do not rely on manual `kubectl scale`, pod deletion, or ad hoc Argo CD changes for persistent fixes** - If Argo CD manages the resource, make the desired state change in Git first or Argo CD may self-heal it back.
 - **Child Argo CD app `Application` manifests under `kubernetes/apps/` and `kubernetes/games/` must include `resources-finalizer.argocd.argoproj.io`** - Without it, removing an app from Git can delete the Argo CD `Application` object but orphan the workload resources in-cluster.
+- **Single-replica deployments using ReadWriteOnce (RWO) volumes MUST use `strategy: type: Recreate`** - The default `RollingUpdate` will deadlock as the new pod cannot mount the volume until the old pod releases it.
+- **PersistentVolumeClaims that must survive app deletion MUST include `argocd.argoproj.io/sync-options: Delete=false`** - This ensures data persistence in the cluster even if the Argo CD `Application` is removed or resynced.
 - **If a Longhorn-backed PVC is accidentally replaced, recover the retained volume before restarting the workload** - Prefer reusing the existing Longhorn volume via PV/PVC rebind or Longhorn's `Create PV/PVC`; do not assume a newly created PVC will reattach old data.
 - **Shared storage that should outlive an individual app must live in shared/infrastructure Git, not in the app's own directory** - App-local PVCs are expected to be deleted when the app is removed from Git.
 - When in doubt, ask before committing anything that could contain sensitive data
@@ -233,6 +235,7 @@ All PRs are validated by kubeconform CI before merge.
 **Operational Recovery Pattern**:
 - If a workload must stay down, change replicas in Git or disable Argo CD auto-sync/self-heal before scaling manually
 - If a PVC was recreated and bound to a new empty Longhorn volume, keep the workload scaled to 0 until the correct retained volume is rebound
+- **GitOps-Safe Recovery from NFS Backups**: Use `scripts/longhorn-restore-backups.sh --execute --skip-pvc`. This restores the volume and pre-binds the PV to the expected PVC name, allowing Argo CD to automatically pick up the data when it syncs the PVC manifest.
 - Prefer Longhorn volume recovery or PV/PVC rebind over creating a brand-new empty PVC when the goal is to restore prior data
 - Shared RWX/NFS claims that multiple apps mount, or claims that should survive app deletion, should be owned by infrastructure apps such as `media-pvc`, not by the consuming app
 - **Recovery from Multi-Node Failure / Partition**:
