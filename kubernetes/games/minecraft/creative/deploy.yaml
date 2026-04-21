@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: minecraft
-          image: ghcr.io/itzg/minecraft-server:2026.4.1
+          image: ghcr.io/itzg/minecraft-server:2026.4.2
           ports:
             - containerPort: 25565
               protocol: TCP
