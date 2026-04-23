@@ -39,6 +39,14 @@ Ensure the tag used is owned by `autogroup:admin` in your [ACL JSON](https://log
 ## Kubernetes Configuration
 The `BitwardenSecret` in this folder pulls the key from your vault and maps it to a Kubernetes secret named `tailscale`.
 
+For the Kubernetes Operator, use a separate Bitwarden item mapping that stores the
+raw OAuth client ID and client secret as two distinct values. The placeholder
+manifest is [operator-bitwarden-secrets.yaml](/home/michael/gitstuff/BrainiacOps/kubernetes/infrastructure/tailscale/operator-bitwarden-secrets.yaml)
+and creates the `operator-oauth` secret in the `tailscale` namespace with:
+
+- `client_id`
+- `client_secret`
+
 ### Standard Sidecar Arguments
 For consistency across the cluster, all sidecars should use these `TS_EXTRA_ARGS`:
 `--hostname=<app>-sidecar --accept-routes=true --accept-dns=true --advertise-tags=tag:homelab`
