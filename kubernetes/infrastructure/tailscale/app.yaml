@@ -10,7 +10,7 @@ spec:
   project: default
   destination:
     server: https://kubernetes.default.svc
-    namespace: default
+    namespace: tailscale
   source:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD

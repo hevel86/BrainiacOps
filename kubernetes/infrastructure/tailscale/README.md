@@ -2,6 +2,10 @@
 
 This folder contains Tailscale integration resources for Kubernetes.
 
+The `tailscale` namespace is reserved for the future Tailscale Kubernetes Operator
+and its OAuth credentials. Existing sidecar auth still lives in the `default`
+namespace because the current app workloads run there.
+
 ## Authentication Methods
 
 ### 1. OAuth Clients (Recommended - Non-Expiring)
