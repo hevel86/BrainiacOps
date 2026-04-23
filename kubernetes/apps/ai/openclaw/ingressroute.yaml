@@ -7,7 +7,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`openclaw.torquasmvo.internal`)
+    - match: Host(`openclaw.torquasmvo.com`)
       kind: Rule
       services:
         - name: openclaw
