@@ -1,0 +1,38 @@
+apiVersion: openclaw.rocks/v1alpha1
+kind: OpenClawInstance
+metadata:
+  name: openclaw
+  namespace: default
+spec:
+  envFrom:
+    - secretRef:
+        name: openclaw-secrets
+  storage:
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: longhorn-prod
+      orphan: true
+  security:
+    networkPolicy:
+      enabled: true
+      allowedIngressNamespaces:
+        - kube-system
+      additionalEgress:
+        - ports:
+            - port: 443
+              protocol: TCP
+    rbac:
+      createServiceAccount: true
+  observability:
+    metrics:
+      enabled: true
+  config:
+    mergeMode: merge
+    raw:
+      gateway:
+        port: 18789
+        controlUi:
+          allowedOrigins:
+            - https://openclaw.torquasmvo.internal
+          dangerouslyDisableDeviceAuth: false

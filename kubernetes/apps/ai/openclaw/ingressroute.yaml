@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: openclaw
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`openclaw.torquasmvo.internal`)
+      kind: Rule
+      services:
+        - name: openclaw
+          namespace: default
+          port: 18789
+  tls:
+    secretName: traefik-dashboard-tls
