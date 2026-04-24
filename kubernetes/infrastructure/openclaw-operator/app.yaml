@@ -13,7 +13,7 @@ spec:
   source:
     repoURL: ghcr.io/openclaw-rocks/charts
     chart: openclaw-operator
-    targetRevision: 0.28.0
+    targetRevision: 0.29.0
     helm:
       values: |
         replicaCount: 1
