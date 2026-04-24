@@ -5,4 +5,3 @@ resources:
   - deploy.yaml
   - pvc.yaml
   - svc.yaml
-  - tailscale-rbac.yaml
