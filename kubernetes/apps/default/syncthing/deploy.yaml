@@ -18,7 +18,6 @@ spec:
       labels:
         app: syncthing
     spec:
-      serviceAccountName: syncthing-tailscale
       containers:
         - name: syncthing
           image: lscr.io/linuxserver/syncthing:2.0.16
@@ -44,39 +43,6 @@ spec:
               mountPath: /config
             - name: sync-saves
               mountPath: /sync_saves
-        - name: tailscale
-          image: tailscale/tailscale:v1.96.5
-          securityContext:
-            privileged: true
-            capabilities:
-              add:
-                - NET_ADMIN
-                - NET_RAW
-          env:
-            - name: TS_USERSPACE
-              value: "false"
-            - name: TS_KUBE_SECRET
-              value: "syncthing-tailscale-state"
-            - name: TS_AUTHKEY
-              valueFrom:
-                secretKeyRef:
-                  name: tailscale
-                  key: TS_AUTHKEY
-            - name: TS_EXTRA_ARGS
-              value: "--hostname=syncthing-sidecar --accept-routes=true --accept-dns=true --advertise-tags=tag:homelab"
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: POD_UID
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.uid
-          volumeMounts:
-            - mountPath: /dev/net/tun
-              name: dev-net-tun
-            - mountPath: /var/lib/tailscale
-              name: tailscale-state
       volumes:
         - name: config
           persistentVolumeClaim:
@@ -84,10 +50,3 @@ spec:
         - name: sync-saves
           persistentVolumeClaim:
             claimName: syncthing-sync-saves-pvc
-        - name: dev-net-tun
-          hostPath:
-            path: /dev/net/tun
-            type: CharDevice
-        - name: tailscale-state
-          emptyDir: {}
----
