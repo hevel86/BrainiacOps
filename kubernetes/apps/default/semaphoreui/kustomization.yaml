@@ -4,8 +4,6 @@ kind: Kustomization
 resources:
   - deploy.yaml
   - svc.yaml
-  - tailscale-egress-brainiac-hostinger.yaml
-  - tailscale-egress-printer-pi.yaml
   - pvc.yaml
   - configmap.yaml
   - bitwarden-secrets.yaml

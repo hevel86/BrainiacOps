@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tailscale-egress
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  source:
+    repoURL: https://github.com/hevel86/BrainiacOps
+    targetRevision: HEAD
+    path: kubernetes/infrastructure/tailscale-egress
+  ignoreDifferences:
+    - group: ""
+      kind: Service
+      name: brainiac-hostinger
+      namespace: default
+      jsonPointers:
+        - /spec/externalName
+    - group: ""
+      kind: Service
+      name: printer-pi
+      namespace: default
+      jsonPointers:
+        - /spec/externalName
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - RespectIgnoreDifferences=true
+      - CreateNamespace=false
+      - ServerSideApply=true

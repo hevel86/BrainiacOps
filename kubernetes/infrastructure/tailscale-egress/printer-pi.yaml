@@ -1,9 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: brainiac-hostinger
+  name: printer-pi
+  namespace: default
   annotations:
-    tailscale.com/tailnet-fqdn: brainiac-hostinger.tailca892.ts.net
+    tailscale.com/tailnet-fqdn: printer-pi.tailca892.ts.net
 spec:
   type: ExternalName
   externalName: placeholder
