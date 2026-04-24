@@ -6,4 +6,3 @@ resources:
   - ingressroute.yaml
   - pvc.yaml
   - svc.yaml
-  - tailscale-rbac.yaml
