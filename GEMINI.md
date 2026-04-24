@@ -16,6 +16,9 @@ This document provides context for the Gemini Code Assistant to understand the `
 - **PersistentVolumeClaims that must survive app deletion MUST include `argocd.argoproj.io/sync-options: Delete=false`** - This ensures data persistence in the cluster even if the Argo CD `Application` is removed or resynced.
 - **If a Longhorn-backed PVC is accidentally replaced, recover the retained volume before restarting the workload** - Prefer reusing the existing Longhorn volume via PV/PVC rebind or Longhorn's `Create PV/PVC`; do not assume a newly created PVC will reattach old data.
 - **Shared storage that should outlive an individual app must live in shared/infrastructure Git, not in the app's own directory** - App-local PVCs are expected to be deleted when the app is removed from Git.
+- **Shared Tailscale operator egress resources must live in infrastructure Git, not in individual app directories** - If multiple apps need the same tailnet target, define the `ExternalName` `Service` once under `kubernetes/infrastructure/tailscale-egress/`.
+- **Do not let multiple Argo CD apps own the same Kubernetes resource** - Shared-resource conflicts in Argo CD will leave apps perpetually `OutOfSync` or warning even when the cluster is functionally correct.
+- **Tailscale operator-managed `ExternalName` Services will rewrite `spec.externalName` at runtime** - If Git owns those Services, the owning Argo CD `Application` must ignore `/spec/externalName` with `RespectIgnoreDifferences=true`.
 - When in doubt, ask before committing anything that could contain sensitive data
 
 ### GitOps Security Best Practices for Scripts
@@ -256,6 +259,20 @@ All PRs are validated by kubeconform CI before merge.
 **Runtime secrets**: Bitwarden Secrets Operator injects from Bitwarden vault into Kubernetes Secrets (never in Git)
 
 **Talos secrets**: `talsecret.sops.yaml` encrypted with SOPS+age (contains cluster certificates, tokens, etcd crypto)
+
+### Tailscale Operator Pattern
+
+- **Operator namespace**: `tailscale`
+- **Operator OAuth secret**: generated into `tailscale` namespace from Bitwarden via `operator-bitwarden-secrets.yaml`
+- **Cluster DNS for MagicDNS**: managed by infrastructure app `kubernetes/infrastructure/tailscale-dns/`
+- **Shared tailnet egress targets**: managed by infrastructure app `kubernetes/infrastructure/tailscale-egress/`
+- **Per-app Tailscale ingress**: add `tailscale.com/expose: "true"` and `tailscale.com/hostname: <name>` to the app `Service`
+- **Per-app sidecars**: do not keep Tailscale sidecars once operator ingress/egress has replaced the use case
+
+Use this decision rule:
+- If the app only needs to be reachable from the tailnet, use operator ingress on its `Service`.
+- If the app needs to reach a tailnet host, add or reuse a shared egress `ExternalName` `Service` in `kubernetes/infrastructure/tailscale-egress/`.
+- If multiple apps need the same tailnet host, never duplicate that egress `Service` under app directories.
 
 ### Pre-commit Security
 
