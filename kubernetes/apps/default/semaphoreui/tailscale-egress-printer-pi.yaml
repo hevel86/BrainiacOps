@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: printer-pi
+  annotations:
+    tailscale.com/tailnet-fqdn: printer-pi.tailca892.ts.net
+spec:
+  type: ExternalName
+  externalName: placeholder
