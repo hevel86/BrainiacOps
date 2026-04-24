@@ -6,5 +6,4 @@ resources:
   - ingressroute.yaml
   - pvc.yaml
   - svc.yaml
-  - tailscale-egress-printer-pi.yaml
   - tailscale-rbac.yaml
