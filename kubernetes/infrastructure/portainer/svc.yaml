@@ -6,6 +6,8 @@ metadata:
   namespace: portainer
   annotations:
     external-dns.alpha.kubernetes.io/hostname: portainer.torquasmvo.internal
+    tailscale.com/expose: "true"
+    tailscale.com/hostname: portainer
 spec:
   type: LoadBalancer
   loadBalancerIP: 10.0.0.204
