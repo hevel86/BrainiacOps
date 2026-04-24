@@ -1,56 +1,75 @@
 # Tailscale Integration
 
-This folder contains Tailscale integration resources for Kubernetes.
+This folder owns the base namespace and secrets used by the Tailscale Kubernetes
+Operator.
 
-The `tailscale` namespace is reserved for the future Tailscale Kubernetes Operator
-and its OAuth credentials. Existing sidecar auth still lives in the `default`
-namespace because the current app workloads run there.
+## Current Layout
 
-## Authentication Methods
+- `namespace.yaml`
+  Creates the dedicated `tailscale` namespace.
+- `operator-bitwarden-secrets.yaml`
+  Materializes `Secret/tailscale/operator-oauth` from Bitwarden.
+- `bitwarden-secrets.yaml`
+  Preserves the older sidecar auth secret pattern where still needed.
 
-### 1. OAuth Clients (Recommended - Non-Expiring)
-Tailscale OAuth Clients allow you to generate a key that does **not expire** after 90 days. This is the preferred method for Kubernetes sidecars.
+Related infrastructure apps live nearby:
 
-#### Creation Steps
-1. Log in to the [Tailscale Admin Console](https://login.tailscale.com/admin/settings/oauth).
-2. Create a new OAuth Client with the following scopes:
-   - **Devices:** `Read & Write` (Required to join the tailnet)
-   - **Keys:** `Read & Write` (Required for the sidecar pattern)
-   - **Routes:** `Read & Write` (Required for subnet routing)
-3. Assign a **Tag** (e.g., `tag:homelab`) to the client.
-4. **Save the Client ID and Secret.**
+- [tailscale-operator](/home/michael/gitstuff/BrainiacOps/kubernetes/infrastructure/tailscale-operator/)
+  Installs the operator itself.
+- [tailscale-dns](/home/michael/gitstuff/BrainiacOps/kubernetes/infrastructure/tailscale-dns/)
+  Adds cluster DNS support for `*.ts.net` via `DNSConfig` and a CoreDNS stub.
+- [tailscale-egress](/home/michael/gitstuff/BrainiacOps/kubernetes/infrastructure/tailscale-egress/)
+  Owns shared `ExternalName` services for reusable tailnet egress targets.
 
-#### Bitwarden Configuration
-Store the key in your Bitwarden vault using the following format:
-`tskey-client-<client-id>-<client-secret>?ephemeral=false`
+## Operator Credentials
 
-*Note: The `?ephemeral=false` suffix is critical to ensure the machine identity persists across pod restarts.*
-
-#### Tailscale ACL Requirements
-Ensure the tag used is owned by `autogroup:admin` in your [ACL JSON](https://login.tailscale.com/admin/acls/file):
-```json
-"tagOwners": {
-    "tag:homelab": ["hevel86@github", "autogroup:admin"]
-}
-```
-
-### 2. Standard Auth Keys (Expires every 90 days)
-*Discouraged for long-running services.*
-1. Log in to the [Tailscale Admin Console](https://login.tailscale.com/admin/settings/keys).
-2. Generate a **reusable** auth key with auto-approval enabled.
-3. Save the key in your Bitwarden vault.
-
-## Kubernetes Configuration
-The `BitwardenSecret` in this folder pulls the key from your vault and maps it to a Kubernetes secret named `tailscale`.
-
-For the Kubernetes Operator, use a separate Bitwarden item mapping that stores the
-raw OAuth client ID and client secret as two distinct values. The placeholder
-manifest is [operator-bitwarden-secrets.yaml](/home/michael/gitstuff/BrainiacOps/kubernetes/infrastructure/tailscale/operator-bitwarden-secrets.yaml)
-and creates the `operator-oauth` secret in the `tailscale` namespace with:
+The operator does not use a single reusable auth key. It expects a Kubernetes
+secret named `operator-oauth` in the `tailscale` namespace with:
 
 - `client_id`
 - `client_secret`
 
-### Standard Sidecar Arguments
-For consistency across the cluster, all sidecars should use these `TS_EXTRA_ARGS`:
-`--hostname=<app>-sidecar --accept-routes=true --accept-dns=true --advertise-tags=tag:homelab`
+That secret is created by
+[operator-bitwarden-secrets.yaml](/home/michael/gitstuff/BrainiacOps/kubernetes/infrastructure/tailscale/operator-bitwarden-secrets.yaml)
+from two separate Bitwarden items.
+
+## OAuth Client Guidance
+
+Create a dedicated OAuth client in the Tailscale admin console for the operator.
+Use the raw client ID and client secret, not a generated `tskey-client-...`
+string.
+
+Recommended scopes:
+
+- `Devices: Read & Write`
+- `Keys: Read & Write`
+
+Recommended tags:
+
+- `tag:k8s-operator` for the operator itself
+- `tag:k8s` for operator-created proxies
+
+Those tags must also exist in the tailnet policy.
+
+## Operator-First Pattern
+
+This repo now treats the Kubernetes operator as the default integration path.
+
+Use operator ingress when:
+
+- a tailnet client needs to reach a Kubernetes `Service`
+
+Use shared operator egress when:
+
+- a Kubernetes workload needs to reach a tailnet host
+- more than one app may need the same host
+
+Do not create duplicate app-local egress services for the same tailnet host. Put
+shared targets in
+[kubernetes/infrastructure/tailscale-egress/](/home/michael/gitstuff/BrainiacOps/kubernetes/infrastructure/tailscale-egress/)
+instead.
+
+## Sidecar Status
+
+Per-app Tailscale sidecars are no longer the preferred pattern in this repo.
+Keep them only where the operator cannot yet replace the exact behavior you need.
