@@ -16,6 +16,20 @@ spec:
     repoURL: https://github.com/hevel86/BrainiacOps
     targetRevision: HEAD
     path: kubernetes/apps/default/semaphoreui
+  ignoreDifferences:
+    - group: ""
+      kind: Service
+      name: brainiac-hostinger
+      namespace: default
+      jsonPointers:
+        - /spec/externalName
+    - group: ""
+      kind: Service
+      name: printer-pi
+      namespace: default
+      jsonPointers:
+        - /spec/externalName
   syncPolicy:
     syncOptions:
+      - RespectIgnoreDifferences=true
       - ServerSideApply=true
