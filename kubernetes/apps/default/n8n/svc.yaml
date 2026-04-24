@@ -5,6 +5,9 @@ metadata:
   namespace: default
   labels:
     app: n8n
+  annotations:
+    tailscale.com/expose: "true"
+    tailscale.com/hostname: n8n
 spec:
   type: ClusterIP
   selector:
