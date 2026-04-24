@@ -46,7 +46,7 @@ Automation is a core principle, with Renovate for dependency updates, GitHub Act
 - **GitOps-first Operations**: Argo CD bootstraps itself and then syncs all resources, including infrastructure, media applications, and self-hosted services, from declarative manifests in this repository.
 
 - **Platform Infrastructure**: A robust set of platform services managed as first-class infrastructure:
-    - **Ingress & Networking**: Traefik (ingress controller), MetalLB (load balancer), Tailscale (VPN/mesh networking)
+    - **Ingress & Networking**: Traefik (ingress controller), MetalLB (load balancer), Tailscale Kubernetes Operator (tailnet ingress/egress + MagicDNS-aware cluster access)
     - **Storage**: Longhorn (distributed block storage), CSI snapshotter, media PersistentVolumes/Claims
     - **Security**: cert-manager (automated TLS with Cloudflare), Bitwarden Secrets Operator (runtime secret injection)
     - **Hardware Acceleration**: Intel GPU device plugins for video transcoding (Plex, Jellyfin, Tdarr)
@@ -72,6 +72,7 @@ Automation is a core principle, with Renovate for dependency updates, GitHub Act
 
 - `kubernetes/bootstrap/`: Contains the minimal manifests to install Argo CD and seed the app-of-apps controller, kicking off the GitOps process.
 - `kubernetes/infrastructure/`: Manages all cluster-level services, such as ingress, storage, monitoring, secrets management, and the Renovate bot itself.
+  This now also includes shared Tailscale operator infrastructure such as the operator install, cluster `ts.net` DNS support, and shared egress targets.
 - `kubernetes/apps/`: Contains all user-facing workloads. `default/` is the primary namespace for most applications, while `external/` is used for tracking remotely managed installs. `_shared/` holds common Kustomize bases to reduce duplication.
 - `kubernetes/games/`: Holds configurations for game servers, such as Minecraft.
 - `kubernetes/storage/`: Defines PersistentVolumes for the media stack, ensuring data persistence across pod restarts.
