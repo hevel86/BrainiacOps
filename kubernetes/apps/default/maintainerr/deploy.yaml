@@ -27,7 +27,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: maintainerr
-          image: ghcr.io/maintainerr/maintainerr:3.7.0
+          image: ghcr.io/maintainerr/maintainerr:3.8.0
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: false
