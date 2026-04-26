@@ -19,6 +19,6 @@ spec:
       timeout: "1h"
   maintenance:
     windows:
-      - start: "0 3 * * 0"
-        duration: "4h"
+      - start: "0 1 * * 0"
+        duration: "6h"
         timezone: "America/New_York"
