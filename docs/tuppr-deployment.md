@@ -1,54 +1,66 @@
 # Tuppr Deployment and Troubleshooting Guide
 
 ## Overview
-This document details the resolution of deployment issues with `tuppr` (Talos Upgrade Controller) and associated cluster connectivity problems encountered during the initial setup.
 
-## Issue 1: Image Pull BackOff (Tag 0.0.0)
-**Symptom:** `tuppr` pod failed to start with `ImagePullBackOff` for tag `0.0.0`.
-**Cause:** The Helm chart defaults to `0.0.0` if no tag is provided.
-**Fix:** Explicitly set the image tag in the Argo CD Application manifest.
-```yaml
-helm:
-  parameters:
-    - name: image.tag
-      value: "0.0.72"
-```
+This document describes the current `tuppr` deployment in BrainiacOps and notes the historical issues that mattered during initial rollout.
 
-## Issue 2: Missing CRDs for Tuppr Config
-**Symptom:** `tuppr-config` Application failed to sync with "no matches for kind KubernetesUpgrade".
-**Cause:** The `tuppr` Helm chart does not include CRDs in its default installation.
-**Fix:**
-1.  Extracted CRDs from the chart source.
-2.  Placed them in `kubernetes/infrastructure/tuppr/crds/`.
-3.  Renamed files to `kubernetes-upgrades.yaml` and `talos-upgrades.yaml` for clarity.
-4.  Added a `tuppr-crds` Application to `app.yaml` to install them.
+Current repo state:
 
-## Issue 3: Cluster Connectivity Loss (Ingress/Service IPs)
-**Symptom:** Loss of access to all Service LoadBalancer IPs (e.g., Argo CD at `10.0.0.209`).
-**Cause:** All control plane nodes had the label `node.kubernetes.io/exclude-from-external-load-balancers`. Since the cluster is 100% control plane nodes, MetalLB had no nodes to announce from.
-**Fix:**
-1.  Removed the label patch from `talos/talconfig.yaml`.
-2.  Regenerated Talos config (`talhelper genconfig`).
-3.  Applied the new configuration to all nodes (`talosctl apply-config`).
+- The controller is deployed by the Argo CD app in [kubernetes/infrastructure/tuppr/app.yaml](/home/michael/gitstuff/BrainiacOps/kubernetes/infrastructure/tuppr/app.yaml:1).
+- Upgrade resources live in:
+  - [kubernetes/infrastructure/tuppr/config/talos-upgrade.yaml](/home/michael/gitstuff/BrainiacOps/kubernetes/infrastructure/tuppr/config/talos-upgrade.yaml:1)
+  - [kubernetes/infrastructure/tuppr/config/kubernetes-upgrade.yaml](/home/michael/gitstuff/BrainiacOps/kubernetes/infrastructure/tuppr/config/kubernetes-upgrade.yaml:1)
+- The chart version currently deployed is `0.1.9`.
+- BrainiacOps does not currently use a separate `tuppr-crds` Argo CD app or a dedicated image tag override in `app.yaml`.
 
-## Issue 4: CRD Enum Validation Error
-**Symptom:** `tuppr` controller logs showed repeated errors: `Invalid value: "MaintenanceWindow"`.
-**Cause:** The status phase `MaintenanceWindow` was missing from the `enum` validation list in the CRD schema.
-**Fix:**
-1.  Edited `kubernetes-upgrades.yaml` and `talos-upgrades.yaml`.
-2.  Added `MaintenanceWindow` to the `status.phase` enum list.
+## Current Deployment Model
+
+BrainiacOps uses two long-lived upgrade resources instead of creating a new manifest per upgrade:
+
+- One `TalosUpgrade` named `talos-upgrade`
+- One `KubernetesUpgrade` named `kubernetes-upgrade`
+
+Upgrades are normally performed by editing the target version in those manifests and updating `talos/talconfig.yaml` in the same PR so Git remains the source of truth.
+
+## Historical Notes
+
+### Cluster Connectivity Loss
+
+During the initial rollout, Service `LoadBalancer` IPs became unreachable because every control-plane node carried the `node.kubernetes.io/exclude-from-external-load-balancers` label. Since this cluster is entirely control-plane nodes, MetalLB had nowhere to announce from.
+
+The fix was:
+
+1. Remove the label patch from `talos/talconfig.yaml`
+2. Regenerate Talos config with `talhelper genconfig`
+3. Apply the new node configuration
+
+### Maintenance Window Phase Validation
+
+An early CRD schema did not include the `MaintenanceWindow` phase in the validation enum, which caused controller errors. Upstream `tuppr` now includes that phase in the API type, and BrainiacOps monitoring expects it.
 
 ## Verification
-- **Tuppr**: Ensure `tuppr`, `tuppr-crds`, and `tuppr-config` apps are `Synced` and `Healthy` in Argo CD.
-- **Connectivity**: Verify access to Argo CD UI and other services.
 
----
+Check the Argo CD apps:
+
+- `tuppr`
+- `tuppr-config`
+
+Both should be `Synced` and `Healthy`.
+
+Basic runtime checks:
+
+```bash
+kubectl get applications -n argocd
+kubectl get talosupgrade
+kubectl get kubernetesupgrade
+kubectl get pods -n system-upgrade
+```
 
 ## Kubernetes Upgrade Operations
 
-### Running an Upgrade Outside the Maintenance Window
+### Running Outside the Normal Maintenance Window
 
-The `KubernetesUpgrade` resource only runs during configured maintenance windows. To trigger an upgrade at a different time (e.g., to retry a failed upgrade the same day), add a temporary second window to `kubernetes/infrastructure/tuppr/config/kubernetes-upgrade.yaml`:
+The `KubernetesUpgrade` resource only starts during an open maintenance window. To force a same-day retry, add a temporary second window to [kubernetes/infrastructure/tuppr/config/kubernetes-upgrade.yaml](/home/michael/gitstuff/BrainiacOps/kubernetes/infrastructure/tuppr/config/kubernetes-upgrade.yaml:1), then remove it once the upgrade finishes.
 
 ```yaml
 maintenance:
@@ -61,95 +73,97 @@ maintenance:
       timezone: "America/New_York"
 ```
 
-Then reset the phase if the upgrade is in `Failed` state (see below) and remove the temporary window once done.
-
 ### Resetting a Failed Upgrade
 
-When tuppr marks an upgrade as `Failed` it stops all processing. Check the failure reason:
+Current upstream `tuppr` supports resetting a failed upgrade by changing the reset annotation instead of manually patching status fields:
+
+```bash
+kubectl annotate kubernetesupgrade kubernetes-upgrade \
+  tuppr.home-operations.com/reset="$(date -Iseconds)" --overwrite
+```
+
+If a stuck job also needs clearing first:
+
+```bash
+kubectl get jobs -n system-upgrade
+kubectl delete job <job-name> -n system-upgrade
+kubectl annotate kubernetesupgrade kubernetes-upgrade \
+  tuppr.home-operations.com/reset="$(date -Iseconds)" --overwrite
+```
+
+You can still inspect the current failure details with:
 
 ```bash
 kubectl describe kubernetesupgrade kubernetes-upgrade
 ```
 
-To reset and retry:
+### Cross-Upgrade Coordination
 
-```bash
-kubectl patch kubernetesupgrade kubernetes-upgrade \
-  --type=merge --subresource=status \
-  -p '{"status":{"phase":"Pending","retries":0,"lastError":"","message":""}}'
-```
+Current upstream `tuppr` will not run `TalosUpgrade` and `KubernetesUpgrade` concurrently. If one is active, the other remains pending until the active upgrade reaches a terminal phase.
 
-If there is a stuck job that needs clearing first:
+This means BrainiacOps currently gets two layers of sequencing:
 
-```bash
-kubectl get jobs -n system-upgrade
-kubectl delete job <job-name> -n system-upgrade
-# then reset the phase as above
-```
+- Time-based sequencing from the staggered maintenance windows
+- Controller-level blocking so Talos and Kubernetes upgrades do not execute at the same time
 
-### Issue 5: Kubelet Stuck on "Waiting for volumes /var/mnt to be mounted"
+## Known Talos/Kubernetes Upgrade Issues
+
+### Kubelet Stuck on "Waiting for volumes /var/mnt to be mounted"
 
 **Symptom:** During a Kubernetes upgrade, a node goes `NotReady` and `talosctl services` shows:
-```
+
+```text
 kubelet   Waiting   Fail   Waiting for volumes /var/mnt to be mounted
 ```
+
 The `machined` logs show the `block.MountController` looping:
-```
+
+```text
 failed to unmount "u-longhorn": device or resource busy, timeout
 ```
 
-**Cause:** This is a confirmed Talos bug ([siderolabs/talos#12797](https://github.com/siderolabs/talos/issues/12797)), a regression present in Talos v1.11.4 through v1.12.4. When the kubelet service restarts due to a machine config change, Talos's `block.MountController` tries to cycle the `u-longhorn` user volume mount. Longhorn's replica and engine processes keep the block device open at the kernel level, causing the unmount to fail and the kubelet to never start.
+**Cause:** This was a Talos regression present in v1.11.4 through v1.12.4. Longhorn processes kept the device open while Talos tried to recycle the user volume mount during kubelet restart.
 
-**Fix:** Reboot the affected node. The clean shutdown releases the device and the kubelet starts normally with the new config on boot.
+**Fix:** Reboot the affected node.
 
 ```bash
 talosctl -n <node-ip> reboot
 ```
 
-Wait for the node to return `Ready` and verify the kubelet version:
+Wait for the node to return `Ready` and verify:
 
 ```bash
 kubectl get nodes -o wide
 ```
 
-**Permanent fix:** Upgrade to Talos v1.12.5 or later, which contains the fix from PR #12819.
+**Status:** The permanent fix landed in Talos v1.12.5 and later. This remains useful only as a historical troubleshooting note for older upgrade runs.
 
-**Note:** This can affect each node in sequence during a Kubernetes upgrade. After rebooting one node, wait for Longhorn volumes to return to `healthy` before the next node is attempted — tuppr's health check gates this automatically.
+### Tuppr Job Stuck After Node Reboot
 
-### Issue 6: Tuppr Job Stuck After Node Reboot
+**Symptom:** After rebooting a node during a Kubernetes upgrade recovery, the node returns `Ready` at the target version but the upgrade job remains stuck.
 
-**Symptom:** After rebooting a node to recover from Issue 5, the node comes back `Ready` at the correct Kubernetes version, but the tuppr upgrade job remains stuck on `waiting for kubelet restart` indefinitely and never proceeds to the next node.
+**Cause:** Earlier `tuppr` behavior could wait on kubelet restart acknowledgement even after the node had already come back on the expected version.
 
-**Cause:** `talosctl upgrade-k8s` waits for a machine config generation acknowledgment from the kubelet service rather than simply checking the running version. After a reboot, the kubelet is already running at the target version, but the job doesn't detect this and waits forever.
-
-**Fix:** Delete the stuck job and reset the phase. Tuppr will create a new job, detect the rebooted node is already at the target version, and proceed to the next node.
+**Fix:** Delete the stuck job and reset the upgrade:
 
 ```bash
 kubectl delete job <job-name> -n system-upgrade
-kubectl patch kubernetesupgrade kubernetes-upgrade \
-  --type=merge --subresource=status \
-  -p '{"status":{"phase":"Pending","retries":0,"lastError":"","message":""}}'
+kubectl annotate kubernetesupgrade kubernetes-upgrade \
+  tuppr.home-operations.com/reset="$(date -Iseconds)" --overwrite
 ```
 
-This is a tuppr limitation that will be resolved once Talos v1.12.5 is available, since the kubelet will restart cleanly without requiring a reboot.
+**Status:** Treat this as a historical edge case, not the normal expected path on current Talos and current `tuppr`.
 
-### Issue 7: Do Not Pin `kubelet.image` in talconfig.yaml
+### Do Not Pin `kubelet.image` in talconfig.yaml
 
-**Symptom:** After tuppr completes a Kubernetes upgrade, running `talhelper genconfig && talosctl apply-config` reverts the kubelet to an older version. Alternatively, Renovate creates PRs that bump the kubelet image independently of the upgrade cycle, causing extra machine config changes and triggering the volume unmount issue (Issue 5) more frequently.
+If `kubelet.image` is explicitly pinned in `talos/talconfig.yaml`, it creates a second source of truth that can undo a `tuppr`-managed Kubernetes upgrade on the next `talhelper genconfig` and apply cycle.
 
-**Cause:** If `kubelet.image` is explicitly pinned in `talos/talconfig.yaml` patches, it creates two independent systems managing the same field: Renovate (via talconfig) and tuppr (via direct machine config patch). After tuppr upgrades the kubelet, the talconfig pin becomes stale.
+The correct model is:
 
-**Fix:** Remove the `kubelet.image` pin from talconfig.yaml entirely. The `kubernetesVersion` field at the top of talconfig is the correct source of truth. Tuppr manages the kubelet image exclusively during upgrades.
-
-```yaml
-# Remove this from talconfig.yaml patches:
-kubelet:
-  # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-  image: ghcr.io/siderolabs/kubelet:vX.XX.X   # <-- remove these two lines
-  extraMounts:
-    ...
-```
+- `talos/talconfig.yaml` owns `kubernetesVersion`
+- `tuppr` performs the actual rolling Kubernetes upgrade
+- `kubelet.image` should not be independently pinned in Talos patches
 
 ---
-*Created: 2026-02-17*
-*Updated: 2026-03-01 — Added upgrade operations, Issues 5–7*
+Created: 2026-02-17
+Updated: 2026-04-28
