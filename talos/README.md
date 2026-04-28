@@ -782,11 +782,13 @@ talosctl -n 10.0.0.35 dmesg -f
 
 ### Benefits of Tuppr
 
-- **Automated orchestration**: Sequential node-by-node upgrades with automatic health checks
+- **Automated orchestration**: Health-gated rolling upgrades for Talos and Kubernetes
 - **Safety mechanisms**: Pre-upgrade validation using CEL expressions
 - **Observability**: Prometheus metrics for monitoring upgrade progress
 - **GitOps-friendly**: Upgrades tracked in Git via Custom Resources
 - **Reduced manual effort**: No need to run `talosctl upgrade` for each node
+- **Upgrade coordination**: Talos and Kubernetes upgrades do not run concurrently
+- **Current upstream features**: retry reset annotation, status history, and Talos parallelism support
 
 ### How Tuppr Works with This Cluster
 
@@ -794,66 +796,66 @@ Tuppr integrates seamlessly with your existing GitOps workflow:
 
 1. **Renovate detects new Talos/Kubernetes releases** and creates a PR updating:
    - `talos/talconfig.yaml` (version definitions)
-   - Tuppr upgrade resources in `kubernetes/infrastructure/tuppr/upgrades/`
+   - Tuppr upgrade resources in `kubernetes/infrastructure/tuppr/config/`
 
 2. **You review the PR**, checking release notes and compatibility
 
-3. **Merge the PR** → Argo CD applies the upgrade resource to the cluster
+3. **Merge the PR** -> Argo CD applies the updated upgrade resources to the cluster
 
 4. **Tuppr orchestrates the upgrade**:
    - Validates cluster health
-   - Upgrades node 1 (10.0.0.34), waits for it to become ready
-   - Upgrades node 2 (10.0.0.35), waits for it to become ready
-   - Upgrades node 3 (10.0.0.36), waits for it to become ready
-   - Marks upgrade as complete
+   - Waits for the configured maintenance window
+   - Runs the Talos or Kubernetes upgrade
+   - Records progress in status and Prometheus metrics
+   - Prevents Talos and Kubernetes upgrades from running at the same time
 
-### Creating a Talos Upgrade
+### Upgrade Resources in This Repo
 
-To upgrade Talos Linux (example: v1.11.5 → v1.11.6):
+BrainiacOps uses one long-lived resource per upgrade type:
 
-1. **Copy the template**:
-   ```bash
-   cp kubernetes/infrastructure/tuppr/upgrades/talos-upgrade-template.yaml.example \
-      kubernetes/infrastructure/tuppr/upgrades/talos-v1.11.6.yaml
-   ```
+- `kubernetes/infrastructure/tuppr/config/talos-upgrade.yaml`
+- `kubernetes/infrastructure/tuppr/config/kubernetes-upgrade.yaml`
 
-2. **Edit the file** and update:
+You do not create a new manifest per upgrade. You update the version in the existing resource and keep `talos/talconfig.yaml` aligned in the same PR.
+
+### Updating Talos
+
+To upgrade Talos Linux:
+
+1. Update [kubernetes/infrastructure/tuppr/config/talos-upgrade.yaml](/home/michael/gitstuff/BrainiacOps/kubernetes/infrastructure/tuppr/config/talos-upgrade.yaml:1):
    ```yaml
-   metadata:
-     name: upgrade-to-v1-11-6  # Update name
    spec:
-     version: v1.11.6  # Target version
-     # Ensure schematic ID matches talconfig.yaml!
-     installer: factory.talos.dev/metal-installer/284a1fe978ff4e6221a0e95fc1d01278bab28729adcb54bb53f7b0d3f2951dcc:v1.11.6
+     talos:
+       version: v1.13.0
    ```
 
-3. **Update talconfig.yaml** to match:
+2. Update `talos/talconfig.yaml` to the same Talos version and installer image.
+
+3. Commit both changes together in the same PR.
+
+### Updating Kubernetes
+
+To upgrade Kubernetes:
+
+1. Update [kubernetes/infrastructure/tuppr/config/kubernetes-upgrade.yaml](/home/michael/gitstuff/BrainiacOps/kubernetes/infrastructure/tuppr/config/kubernetes-upgrade.yaml:1):
    ```yaml
-   talosVersion: v1.11.6
-   talosImageURL: factory.talos.dev/installer/284a1fe...dcc:v1.11.6
+   spec:
+     kubernetes:
+       version: v1.35.4
    ```
 
-4. **Commit both files together** in the same PR
+2. Update `kubernetesVersion` in `talos/talconfig.yaml` to match.
 
-5. **Argo CD syncs** the upgrade resource, tuppr starts the upgrade
-
-### Creating a Kubernetes Upgrade
-
-Similar process for Kubernetes upgrades:
-
-```bash
-cp kubernetes/infrastructure/tuppr/upgrades/kubernetes-upgrade-template.yaml.example \
-   kubernetes/infrastructure/tuppr/upgrades/kubernetes-v1.34.2.yaml
-```
-
-Update `kubernetesVersion` in `talconfig.yaml` and the upgrade resource version to match.
+3. Commit both changes together in the same PR.
 
 ### Monitoring Upgrade Progress
 
 **View upgrade status**:
 ```bash
-kubectl get talosupgrade -n system-upgrade
-kubectl describe talosupgrade upgrade-to-v1-11-6 -n system-upgrade
+kubectl get talosupgrade
+kubectl get kubernetesupgrade
+kubectl describe talosupgrade talos-upgrade
+kubectl describe kubernetesupgrade kubernetes-upgrade
 ```
 
 **Watch Prometheus metrics** (if you have Prometheus configured):
@@ -869,14 +871,15 @@ kubectl get nodes -w
 
 **Schematic ID Preservation**:
 - The schematic ID `284a1fe978ff4e6221a0e95fc1d01278bab28729adcb54bb53f7b0d3f2951dcc` defines your system extensions (i915, iscsi-tools, nut-client, etc.)
-- **Always include this schematic** in the `installer` URL
-- Version tags change (`:v1.11.5` → `:v1.11.6`), but schematic stays the same
+- **Always include this schematic** in the Talos installer URL in `talconfig.yaml`
+- Version tags change, but the schematic stays the same
 - Using the base installer or wrong schematic will lose your extensions!
 
 **Upgrade Constraints**:
-- Only one `TalosUpgrade` resource can exist at a time
+- Multiple `TalosUpgrade` resources are allowed upstream, but BrainiacOps currently uses one persistent `TalosUpgrade` resource
 - Only one `KubernetesUpgrade` resource can exist at a time
 - TalosUpgrade and KubernetesUpgrade cannot run concurrently
+- If one upgrade type is active, the other remains pending until the active one completes
 
 **Git-First Workflow**:
 - Always update `talconfig.yaml` versions BEFORE creating upgrade resources
@@ -908,8 +911,16 @@ kubectl get nodes -w
 
 **Health checks failing**:
 - Review the `healthChecks` section in your upgrade resource
-- Common checks: `talos.ready`, `kubernetes.ready`, `longhorn.ready`
+- In this repo, the main health gate is Longhorn volume health
 - Ensure cluster is healthy before starting upgrade
+
+**Reset a failed upgrade**:
+```bash
+kubectl annotate talosupgrade talos-upgrade \
+  tuppr.home-operations.com/reset="$(date -Iseconds)" --overwrite
+kubectl annotate kubernetesupgrade kubernetes-upgrade \
+  tuppr.home-operations.com/reset="$(date -Iseconds)" --overwrite
+```
 
 **Rollback**:
 - Delete the upgrade resource to stop progression:
@@ -929,7 +940,7 @@ If you prefer manual upgrades:
 
 2. Remove tuppr upgrade resources from Git:
    ```bash
-   git rm kubernetes/infrastructure/tuppr/upgrades/*.yaml
+   git rm kubernetes/infrastructure/tuppr/config/*.yaml
    ```
 
 3. Continue using manual `talosctl upgrade` commands as documented in [Upgrading a Node](#upgrading-a-node)
@@ -943,5 +954,5 @@ If you prefer manual upgrades:
 
 ---
 
-**Last Updated**: 2026-02-28
-**Cluster Version**: Talos v1.12.4 / Kubernetes v1.35.0
+**Last Updated**: 2026-04-28
+**Cluster Version**: Talos v1.12.5 / Kubernetes v1.35.2
