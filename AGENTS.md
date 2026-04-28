@@ -51,7 +51,7 @@ When creating scripts that query cluster data or generate reports:
 **Key Characteristics**:
 - GitOps controller: Argo CD (declarative, automated sync)
 - Operating system: Talos Linux (immutable, minimal, secure)
-- Container orchestration: Kubernetes v1.35.2
+- Container orchestration: Kubernetes v1.36.0
 - Storage backend: Longhorn distributed storage
 - Networking: Traefik + MetalLB + Tailscale
 - Secrets: Bitwarden Secrets Operator (no secrets in Git)
@@ -293,7 +293,7 @@ On `git commit`:
 - Optimization: DoH + 0.0.0.0 Blocking mode
 
 **Configuration**:
-- Talos v1.12.4, Kubernetes v1.35.2
+- Talos v1.13.0, Kubernetes v1.36.0
 - VIP: 10.0.0.30 (HA endpoint)
 - Pod CIDR: 10.244.0.0/16
 - Service CIDR: 10.96.0.0/12
@@ -447,5 +447,5 @@ BrainiacOps is a GitOps repository where all cluster state is declared in Git. C
 
 ---
 
-**Last Updated**: 2026-03-27
-**Cluster Version**: Talos v1.12.5, Kubernetes v1.35.2
+**Last Updated**: 2026-04-28
+**Cluster Version**: Talos v1.13.0, Kubernetes v1.36.0

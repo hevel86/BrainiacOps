@@ -25,8 +25,8 @@ This document provides comprehensive guidance for managing the Talos Linux clust
 - brainiac-02 (10.0.0.36) - Control Plane
 
 **Cluster Configuration**:
-- Talos Version: v1.12.4
-- Kubernetes Version: v1.35.0
+- Talos Version: v1.13.0
+- Kubernetes Version: v1.36.0
 - Cluster Endpoint (VIP): https://10.0.0.30:6443
 - Network Interface: enp2s0f1np1 (DHCP with VIP)
 - Pod Network: 10.244.0.0/16
@@ -42,11 +42,11 @@ Before adding a new node or managing the cluster, ensure you have the following:
 
 This project uses [mise](https://mise.jdx.dev/) for tool version management. All required tools are defined in `.mise.toml`:
 
-- **talhelper** v3.0.39 - Generates Talos machine configurations from simplified YAML
-- **talosctl** v1.11.3 - Talos CLI for cluster management
+- **talhelper** v3.1.9 - Generates Talos machine configurations from simplified YAML
+- **talosctl** v1.13.0 - Talos CLI for cluster management
 - **kubectl** - Kubernetes CLI
-- **SOPS** v3.11.0 - For encrypting/decrypting secrets
-- **age** v1.2.1 - Encryption tool used with SOPS
+- **SOPS** v3.12.2 - For encrypting/decrypting secrets
+- **age** v1.3.1 - Encryption tool used with SOPS
 
 To install all tools, run:
 ```bash
@@ -732,7 +732,7 @@ Use the `talosctl upgrade` command, specifying the node to upgrade and the targe
 ```bash
 talosctl upgrade \
   --nodes 10.0.0.35 \
-  --image factory.talos.dev/metal-installer/284a1fe978ff4e6221a0e95fc1d01278bab28729adcb54bb53f7b0d3f2951dcc:v1.12.5
+  --image factory.talos.dev/metal-installer/284a1fe978ff4e6221a0e95fc1d01278bab28729adcb54bb53f7b0d3f2951dcc:v1.13.0
 ```
 
 Replace `10.0.0.35` with the IP address of the node you are upgrading.
@@ -841,7 +841,7 @@ To upgrade Kubernetes:
    ```yaml
    spec:
      kubernetes:
-       version: v1.35.4
+       version: v1.36.0
    ```
 
 2. Update `kubernetesVersion` in `talos/talconfig.yaml` to match.
@@ -955,4 +955,4 @@ If you prefer manual upgrades:
 ---
 
 **Last Updated**: 2026-04-28
-**Cluster Version**: Talos v1.12.5 / Kubernetes v1.35.2
+**Cluster Version**: Talos v1.13.0 / Kubernetes v1.36.0
