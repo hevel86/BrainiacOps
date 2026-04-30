@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: semaphore
-          image: semaphoreui/semaphore:v2.17.38
+          image: semaphoreui/semaphore:v2.17.39
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
