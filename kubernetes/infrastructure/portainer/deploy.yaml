@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: portainer
-          image: portainer/portainer-ce:2.40.0
+          image: portainer/portainer-ce:2.41.0
           imagePullPolicy: Always
           ports:
             - name: http
