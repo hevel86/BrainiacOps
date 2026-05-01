@@ -1,4 +1,12 @@
 apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: plex
+  namespace: default
+spec:
+  insecureSkipVerify: true
+---
+apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: plex
@@ -13,5 +21,7 @@ spec:
         - name: plex
           namespace: default
           port: 32400
+          scheme: https
+          serversTransport: plex
   tls:
     secretName: traefik-dashboard-tls
