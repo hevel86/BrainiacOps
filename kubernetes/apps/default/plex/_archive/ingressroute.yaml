@@ -1,3 +1,4 @@
+# Reference only. This is intentionally not included by the Plex kustomization.
 apiVersion: traefik.io/v1alpha1
 kind: ServersTransport
 metadata:
