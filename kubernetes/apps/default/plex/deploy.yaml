@@ -1,47 +1,43 @@
 ---
-# --- Deployment for Plex Media Server ---
-# A Deployment manages a set of identical Pods, ensuring a desired number
-# of replicas are running and handling updates/rollbacks.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: plex # Name of this Deployment
+  name: plex
+  namespace: default
   labels:
-    app: plex # Labels to identify this Deployment and its Pods
+    app: plex
 spec:
-  replicas: 1 # We want one instance (Pod) of Plex running
-  # Recreate strategy is crucial for ReadWriteOnce volumes like Longhorn.
-  # It ensures the old pod is terminated before the new one is created,
-  # preventing volume mounting conflicts.
+  replicas: 1
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: plex # This Deployment will manage Pods with the label app: plex
+      app: plex
   template:
     metadata:
       labels:
-        app: plex # Labels applied to the Pods created by this Deployment
+        app: plex
     spec:
-      # hostNetwork: true allows the Pod to use the host's network namespace directly.
-      # While generally not recommended for Kubernetes isolation, you've chosen this
-      # for direct host access similar to Docker Compose, and it works with external DNS.
-      # Plex and Tautulli also see it as local network traffic.
-      hostNetwork: true
+      automountServiceAccountToken: false
+      enableServiceLinks: false
       containers:
-        - name: plex # Name of the container within the Pod
-          image: lscr.io/linuxserver/plex:1.43.1 # Docker image for Plex
-          imagePullPolicy: Always # Pull latest until Renovate pins a digest
-          env: # Environment variables passed to the Plex container
-            - name: TZ # Timezone setting for Plex
+        - name: plex
+          image: lscr.io/linuxserver/plex:1.43.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 32400
+              protocol: TCP
+          env:
+            - name: TZ
               value: "America/New_York"
-            - name: PUID # User ID for Plex process inside the container
+            - name: PUID
               value: "1000"
-            - name: PGID # Group ID for Plex process inside the container
+            - name: PGID
               value: "1000"
-            - name: UMASK # File creation mask for permissions
+            - name: UMASK
               value: "022"
-            - name: VERSION # Version tag for the image, can be used to control updates
+            - name: VERSION
               value: "docker"
           resources:
             requests:
@@ -50,49 +46,54 @@ spec:
               memory: "7.5Gi"
             limits:
               gpu.intel.com/i915: "1"
-          volumeMounts: # Defines where volumes are mounted inside the container
-            - name: config # Mounts the Plex configuration directory
+          volumeMounts:
+            - name: config
               mountPath: /config
-            - name: movies # Mounts the movies library, now via PVC
+            - name: movies
               mountPath: /data/movies
-            - name: tv # Mounts the TV shows library, now via PVC
+            - name: tv
               mountPath: /data/tv
-            # - name: ramtranscode # Mounts /dev/shm for RAM-based transcoding cache
-            #   mountPath: /dev/shm
-            - name: zfstranscode # Mounts the ZFS transcode scratch directory, now via PVC
+            - name: zfstranscode
               mountPath: /scratch
-            - name: lily # Mounts Lily's media share, now via PVC
+            - name: lily
               mountPath: /lily_gcs_cheers
-            - name: abbie # Mounts Abbie's pictures share, now via PVC
+            - name: abbie
               mountPath: /abbie
-            # - name: dri # Mounts /dev/dri for direct access to GPU (for hardware transcoding)
-            #   mountPath: /dev/dri
+          startupProbe:
+            httpGet:
+              path: /identity
+              port: http
+            failureThreshold: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /identity
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /identity
+              port: http
+            failureThreshold: 5
+            periodSeconds: 30
           securityContext:
-            privileged: true # Required for hardware acceleration and host device mounts
-      volumes: # Defines the actual storage volumes that are available to the Pod
-        - name: config # Plex configuration on Longhorn
+            privileged: true
+      volumes:
+        - name: config
           persistentVolumeClaim:
             claimName: plex-config-pvc
-        - name: movies # Links to the PersistentVolumeClaim for movies
+        - name: movies
           persistentVolumeClaim:
             claimName: media-movies-pvc
-        - name: tv # Links to the PersistentVolumeClaim for TV shows
+        - name: tv
           persistentVolumeClaim:
             claimName: media-tv-pvc
-        # - name: ramtranscode # Local host path for /dev/shm (RAM-based temp)
-        #   hostPath:
-        #     path: /dev/shm
-        #     type: Directory
-        - name: zfstranscode # Links to the PersistentVolumeClaim for ZFS transcode
+        - name: zfstranscode
           persistentVolumeClaim:
             claimName: plex-zfstranscode-pvc
-        - name: lily # Links to the PersistentVolumeClaim for Lily's share
+        - name: lily
           persistentVolumeClaim:
             claimName: plex-lily-pvc
-        - name: abbie # Links to the PersistentVolumeClaim for Abbie's share
+        - name: abbie
           persistentVolumeClaim:
             claimName: plex-abbie-pvc
-        # - name: dri # Local host path for direct GPU access
-        #   hostPath:
-        #     path: /dev/dri
-        #     type: Directory
