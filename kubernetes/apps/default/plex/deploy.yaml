@@ -63,17 +63,20 @@ spec:
             httpGet:
               path: /identity
               port: http
+              scheme: HTTPS
             failureThreshold: 30
             periodSeconds: 10
           readinessProbe:
             httpGet:
               path: /identity
               port: http
+              scheme: HTTPS
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /identity
               port: http
+              scheme: HTTPS
             failureThreshold: 5
             periodSeconds: 30
           securityContext:
