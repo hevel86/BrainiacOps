@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: nutify
-          image: ghcr.io/dartsteven/nutify:0.2.2
+          image: ghcr.io/dartsteven/nutify:0.2.0
           imagePullPolicy: IfNotPresent
           env:
             - name: TZ
