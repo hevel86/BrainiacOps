@@ -12,7 +12,7 @@ MetalLB IPs: total=51 used=38 free=13
 | handbrake | default | 10.0.0.203 |
 | portainer | portainer | 10.0.0.204 |
 | komga | default | 10.0.0.205 |
-| peanut | default | 10.0.0.206 |
+| nutify | default | 10.0.0.206 |
 | tautulli | default | 10.0.0.207 |
 | audiobookshelf | default | 10.0.0.208 |
 | argocd-server-lb | argocd | 10.0.0.209 |
