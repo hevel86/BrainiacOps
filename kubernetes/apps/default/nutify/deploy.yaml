@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nutify
+  namespace: default
+  labels:
+    app: nutify
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: nutify
+  template:
+    metadata:
+      labels:
+        app: nutify
+    spec:
+      containers:
+        - name: nutify
+          image: dartsteven/nutify:latest-amd64
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: "America/New_York"
+            - name: UDEV
+              value: "0"
+            - name: SSL_ENABLED
+              value: "false"
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: nutify-secrets
+                  key: SECRET_KEY
+                  optional: true
+          ports:
+            - name: http
+              containerPort: 5050
+          volumeMounts:
+            - name: logs
+              mountPath: /app/nutify/logs
+            - name: instance
+              mountPath: /app/nutify/instance
+            - name: ssl
+              mountPath: /app/ssl
+            - name: nut-config
+              mountPath: /etc/nut
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5050
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5050
+            initialDelaySeconds: 90
+            periodSeconds: 30
+      volumes:
+        - name: logs
+          persistentVolumeClaim:
+            claimName: nutify-logs
+        - name: instance
+          persistentVolumeClaim:
+            claimName: nutify-instance
+        - name: ssl
+          persistentVolumeClaim:
+            claimName: nutify-ssl
+        - name: nut-config
+          persistentVolumeClaim:
+            claimName: nutify-nut-config
