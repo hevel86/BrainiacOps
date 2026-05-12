@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: syncthing
-          image: lscr.io/linuxserver/syncthing:2.0.16
+          image: lscr.io/linuxserver/syncthing:2.1.0
           env:
             - name: PUID
               value: "1000"
