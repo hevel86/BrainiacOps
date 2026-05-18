@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: kromgo
-        image: ghcr.io/kashalls/kromgo:v0.9.1
+        image: ghcr.io/kashalls/kromgo:v0.10.0
         ports:
         - name: http
           containerPort: 8080
