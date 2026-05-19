@@ -22,7 +22,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: plex
-          image: lscr.io/linuxserver/plex:1.43.1
+          image: lscr.io/linuxserver/plex:1.43.2
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
