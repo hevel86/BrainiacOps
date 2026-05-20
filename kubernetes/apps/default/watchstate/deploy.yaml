@@ -17,6 +17,7 @@ spec:
       labels:
         app: watchstate
     spec:
+      enableServiceLinks: false
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
