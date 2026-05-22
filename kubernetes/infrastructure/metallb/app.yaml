@@ -23,6 +23,10 @@ spec:
           enabled: true
         controller:
           replicaCount: 1
+        frr-k8s:
+          prometheus:
+            serviceMonitor:
+              enabled: false
   syncPolicy:
     automated:
       prune: true
