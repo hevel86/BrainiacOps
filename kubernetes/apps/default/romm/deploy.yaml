@@ -28,7 +28,7 @@ spec:
       # This prevents overwriting user changes on subsequent pod restarts.
       initContainers:
         - name: init-config
-          image: busybox:1.37
+          image: busybox:1.38
           command:
             - "sh"
             - "-c"
