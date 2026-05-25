@@ -22,7 +22,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       initContainers:
         - name: init-db-permissions
-          image: public.ecr.aws/docker/library/busybox:1.37
+          image: public.ecr.aws/docker/library/busybox:1.38
           imagePullPolicy: IfNotPresent
           command:
             - sh
