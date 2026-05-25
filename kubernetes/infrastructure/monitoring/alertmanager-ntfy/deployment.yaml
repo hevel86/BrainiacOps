@@ -25,7 +25,7 @@ spec:
           type: RuntimeDefault
       initContainers:
       - name: render-auth-config
-        image: busybox:1.37
+        image: busybox:1.38
         command:
         - /bin/sh
         - -ec
