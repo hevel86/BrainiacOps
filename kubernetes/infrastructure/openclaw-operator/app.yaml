@@ -11,7 +11,7 @@ spec:
     server: https://kubernetes.default.svc
     namespace: openclaw-operator-system
   source:
-    repoURL: ghcr.io/openclaw-rocks/charts
+    repoURL: ghcr.io/paperclipinc/charts
     chart: openclaw-operator
     targetRevision: 0.34.4
     helm:
