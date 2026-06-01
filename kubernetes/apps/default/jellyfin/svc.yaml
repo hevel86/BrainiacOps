@@ -16,6 +16,7 @@ spec:
   # It's important for services with pods using hostNetwork: true.
   selector:
     app: jellyfin # This matches the label on the Jellyfin pods
+    component: server
   ports:
     - name: http
       protocol: TCP

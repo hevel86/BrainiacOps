@@ -14,6 +14,7 @@ spec:
     metadata:
       labels:
         app: jellyfin
+        component: server
     spec:
       securityContext:
         fsGroup: 1000
