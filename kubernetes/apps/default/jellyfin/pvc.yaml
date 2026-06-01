@@ -15,6 +15,23 @@ spec:
   volumeMode: Filesystem
 ---
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jellyfin-meilisearch-data-lh
+  namespace: default
+  labels:
+    app: jellyfin
+    component: meilisearch
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: longhorn-prod
+  volumeMode: Filesystem
+---
+apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: jellyfin-zfstranscode-pv # Unique name for this PersistentVolume

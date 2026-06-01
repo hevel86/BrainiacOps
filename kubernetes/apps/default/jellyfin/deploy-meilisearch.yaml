@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jellyfin-meilisearch
+  namespace: default
+  labels:
+    app: jellyfin
+    component: meilisearch
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: jellyfin
+      component: meilisearch
+  template:
+    metadata:
+      labels:
+        app: jellyfin
+        component: meilisearch
+    spec:
+      containers:
+        - name: meilisearch
+          image: getmeili/meilisearch:v1.36
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 7700
+          env:
+            - name: MEILI_ENV
+              value: production
+            - name: MEILI_NO_ANALYTICS
+              value: "true"
+            - name: MEILI_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jellyfin-meilisearch-secrets
+                  key: MEILI_MASTER_KEY
+          volumeMounts:
+            - name: data
+              mountPath: /meili_data
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: jellyfin-meilisearch-data-lh

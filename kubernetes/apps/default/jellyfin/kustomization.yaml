@@ -1,7 +1,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - bitwarden-secrets.yaml
   - deploy.yaml
+  - deploy-meilisearch.yaml
   - ingressroute.yaml
   - pvc.yaml
   - svc.yaml
