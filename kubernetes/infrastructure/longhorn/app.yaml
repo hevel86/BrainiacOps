@@ -38,7 +38,7 @@ spec:
               tag: v1.11.2
             instanceManager:
               # renovate: datasource=docker depName=longhornio/longhorn-instance-manager versioning=docker
-              tag: v1.11.2
+              tag: v1.12.0
         defaultSettings:
           defaultReplicaCount: '3'
           defaultDataPath: /var/mnt/longhorn
