@@ -36,7 +36,7 @@ jobs:
             kubernetes/**/*.yaml
       - name: Validate changed manifests with kubeconform
         if: steps.changed-files.outputs.any_changed == 'true'
-        uses: docker://ghcr.io/yannh/kubeconform:v0.7.0@sha256:7426d17ca19f3731d2a6287c868005f052f2682800141f20e83d3109f5c8faa1
+        uses: docker://ghcr.io/yannh/kubeconform:v0.8.0@sha256:5103f6f5e89061728aad4ad5a250627dd0fc9b2a92eb876f3762677a4222f9e0
         with:
           args: -strict -ignore-missing-schemas -summary ${{ steps.changed-files.outputs.all_changed_files }}
       - name: No Kubernetes YAML changes
