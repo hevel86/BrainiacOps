@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://kubernetes-sigs.github.io/metrics-server/
     chart: metrics-server
-    targetRevision: "3.13.0"
+    targetRevision: "3.13.1"
     helm:
       values: |
         args:
