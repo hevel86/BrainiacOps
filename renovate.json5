@@ -358,6 +358,22 @@
       groupSlug: 'patch-updates',
     },
     {
+      description: 'Group Portainer server and agent updates',
+      matchDatasources: [
+        'docker',
+      ],
+      matchPackageNames: [
+        'portainer/portainer-ce',
+        'portainer/agent',
+      ],
+      matchFileNames: [
+        'kubernetes/infrastructure/portainer/**',
+        'kubernetes/infrastructure/portainer-agent/**',
+      ],
+      groupName: 'Portainer',
+      groupSlug: 'portainer',
+    },
+    {
       description: 'Automerge safe updates for GitHub Actions',
       matchManagers: [
         'github-actions',
