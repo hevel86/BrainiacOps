@@ -49,4 +49,4 @@ spec:
             claimName: syncthing-config
         - name: sync-saves
           persistentVolumeClaim:
-            claimName: syncthing-sync-saves-pvc
+            claimName: syncthing-sync-saves-fast-pvc

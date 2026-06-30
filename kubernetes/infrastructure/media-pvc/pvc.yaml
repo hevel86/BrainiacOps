@@ -87,13 +87,13 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: media-roms-pvc
+  name: fast-roms-pvc
   namespace: default
 spec:
   accessModes: ["ReadWriteMany"]
   resources:
     requests:
       storage: 3Ti
-  volumeName: media-roms-pv-default
+  volumeName: fast-roms-pv-default
   storageClassName: ""
   volumeMode: Filesystem

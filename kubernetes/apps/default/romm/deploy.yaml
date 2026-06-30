@@ -97,7 +97,7 @@ spec:
             claimName: romm-redis-data-pvc
         - name: romm-library
           persistentVolumeClaim:
-            claimName: media-roms-pvc
+            claimName: fast-roms-pvc
         - name: romm-assets
           persistentVolumeClaim:
             claimName: romm-assets-pvc

@@ -72,7 +72,7 @@ spec:
             claimName: azahar-config
         - name: games
           persistentVolumeClaim:
-            claimName: media-roms-pvc
+            claimName: fast-roms-pvc
         - name: shm
           emptyDir:
             medium: Memory
