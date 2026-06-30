@@ -11,4 +11,4 @@ spec:
   volumeMode: Filesystem
   nfs:
     server: truenas1-nfs.torquasmvo.internal
-    path: /mnt/media/games/ROMs
+    path: /mnt/fast/games/ROMs
