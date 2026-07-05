@@ -19,7 +19,7 @@ spec:
   source:
     repoURL: ghcr.io/home-operations/charts
     chart: tuppr
-    targetRevision: "0.2.9"
+    targetRevision: "0.3.0"
     helm:
       values: |
         replicaCount: 3
