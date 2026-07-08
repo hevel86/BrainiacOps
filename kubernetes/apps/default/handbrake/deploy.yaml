@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: handbrake
-          image: ghcr.io/jlesage/handbrake:v26.03.3
+          image: ghcr.io/jlesage/handbrake:v26.07.1
           imagePullPolicy: IfNotPresent
           ports:
             - name: web
