@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(kubectl get:*)",
+      "Bash(kustomize build:*)",
+      "Bash(kubeconform:*)",
+      "Bash(mise list:*)",
+      "Bash(mise exec:*)",
+      "Bash(yamllint:*)",
+      "Bash(gh run:*)",
+      "Bash(gh issue:*)",
+      "Bash(npx:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(brew upgrade:*)",
+      "WebFetch(domain:uptime-kuma.botty-mcbotface.com)",
+      "WebSearch",
+      "Bash(kubectl describe:*)",
+      "Bash(kubectl logs:*)"
+    ]
+  }
+}
