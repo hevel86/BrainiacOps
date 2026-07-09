@@ -34,6 +34,15 @@ spec:
                 name: transmission-vpn-env
             - secretRef:
                 name: transmission-vpn-secret
+          env:
+            # Work around haugene/transmission-openvpn 5.4.1 reading these
+            # variables before its NordVPN setup script assigns them.
+            - name: json_countries
+              value: "[]"
+            - name: json_groups
+              value: "[]"
+            - name: json_technologies
+              value: "[]"
           ports:
             - name: web
               containerPort: 9091
