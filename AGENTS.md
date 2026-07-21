@@ -272,6 +272,22 @@ Use this decision rule:
 - If the app needs to reach a tailnet host, add or reuse a shared egress `ExternalName` `Service` in `kubernetes/infrastructure/tailscale-egress/`.
 - If multiple apps need the same tailnet host, never duplicate that egress `Service` under app directories.
 
+### Tdarr Flow Operations
+
+- **Web/API endpoint**: `http://tdarr.torquasmvo.internal:8265`
+- **Active policy**: Both the Movies and TV libraries intentionally use the `Movies` flow.
+- **Audio policy**: Files must not retain 7.1/8-channel audio. The flow checks for an 8-channel stream before accepting an otherwise-compliant file, keeps or creates exactly one English (`en`) AC-3 5.1/6-channel stream, and removes the other audio streams.
+- **Language behavior**: The Keep One Audio Stream plugin prefers an English-tagged stream. If no English-tagged stream exists, it can fall back to the best untagged/undefined stream; verify source language tags before requeueing unusual files.
+- **Video policy**: Existing HEVC video is copied rather than re-encoded. Non-HEVC video in the accepted resolution branches is converted to HEVC with QSV. A large HEVC file will therefore only shrink by the audio savings unless a separate video-quality policy is deliberately introduced.
+- **Size validation**: Accept outputs from 5% through 120% of the original size. The 5% lower bound replaced the former 10% limit so valid high-compression HEVC results are not discarded.
+
+**Important flow behavior**:
+- `Check Audio Codec` succeeds when *any* audio stream has the requested codec; it does not prove that the preferred/default English stream is compliant. Check channel count and language before codec-only acceptance.
+- Flow edits change future processing only. Files already marked `Not required` must be explicitly requeued.
+- Before editing a live flow through the API, save the current `FlowsJSONDB` response under `/tmp`, change only the intended flow, validate that every edge source/target exists and IDs are unique, then read the flow back after saving.
+- Prefer the Tdarr UI for requeueing. The equivalent per-file API operation updates the `FileJSONDB` document to `TranscodeDecisionMaker: "Queued"` and refreshes both `createdAt` and `lastUpdate`; verify worker pickup and the final FFprobe stream metadata.
+- Job diagnosis is available through `/api/v2/search-job-reports` and `/api/v2/job-reports/{jobId}`. Do not commit job reports because they contain media paths and detailed file metadata.
+
 ### Pre-commit Security
 
 On `git commit`:
@@ -447,5 +463,5 @@ BrainiacOps is a GitOps repository where all cluster state is declared in Git. C
 
 ---
 
-**Last Updated**: 2026-04-28
+**Last Updated**: 2026-07-21
 **Cluster Version**: Talos v1.13.0, Kubernetes v1.36.0
