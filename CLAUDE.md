@@ -278,8 +278,9 @@ Use this decision rule:
 
 - **Web/API endpoint**: `http://tdarr.torquasmvo.internal:8265`
 - **Active policy**: Both the Movies and TV libraries intentionally use the `Movies` flow.
-- **Audio policy**: Files must not retain 7.1/8-channel audio. The flow checks for an 8-channel stream before accepting an otherwise-compliant file, keeps or creates exactly one English (`en`) AC-3 5.1/6-channel stream, and removes the other audio streams.
-- **Language behavior**: The Keep One Audio Stream plugin prefers an English-tagged stream. If no English-tagged stream exists, it can fall back to the best untagged/undefined stream; verify source language tags before requeueing unusual files.
+- **Audio policy**: For files with a 7.1/8-channel stream, preserve the English source track, ensure an English (`en`) AC-3 5.1/6-channel compatibility track (new tracks use 640 kbps), remove non-English audio, and mark the 5.1 track as default. Files without 7.1 audio continue through the existing codec-normalization path.
+- **Language behavior**: The hybrid 7.1 branch keeps only audio tagged `eng`/`en`; after creating the English compatibility track, it removes other and untagged audio. The non-7.1 Keep One Audio Stream path can fall back to the best untagged/undefined stream when no English-tagged stream exists. Verify source language tags before requeueing unusual files.
+- **Gabby's Dollhouse policy**: When a matching file has tagged English audio, remove every non-English audio stream while preserving the English codec and channel count. If no tagged English stream exists, bypass this cleanup and continue through the normal codec checks so the file is not left silent.
 - **Video policy**: Existing HEVC video is copied rather than re-encoded. Non-HEVC video in the accepted resolution branches is converted to HEVC with QSV. A large HEVC file will therefore only shrink by the audio savings unless a separate video-quality policy is deliberately introduced.
 - **Size validation**: Accept outputs from 5% through 120% of the original size. The 5% lower bound replaced the former 10% limit so valid high-compression HEVC results are not discarded.
 
