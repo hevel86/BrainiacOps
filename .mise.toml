@@ -4,14 +4,14 @@ TALOSCONFIG = "{{env.HOME}}/.talos/talosconfig"
 SOPS_AGE_KEY_FILE = "{{env.HOME}}/.config/sops/age/keys.txt"
 
 [tools]
-"aqua:kubernetes/kubectl" = "v1.36.2"
+"aqua:kubernetes/kubectl" = "v1.36.3"
 "aqua:kubernetes-sigs/kustomize" = "kustomize/v5.8.0"
-"aqua:budimanjojo/talhelper" = "v3.1.14"
+"aqua:budimanjojo/talhelper" = "v3.1.15"
 "aqua:helm/helm" = "v4.2.3"
 "aqua:siderolabs/talos" = "v1.13.7"
 "aqua:derailed/k9s" = "v0.51.0"
 "aqua:yannh/kubeconform" = "v0.8.0"
-"aqua:getsops/sops" = "v3.13.2"
+"aqua:getsops/sops" = "v3.13.3"
 "aqua:FiloSottile/age" = "v1.3.1"
 "aqua:argoproj/argo-cd" = "v3.4.5"
 "aqua:cli/cli" = "v2.96.0" # gh
