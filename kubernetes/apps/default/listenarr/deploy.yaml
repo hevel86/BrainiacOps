@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: listenarr
+  namespace: default
+  labels:
+    app: listenarr
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: listenarr
+  template:
+    metadata:
+      labels:
+        app: listenarr
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: listenarr
+          image: ghcr.io/listenarrs/listenarr:canary-1.2.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 4545
+              protocol: TCP
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: UMASK
+              value: "022"
+            - name: TZ
+              value: "America/New_York"
+            - name: LISTENARR_LOG_LEVEL
+              value: "Information"
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+            - name: audiobooks
+              mountPath: /audiobooks
+            - name: sabnzbd-downloads
+              mountPath: /downloads/sabnzbd
+            - name: transmission-downloads
+              mountPath: /downloads/transmission
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            failureThreshold: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 20
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: listenarr-config
+        - name: audiobooks
+          persistentVolumeClaim:
+            claimName: audiobookshelf-audiobooks-pvc
+        - name: sabnzbd-downloads
+          persistentVolumeClaim:
+            claimName: sabnzbd-downloads-pvc
+        - name: transmission-downloads
+          persistentVolumeClaim:
+            claimName: transmission-vpn-data

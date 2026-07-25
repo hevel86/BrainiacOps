@@ -21,32 +21,3 @@ spec:
   resources:
     requests:
       storage: 1Gi
----     
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: audiobookshelf-audiobooks-pv
-spec:
-  capacity:
-    storage: 2Ti
-  accessModes: ["ReadWriteMany"]
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: ""
-  volumeMode: Filesystem
-  nfs:
-    server: truenas1-nfs.torquasmvo.internal
-    path: /mnt/fast/audiobooks/books
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: audiobookshelf-audiobooks-pvc
-  namespace: default
-spec:
-  accessModes: ["ReadWriteMany"]
-  resources:
-    requests:
-      storage: 2Ti
-  storageClassName: ""
-  volumeMode: Filesystem
-  volumeName: audiobookshelf-audiobooks-pv

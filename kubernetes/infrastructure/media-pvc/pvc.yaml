@@ -28,6 +28,22 @@ spec:
   storageClassName: ""
   volumeMode: Filesystem
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: audiobookshelf-audiobooks-pvc
+  namespace: default
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests:
+      storage: 2Ti
+  volumeName: audiobookshelf-audiobooks-pv
+  storageClassName: ""
+  volumeMode: Filesystem
+---
 # apiVersion: v1
 # kind: PersistentVolumeClaim
 # metadata:
