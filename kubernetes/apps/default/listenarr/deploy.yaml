@@ -43,9 +43,9 @@ spec:
             - name: audiobooks
               mountPath: /audiobooks
             - name: sabnzbd-downloads
-              mountPath: /downloads/sabnzbd
+              mountPath: /downloads
             - name: transmission-downloads
-              mountPath: /downloads/transmission
+              mountPath: /data
           startupProbe:
             httpGet:
               path: /
