@@ -62,18 +62,30 @@ spec:
           volumeMounts:
             - name: backups
               mountPath: /data/backup
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30
           readinessProbe:
             httpGet:
-              path: /
+              path: /health
               port: http
-            initialDelaySeconds: 20
+            initialDelaySeconds: 5
             periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
           livenessProbe:
             httpGet:
-              path: /
+              path: /health
               port: http
-            initialDelaySeconds: 60
-            periodSeconds: 20
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
       volumes:
         - name: backups
           persistentVolumeClaim:
