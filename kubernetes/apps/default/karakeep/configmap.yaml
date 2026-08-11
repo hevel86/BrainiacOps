@@ -7,3 +7,4 @@ metadata:
     app: karakeep
 data:
   NEXTAUTH_URL: https://karakeep.torquasmvo.com
+  EMBEDDING_ENABLE_AUTO_INDEXING: "true"
