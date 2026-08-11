@@ -30,6 +30,8 @@ spec:
               value: redis://paperless-redis:6379
             - name: PAPERLESS_DBHOST
               value: paperless-db
+            - name: PAPERLESS_DBENGINE
+              value: postgresql
             - name: PAPERLESS_DBNAME
               value: paperless
             - name: PAPERLESS_DBUSER
