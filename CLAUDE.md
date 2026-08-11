@@ -291,6 +291,14 @@ Use this decision rule:
 - Prefer the Tdarr UI for requeueing. The equivalent per-file API operation updates the `FileJSONDB` document to `TranscodeDecisionMaker: "Queued"` and refreshes both `createdAt` and `lastUpdate`; verify worker pickup and the final FFprobe stream metadata.
 - Job diagnosis is available through `/api/v2/search-job-reports` and `/api/v2/job-reports/{jobId}`. Do not commit job reports because they contain media paths and detailed file metadata.
 
+### Paperless-ngx Upgrade Operations
+
+- Paperless-ngx v3 requires `PAPERLESS_DBENGINE=postgresql`; keep this explicit in `kubernetes/apps/default/paperless-ngx/deploy.yaml`.
+- The Paperless Argo CD application intentionally has automated sync disabled. Major upgrades must be synced explicitly after the desired image and required configuration are present in Git.
+- Before a major database-affecting upgrade, scale down the Paperless application deployment and create a PostgreSQL custom-format logical dump with `pg_dump`. Store temporary dumps under `/tmp`, validate them with `pg_restore --list`, and never commit them because they contain application data.
+- Longhorn snapshots and offsite volume backups provide storage-level recovery, but they are not a substitute for a logical database dump when a database migration may need to be reversed.
+- After syncing, verify Argo CD health, pod readiness and restart count, migration logs, and the document count before deleting the temporary rollback dump.
+
 ### Pre-commit Security
 
 On `git commit`:
@@ -466,5 +474,5 @@ BrainiacOps is a GitOps repository where all cluster state is declared in Git. C
 
 ---
 
-**Last Updated**: 2026-07-21
+**Last Updated**: 2026-08-11
 **Cluster Version**: Talos v1.13.0, Kubernetes v1.36.0

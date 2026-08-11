@@ -9,7 +9,7 @@ This document provides context for the Gemini Code Assistant to understand the `
 - **NEVER commit secrets, passwords, API keys, or tokens** - Use Bitwarden Secrets Operator references instead
 - **NEVER hardcode sensitive values** in manifests - Reference `BitwardenSecret` resources
 - **Talos secrets** must only exist in `talsecret.sops.yaml` (encrypted with SOPS+age)
-- **NEVER auto-stage (git add) or auto-commit changes** - The user will perform all Git operations manually. Reading git logs for context is permitted.
+- **NEVER auto-stage (`git add`) or auto-commit changes** - The user will perform all Git operations manually. Reading git logs for context is permitted.
 - **Do not rely on manual `kubectl scale`, pod deletion, or ad hoc Argo CD changes for persistent fixes** - If Argo CD manages the resource, make the desired state change in Git first or Argo CD may self-heal it back.
 - **Child Argo CD app `Application` manifests under `kubernetes/apps/` and `kubernetes/games/` must include `resources-finalizer.argocd.argoproj.io`** - Without it, removing an app from Git can delete the Argo CD `Application` object but orphan the workload resources in-cluster.
 - **Single-replica deployments using ReadWriteOnce (RWO) volumes MUST use `strategy: type: Recreate`** - The default `RollingUpdate` will deadlock as the new pod cannot mount the volume until the old pod releases it.
@@ -291,6 +291,14 @@ Use this decision rule:
 - Prefer the Tdarr UI for requeueing. The equivalent per-file API operation updates the `FileJSONDB` document to `TranscodeDecisionMaker: "Queued"` and refreshes both `createdAt` and `lastUpdate`; verify worker pickup and the final FFprobe stream metadata.
 - Job diagnosis is available through `/api/v2/search-job-reports` and `/api/v2/job-reports/{jobId}`. Do not commit job reports because they contain media paths and detailed file metadata.
 
+### Paperless-ngx Upgrade Operations
+
+- Paperless-ngx v3 requires `PAPERLESS_DBENGINE=postgresql`; keep this explicit in `kubernetes/apps/default/paperless-ngx/deploy.yaml`.
+- The Paperless Argo CD application intentionally has automated sync disabled. Major upgrades must be synced explicitly after the desired image and required configuration are present in Git.
+- Before a major database-affecting upgrade, scale down the Paperless application deployment and create a PostgreSQL custom-format logical dump with `pg_dump`. Store temporary dumps under `/tmp`, validate them with `pg_restore --list`, and never commit them because they contain application data.
+- Longhorn snapshots and offsite volume backups provide storage-level recovery, but they are not a substitute for a logical database dump when a database migration may need to be reversed.
+- After syncing, verify Argo CD health, pod readiness and restart count, migration logs, and the document count before deleting the temporary rollback dump.
+
 ### Pre-commit Security
 
 On `git commit`:
@@ -466,5 +474,5 @@ BrainiacOps is a GitOps repository where all cluster state is declared in Git. C
 
 ---
 
-**Last Updated**: 2026-07-21
+**Last Updated**: 2026-08-11
 **Cluster Version**: Talos v1.13.0, Kubernetes v1.36.0
