@@ -1,0 +1,21 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: immich
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: immich
+    app.kubernetes.io/instance: immich
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`immich.torquasmvo.com`)
+      kind: Rule
+      services:
+        - name: immich-server
+          namespace: default
+          port: 2283
+  tls:
+    secretName: traefik-dashboard-tls
+

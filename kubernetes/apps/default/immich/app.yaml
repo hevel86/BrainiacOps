@@ -1,0 +1,117 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: immich-resources
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "29"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/hevel86/BrainiacOps
+    targetRevision: HEAD
+    path: kubernetes/apps/default/immich/resources
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: immich
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "30"
+spec:
+  project: default
+  source:
+    repoURL: ghcr.io/immich-app/immich-charts
+    chart: immich
+    targetRevision: "0.13.1"
+    helm:
+      releaseName: immich
+      values: |
+        controllers:
+          main:
+            containers:
+              main:
+                image:
+                  tag: v3.1.0
+                env:
+                  TZ: America/New_York
+                  REDIS_HOSTNAME: immich-valkey
+                  IMMICH_MACHINE_LEARNING_URL: http://immich-machine-learning:3003
+                  DB_HOSTNAME: immich-postgres
+                  DB_USERNAME: immich
+                  DB_DATABASE_NAME: immich
+                  DB_PASSWORD:
+                    valueFrom:
+                      secretKeyRef:
+                        name: immich-secrets
+                        key: DB_PASSWORD
+
+        immich:
+          metrics:
+            enabled: true
+          persistence:
+            library:
+              existingClaim: immich-library-pvc
+          configuration:
+            ffmpeg:
+              accel: qsv
+              accelDecode: true
+
+        valkey:
+          enabled: true
+
+        server:
+          controllers:
+            main:
+              strategy: Recreate
+              containers:
+                main:
+                  resources:
+                    requests:
+                      cpu: 500m
+                      memory: 1Gi
+                      gpu.intel.com/i915: "1"
+                    limits:
+                      memory: 8Gi
+                      gpu.intel.com/i915: "1"
+
+        machine-learning:
+          controllers:
+            main:
+              strategy: Recreate
+              containers:
+                main:
+                  image:
+                    tag: v3.1.0-openvino
+                  resources:
+                    requests:
+                      cpu: 500m
+                      memory: 2Gi
+                      gpu.intel.com/i915: "1"
+                    limits:
+                      memory: 8Gi
+                      gpu.intel.com/i915: "1"
+          persistence:
+            cache:
+              enabled: true
+              type: persistentVolumeClaim
+              existingClaim: immich-machine-learning-cache-pvc
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
