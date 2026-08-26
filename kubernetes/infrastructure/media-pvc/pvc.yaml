@@ -113,3 +113,24 @@ spec:
   volumeName: fast-roms-pv-default
   storageClassName: ""
   volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: immich-library-pvc
+  namespace: default
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
+  labels:
+    app.kubernetes.io/name: immich
+    app.kubernetes.io/instance: immich
+    app.kubernetes.io/component: server
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Ti
+  volumeName: immich-library-pv
+  storageClassName: ""
+  volumeMode: Filesystem
