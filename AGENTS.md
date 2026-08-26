@@ -75,7 +75,6 @@ BrainiacOps/
 │   │   └── [other infra]
 │   ├── apps/                   # User-facing applications
 │   │   ├── default/           # Primary namespace (30+ apps)
-│   │   │   ├── maintainerr/   # Media maintenance automation
 │   │   │   ├── plex/          # Media server
 │   │   │   ├── radarr/        # Movie management
 │   │   │   ├── sonarr/        # TV management
