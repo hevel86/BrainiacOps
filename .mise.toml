@@ -16,3 +16,4 @@ SOPS_AGE_KEY_FILE = "{{env.HOME}}/.config/sops/age/keys.txt"
 "aqua:argoproj/argo-cd" = "v3.5.1"
 "aqua:cli/cli" = "v2.98.0" # gh
 "npm:renovate" = "43.243.0"
+node = "latest"
