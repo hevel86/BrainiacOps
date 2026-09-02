@@ -15,11 +15,6 @@ spec:
       labels:
         app: transmission-vpn
     spec:
-      dnsPolicy: None
-      dnsConfig:
-        nameservers:
-          - 9.9.9.9
-          - 1.1.1.1
       containers:
         - name: transmission-vpn
           image: haugene/transmission-openvpn:5.5.2
