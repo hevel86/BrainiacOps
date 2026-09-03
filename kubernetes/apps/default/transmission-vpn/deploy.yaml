@@ -15,10 +15,32 @@ spec:
       labels:
         app: transmission-vpn
     spec:
+      # OpenVPN replaces the pod-scoped resolv.conf, which persists across
+      # container restarts. Save the fresh ClusterFirst resolver once per pod.
+      initContainers:
+        - name: capture-cluster-dns
+          image: haugene/transmission-openvpn:5.5.2
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/bash
+            - -c
+            - cp /etc/resolv.conf /resolver/resolv.conf
+          volumeMounts:
+            - name: resolver
+              mountPath: /resolver
       containers:
         - name: transmission-vpn
           image: haugene/transmission-openvpn:5.5.2
           imagePullPolicy: IfNotPresent
+          # Restore CoreDNS before provider setup; OpenVPN can replace it with
+          # the VPN-provided resolvers again after the tunnel is established.
+          command:
+            - dumb-init
+            - /bin/bash
+            - -c
+            - |
+              cp /resolver/resolv.conf /etc/resolv.conf
+              exec /etc/openvpn/start.sh
           securityContext:
             privileged: true
             capabilities:
@@ -43,6 +65,8 @@ spec:
               containerPort: 9091
               protocol: TCP
           volumeMounts:
+            - name: resolver
+              mountPath: /resolver
             - name: config
               mountPath: /config
             - name: data
@@ -53,6 +77,8 @@ spec:
             - name: tun-device
               mountPath: /dev/net/tun
       volumes:
+        - name: resolver
+          emptyDir: {}
         - name: config
           persistentVolumeClaim:
             claimName: transmission-vpn-config
