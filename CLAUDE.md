@@ -273,6 +273,15 @@ Use this decision rule:
 - If the app needs to reach a tailnet host, add or reuse a shared egress `ExternalName` `Service` in `kubernetes/infrastructure/tailscale-egress/`.
 - If multiple apps need the same tailnet host, never duplicate that egress `Service` under app directories.
 
+### Transmission VPN Operations
+
+- The `haugene/transmission-openvpn` image replaces the pod-scoped `/etc/resolv.conf` with VPN-provided DNS after the tunnel connects. That file survives a container restart within the same pod, while the image's backup exists only in the replaced container filesystem.
+- A tunnel or container failure can therefore leave a restarted container trying to reach NordVPN's API through VPN-only DNS before the tunnel exists. The characteristic failure is `CrashLoopBackOff`, exit code `6`, `WARNING: initial DNS resolution test failed`, and termination immediately after `Executing setup script for NORDVPN`.
+- Keep the resolver capture-and-restore pattern in `kubernetes/apps/default/transmission-vpn/deploy.yaml`: the init container saves the fresh `ClusterFirst` resolver in an `emptyDir`, and the main container restores it before executing `/etc/openvpn/start.sh`. OpenVPN remains free to install NordVPN DNS after reconnecting.
+- Do not replace this pattern with `OVERRIDE_DNS` unless permanently bypassing VPN-provided DNS is intentional. Do not treat pod deletion as the persistent fix; deletion only creates a fresh pod-level resolver file and temporarily clears the failure.
+- To verify recovery, confirm the pod has zero new restarts and logs contain `DNS: updated /etc/resolv.conf with VPN-provided DNS`, `Initialization Sequence Completed`, and `Transmission startup script complete.`
+- The `transmission-vpn` Argo CD application intentionally has automated sync disabled. After committing and pushing changes, sync it explicitly.
+
 ### Tdarr Flow Operations
 
 - **Web/API endpoint**: `http://tdarr.torquasmvo.internal:8265`
@@ -473,5 +482,5 @@ BrainiacOps is a GitOps repository where all cluster state is declared in Git. C
 
 ---
 
-**Last Updated**: 2026-08-11
+**Last Updated**: 2026-09-03
 **Cluster Version**: Talos v1.13.0, Kubernetes v1.36.0
