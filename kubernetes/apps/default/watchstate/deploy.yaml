@@ -27,7 +27,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: watchstate
-          image: ghcr.io/arabcoders/watchstate:v1.10.3
+          image: ghcr.io/arabcoders/watchstate:v1.10.4
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: false
