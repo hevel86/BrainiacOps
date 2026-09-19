@@ -20,7 +20,7 @@ spec:
           containers:
             - name: etcd-defrag
               # renovate: datasource=docker depName=alpine
-              image: alpine:3.24.1
+              image: alpine:3.24.2
               command:
                 - /bin/sh
                 - -c
