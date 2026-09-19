@@ -15,16 +15,20 @@ spec:
       labels:
         app: transmission-vpn
     spec:
-      # OpenVPN replaces the pod-scoped resolv.conf, which persists across
-      # container restarts. Save the fresh ClusterFirst resolver once per pod.
+      # OpenVPN replaces the pod-scoped resolv.conf and DROP_DEFAULT_ROUTE
+      # removes the original default route. Both changes persist across
+      # container restarts, so save the clean pod network state once per pod.
       initContainers:
         - name: capture-cluster-dns
           image: haugene/transmission-openvpn:5.5.2
           imagePullPolicy: IfNotPresent
           command:
             - /bin/bash
-            - -c
-            - cp /etc/resolv.conf /resolver/resolv.conf
+            - -ec
+            - |
+              cp /etc/resolv.conf /resolver/resolv.conf
+              ip -4 route show default > /resolver/default-route
+              test -s /resolver/default-route
           volumeMounts:
             - name: resolver
               mountPath: /resolver
@@ -32,14 +36,16 @@ spec:
         - name: transmission-vpn
           image: haugene/transmission-openvpn:5.5.2
           imagePullPolicy: IfNotPresent
-          # Restore CoreDNS before provider setup; OpenVPN can replace it with
-          # the VPN-provided resolvers again after the tunnel is established.
+          # Restore CoreDNS and the pod's original default route before provider
+          # setup. OpenVPN can replace DNS and remove the route again after the
+          # tunnel is established.
           command:
             - dumb-init
             - /bin/bash
-            - -c
+            - -ec
             - |
               cp /resolver/resolv.conf /etc/resolv.conf
+              ip -4 route replace $(cat /resolver/default-route)
               exec /etc/openvpn/start.sh
           securityContext:
             privileged: true
