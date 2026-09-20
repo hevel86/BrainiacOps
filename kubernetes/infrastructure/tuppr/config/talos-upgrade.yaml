@@ -6,7 +6,7 @@ metadata:
 spec:
   talos:
     # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
-    version: v1.13.10
+    version: v1.14.1
   policy:
     placement: soft
   healthChecks:
@@ -19,6 +19,6 @@ spec:
       timeout: "1h"
   maintenance:
     windows:
-      - start: "0 1 * * 0"
+      - start: "0 3 * * 6"
         duration: "6h"
         timezone: "America/New_York"
