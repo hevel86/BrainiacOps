@@ -350,6 +350,19 @@
       groupName: 'Kubernetes',
     },
     {
+      description: 'Keep RomM MariaDB on the 12.x release line',
+      matchDatasources: [
+        'docker',
+      ],
+      matchPackageNames: [
+        'mariadb',
+      ],
+      matchFileNames: [
+        'kubernetes/apps/default/romm/db.yaml',
+      ],
+      allowedVersions: '/^12\\./',
+    },
+    {
       description: 'Group all patch updates',
       matchUpdateTypes: [
         'patch',
