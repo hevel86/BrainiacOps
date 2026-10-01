@@ -27,6 +27,10 @@ finalizer removes its workloads and Service. The existing
 `dns-system/technitium-dns-config` PVC carries `Delete=false,Prune=false` and
 must remain available for recovery. Keep the namespace while preserving it.
 The manually bootstrapped `dns-system/bw-auth-token` is not managed by that app.
+dns3's local cluster membership and its registration on the primary were
+removed through the API; the remaining cluster consists of dns1 and dns2.
+The deployment is temporarily scaled to zero pending Git removal, with its
+existing automated sync disabled. Do not manually sync the old revision.
 
 Before revisiting:
 
