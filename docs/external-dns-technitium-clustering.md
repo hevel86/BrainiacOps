@@ -9,10 +9,39 @@ Deploy External-DNS to automate DNS record creation for LoadBalancer services by
 **Scope:**
 - External-DNS manages `*.torquasmvo.internal` records for LoadBalancer services only.
 - External-DNS communicates directly with the primary LXC node (`192.168.1.7`).
-- The previous in-cluster Technitium node was removed. A replacement secondary
-  is prepared under [technitium-dns](../kubernetes/infrastructure/technitium-dns/README.md)
-  with manual sync and explicit cluster-join acceptance checks. External-DNS
-  continues targeting the existing primary.
+- The in-cluster Technitium secondary has been withdrawn from Git. External-DNS
+  continues targeting the existing primary. See the deferred deployment notes below.
+
+## Deferred Kubernetes Secondary (October 2026)
+
+The Technitium 15.5.1 deployment joined as `dns3.torquasmvo.internal`, but
+catalog replication failed. Its advertised MetalLB address was `10.0.0.246`;
+Flannel translated outbound requests to the hosting Talos node's address.
+The primary rejected those transfers because the generated catalog ACL only
+allowed registered cluster addresses. Missing cluster-zone TLSA records then
+caused peer certificate validation failures.
+
+The deployment manifests have been removed. After committing and pushing this
+removal, the infrastructure parent will prune the child Application, whose
+finalizer removes its workloads and Service. The existing
+`dns-system/technitium-dns-config` PVC carries `Delete=false,Prune=false` and
+must remain available for recovery. Keep the namespace while preserving it.
+The manually bootstrapped `dns-system/bw-auth-token` is not managed by that app.
+
+Before revisiting:
+
+- Inspect the retained PVC before deploying; do not silently create a fresh
+  replacement or assume the stored node is still a cluster member.
+- Resolve outbound-address authorization while preserving Kubernetes
+  rescheduling. A narrowly scoped catalog-ACL reconciler can allow the three
+  Talos node addresses while retaining the cluster TSIG requirement; membership
+  changes rebuild that ACL, so a one-time edit is insufficient.
+- The server-wide `zoneTransferAllowedNetworks` setting bypasses TSIG and
+  allows transfers of all zones from listed sources. It was not enabled.
+- No host-network conversion, node pinning, or ACL reconciliation was deployed.
+- Keep Talos pointed at the two existing external resolvers. Confirm zone
+  replication, peer certificate validation, and rescheduling before adding
+  any future Kubernetes DNS node to client resolver lists.
 
 ## Technitium Configuration (Primary: 192.168.1.7)
 
