@@ -9,7 +9,10 @@ Deploy External-DNS to automate DNS record creation for LoadBalancer services by
 **Scope:**
 - External-DNS manages `*.torquasmvo.internal` records for LoadBalancer services only.
 - External-DNS communicates directly with the primary LXC node (`192.168.1.7`).
-- In-cluster Technitium node was evaluated but removed to simplify the architecture.
+- The previous in-cluster Technitium node was removed. A replacement secondary
+  is prepared under [technitium-dns](../kubernetes/infrastructure/technitium-dns/README.md)
+  with manual sync and explicit cluster-join acceptance checks. External-DNS
+  continues targeting the existing primary.
 
 ## Technitium Configuration (Primary: 192.168.1.7)
 
