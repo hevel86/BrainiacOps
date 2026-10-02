@@ -22,7 +22,7 @@ spec:
     repoURL: https://charts.longhorn.io
     chart: longhorn
     # Upgrade one minor release at a time; verify 1.12.x before moving to 1.13.x.
-    targetRevision: 1.12.1
+    targetRevision: 1.13.0
     helm:
       values: |
         preUpgradeChecker:
