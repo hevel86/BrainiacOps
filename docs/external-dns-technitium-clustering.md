@@ -21,21 +21,19 @@ The primary rejected those transfers because the generated catalog ACL only
 allowed registered cluster addresses. Missing cluster-zone TLSA records then
 caused peer certificate validation failures.
 
-The deployment manifests have been removed. After committing and pushing this
-removal, the infrastructure parent will prune the child Application, whose
-finalizer removes its workloads and Service. The existing
-`dns-system/technitium-dns-config` PVC carries `Delete=false,Prune=false` and
-must remain available for recovery. Keep the namespace while preserving it.
-The manually bootstrapped `dns-system/bw-auth-token` is not managed by that app.
+The deployment manifests have been removed and Argo CD has pruned the child
+Application, workload, and Service. The PVC was initially retained with
+`Delete=false,Prune=false`, but the final check on October 2 found no matching
+PVC, PV, or original Longhorn volume. Do not assume its configuration remains
+recoverable; backups were not checked. The namespace and manually bootstrapped
+`dns-system/bw-auth-token` remain.
 dns3's local cluster membership and its registration on the primary were
 removed through the API; the remaining cluster consists of dns1 and dns2.
-The deployment is temporarily scaled to zero pending Git removal, with its
-existing automated sync disabled. Do not manually sync the old revision.
 
 Before revisiting:
 
-- Inspect the retained PVC before deploying; do not silently create a fresh
-  replacement or assume the stored node is still a cluster member.
+- Check for retained storage or backups before attempting recovery. Otherwise
+  treat a future deployment as a new node requiring initialization and joining.
 - Resolve outbound-address authorization while preserving Kubernetes
   rescheduling. A narrowly scoped catalog-ACL reconciler can allow the three
   Talos node addresses while retaining the cluster TSIG requirement; membership
