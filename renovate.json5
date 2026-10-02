@@ -28,6 +28,12 @@
     'argocd',
     'custom.regex',
   ],
+  // Parse Application YAML directly, including CRLF files and multiple documents.
+  argocd: {
+    managerFilePatterns: [
+      '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
+    ],
+  },
   labels: [
     'dependencies',
     'renovate',
@@ -62,40 +68,6 @@
       ],
       datasourceTemplate: 'docker',
       versioningTemplate: 'docker',
-    },
-    {
-      customType: 'regex',
-      description: 'Update Helm chart releases in Argo CD Applications',
-      // Keep matches scoped to a single Argo CD `source:` block. This avoids
-      // pairing repoURL/chart/targetRevision across YAML document boundaries.
-      managerFilePatterns: [
-        '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
-      ],
-      matchStrings: [
-        '[ ]*?source:\\s*\\n(?:[ ]{4}[^\\n]*\\n)*?[ ]{4}repoURL:\\s*(?<registryUrl>https?://\\S+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}chart:\\s*(?<depName>[\\w./-]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
-        '[ ]*?source:\\s*\\n(?:[ ]{4}[^\\n]*\\n)*?[ ]{4}chart:\\s*(?<depName>[\\w./-]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}repoURL:\\s*(?<registryUrl>https?://\\S+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
-        '[ ]*?source:\\s*\\n(?:[ ]{4}[^\\n]*\\n)*?[ ]{4}repoURL:\\s*(?<registryUrl>https?://\\S+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}chart:\\s*(?<depName>[\\w./-]+)',
-        '[ ]*?source:\\s*\\n(?:[ ]{4}[^\\n]*\\n)*?[ ]{4}chart:\\s*(?<depName>[\\w./-]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}repoURL:\\s*(?<registryUrl>https?://\\S+)'
-      ],
-      datasourceTemplate: 'helm',
-      registryUrlTemplate: '{{registryUrl}}',
-    },
-    {
-      customType: 'regex',
-      description: 'Update OCI Helm chart releases in Argo CD Applications',
-      // OCI chart lookups use docker datasource; compose depName as
-      // "<registryPath>/<chartName>" so Renovate queries the right registry.
-      managerFilePatterns: [
-        '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
-      ],
-      matchStrings: [
-        '[ ]*?source:\\s*\\n(?:[ ]{4}[^\\n]*\\n)*?[ ]{4}chart:\\s*(?<chartName>[\\w./-]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}repoURL:\\s*(?:oci://)?(?<registryPath>ghcr\\.io/\\S+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
-        '[ ]*?source:\\s*\\n(?:[ ]{4}[^\\n]*\\n)*?[ ]{4}repoURL:\\s*(?:oci://)?(?<registryPath>ghcr\\.io/\\S+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}chart:\\s*(?<chartName>[\\w./-]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)',
-        '[ ]*?source:\\s*\\n(?:[ ]{4}[^\\n]*\\n)*?[ ]{4}chart:\\s*(?<chartName>[\\w./-]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}repoURL:\\s*(?:oci://)?(?<registryPath>ghcr\\.io/\\S+)',
-        '[ ]*?source:\\s*\\n(?:[ ]{4}[^\\n]*\\n)*?[ ]{4}repoURL:\\s*(?:oci://)?(?<registryPath>ghcr\\.io/\\S+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}targetRevision:\\s*[\'"]?(?<currentValue>[^\'"\\s#]+)(?:\\n[ ]{4}[^\\n]*)*?\\n[ ]{4}chart:\\s*(?<chartName>[\\w./-]+)'
-      ],
-      datasourceTemplate: 'docker',
-      depNameTemplate: '{{registryPath}}/{{chartName}}',
     },
     {
       customType: 'regex',
