@@ -13,6 +13,15 @@ spec:
     helm:
       values: |
         replicaCount: 1
+        containers:
+          manager:
+            resources:
+              requests:
+                cpu: 35m
+                memory: 160Mi
+              limits:
+                cpu: 500m
+                memory: 256Mi
   destination:
     server: https://kubernetes.default.svc
     namespace: sm-operator-system
