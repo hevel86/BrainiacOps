@@ -409,15 +409,20 @@
       pinDigests: true,
     },
     {
-      description: 'Pin digests for jellyfin LinuxServer image',
+      description: 'Track stable official Jellyfin releases with manual upgrade review',
+      // Jellyfin changed from three-component versions (10.11.11) to two (12.2).
+      versioning: 'loose',
       matchDatasources: [
         'docker',
       ],
       matchPackageNames: [
-        'lscr.io/linuxserver/jellyfin',
+        'jellyfin/jellyfin',
       ],
-      allowedVersions: '/^latest$/',
+      allowedVersions: '/^\\d+\\.\\d+(?:\\.\\d+)?$/',
       pinDigests: true,
+      automerge: false,
+      groupName: 'Jellyfin',
+      groupSlug: 'jellyfin',
     },
     {
       description: 'Limit linuxserver tags to semver-style releases',
