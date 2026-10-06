@@ -1,6 +1,6 @@
 # Jellyfin transcoding configuration
 
-Updated 2026-10-06. Production runs the official `jellyfin/jellyfin:10.11.11` image (stage 1, deployed). The prepared stage-2 change pins official `jellyfin/jellyfin:12.2` by digest in [deploy.yaml](deploy.yaml); see [MIGRATION.md](MIGRATION.md) for status. Previous LinuxServer playback results do not validate the official image.
+Updated 2026-10-06. Production runs the official `jellyfin/jellyfin:12.2` image, pinned by digest in [deploy.yaml](deploy.yaml); see [MIGRATION.md](MIGRATION.md) for upgrade status. Previous LinuxServer playback results do not validate the official image.
 
 ## Image and persistent paths
 
@@ -53,4 +53,4 @@ kubectl exec -n default "$jf_pod" -c jellyfin -- /usr/lib/jellyfin-ffmpeg/ffmpeg
 
 Driver enumeration alone is insufficient. Play a known direct-play title, force an SDR transcode, and force HDR-to-SDR playback on an SDR client. Check playback completion/seeking, correct colors, and FFmpeg logs for hardware decoding/encoding and tone mapping without software fallback or permission errors. Check memory and restart counts during the test. Keep logs containing media paths under `/tmp`, outside Git.
 
-Stage-1 results on official 10.11.11: identity, paths and render-device access correct; `vainfo` (iHD), the synthetic QSV encode and OpenCL initialization passed; desktop playback via Fladder was reported good (direct-play vs transcode not classified). Real HDR-to-SDR playback is still pending, and every check must be repeated on 12.2. Use the acceptance checklist in [MIGRATION.md](MIGRATION.md).
+Stage-1 results on official 10.11.11: identity, paths and render-device access correct; `vainfo` (iHD), the synthetic QSV encode and OpenCL initialization passed; desktop playback via Fladder was reported good (direct-play vs transcode not classified). On 12.2: identity and paths correct; `vainfo`, the synthetic QSV encode and OpenCL initialization passed. Real direct-play, SDR transcode and HDR-to-SDR playback on 12.2 are still pending. Use the acceptance checklist in [MIGRATION.md](MIGRATION.md).

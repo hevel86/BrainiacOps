@@ -2,7 +2,7 @@
 
 ## Deployment gates
 
-Stage 1 (LinuxServer 10.11.11 → official 10.11.11 at UID/GID 1000, existing directory layout) is **deployed** (commit `fcbb2f4`). Stage 2 (official 12.2) is prepared in `deploy.yaml` as a separate change. Do not combine image migration and database upgrade in one sync.
+Stage 1 (LinuxServer 10.11.11 → official 10.11.11 at UID/GID 1000, existing directory layout) is **deployed** (commit `fcbb2f4`). Stage 2 (official 12.2) is **deployed** (commit `320b1bc`). Production runs Jellyfin 12.2.0. The upgrade is **not yet accepted**; see [Remaining work](#remaining-work).
 
 Status on 2026-10-06:
 
@@ -56,7 +56,7 @@ A wait timeout is a diagnostic signal, not permission to interrupt migrations. C
 
 Complete every check below on 10.11.11 before preparing stage 2. Record results privately, including before/after counts and observed behavior. Keep the stage-1 archive until the entire upgrade is accepted.
 
-## Stage 2: official 12.2
+## Stage 2: official 12.2 (deployed)
 
 1. `deploy.yaml` pins `jellyfin/jellyfin:12.2@sha256:357724bf…d037` (verified against Docker Hub on 2026-10-06) for both the server and the init container below. All other stage-1 settings are unchanged; auto-sync stays disabled. The user commits/pushes this change.
 2. Plugin quarantine is automated by the `quarantine-jellyfin-10-plugins` init container instead of a manual maintenance pod. Before the server starts, it moves every package directory under `/config/data/plugins` whose `meta.json` has a `targetAbi` beginning with `10.` to `/config/plugin-binaries-pre12` (outside plugin discovery). It leaves `plugins/configurations`, the `.jellyfin-plugin` marker, Intro Skipper data and all other data in place; logs every kept package and warns about packages without `meta.json` or `targetAbi`; refuses (exit 1, pod stays in `Init`) to overwrite an existing quarantined directory of the same name; and is a no-op on later starts. Packages with a 12.x ABI, including File Transformation 3.0.1.0's 12.1 build in the same-named directory, are kept. Tested against fixtures in the pinned 12.2 image as UID 1000, including a replica of the live nine-package layout. Quarantined binaries are not a database backup.
@@ -72,17 +72,17 @@ Complete every check below on 10.11.11 before preparing stage 2. Record results 
    The deployment has no readiness probe, so a Ready pod does not mean migrations are complete; check the logs and `/health`. Do not add a short liveness deadline or delete the pod mid-migration.
 4. Install the following compatible packages through Jellyfin's catalog after verifying each package's current target ABI and checksum. These are upgrade candidates from the migration plan, not runtime-approved builds. Retain configured repositories and secrets. Restart only when migrations finish and the plugin installer requires it.
 
-| Plugin | Stage-1 installed | Stage-2 candidate | Required functional check |
-| --- | --- | --- | --- |
-| Fanart | 14.0.0.0 | 15.0.0.0 | Retrieve artwork for a test item |
-| Artwork | 2.0.0.0 | 3.0.0.0 | Retrieve configured artwork |
-| TheTVDB | 22.0.0.0 | 24.0.0.0 | Retrieve TV metadata |
-| AniDB | 11.0.0.0 | 13.0.0.0 | Retrieve anime metadata |
-| Webhook | 21.0.0.0 | 22.0.0.0 | Confirm delivery to existing destinations |
-| Session Cleaner | 5.0.0.0 | 6.0.0.0 | Confirm configured schedule and cleanup behavior |
-| Meilisearch | 1.11.1.15 | 1.12.1.4 | Index completes; known-title search returns correct results |
-| Intro Skipper | 1.10.11.24 | 12.0.4.0 | Analysis retained; skip action works on a known episode |
-| File Transformation | 3.0.1.0 (10.11 build) | 3.0.1.0, `Release-12.1.0` build (target ABI 12.1.0.0) | Correct ABI; web transformations work without errors |
+| Plugin | Stage-1 installed | Stage-2 target | Required functional check | Status (2026-10-06) |
+| --- | --- | --- | --- | --- |
+| Fanart | 14.0.0.0 | 15.0.0.0 | Retrieve artwork for a test item | Installed; remote image lookup returns Fanart images |
+| Artwork | 2.0.0.0 | 3.0.0.0 | Retrieve configured artwork | Installed; no artwork repositories configured (also empty before upgrade) |
+| TheTVDB | 22.0.0.0 | 24.0.0.0 | Retrieve TV metadata | Installed; remote series search and image lookup pass |
+| AniDB | 11.0.0.0 | 13.0.0.0 | Retrieve anime metadata | Installed; remote series search passes |
+| Webhook | 21.0.0.0 | 22.0.0.0 | Confirm delivery to existing destinations | Installed; one generic destination retained; delivery **pending** |
+| Session Cleaner | 5.0.0.0 | 6.0.0.0 | Confirm configured schedule and cleanup behavior | Installed; `Days` setting retained; behavior **pending** |
+| Meilisearch | 1.11.1.15 | 1.12.1.4 | Index completes; known-title search returns correct results | Passed (42,520 items; typo search works) |
+| Intro Skipper | 1.10.11.24 | 12.0.4.0 | Analysis retained; skip action works on a known episode | Analysis retained; skip action in playback **pending** |
+| File Transformation | 3.0.1.0 (10.11 build) | 3.0.1.0, `Release-12.1.0` build (target ABI 12.1.0.0) | Correct ABI; web transformations work without errors | **Blocked**: no 12.2 build published yet |
 
 Catalogs: [official](https://repo.jellyfin.org/files/plugin/manifest.json), [Meilisearch](https://raw.githubusercontent.com/arnesacnussem/jellyfin-plugin-meilisearch/refs/heads/master/manifest.json), [Intro Skipper](https://intro-skipper.org/manifest.json) (version-aware; requests need a Jellyfin user agent such as `Jellyfin-Server/12.2`), [File Transformation](https://www.iamparadox.dev/jellyfin/plugins/manifest.json). File Transformation's version string alone cannot distinguish the builds; the catalog also lists a `Release-12.0.0` build, so verify the installed package's `targetAbi` is 12.1.0.0. Its published support through 12.1 does not prove compatibility with 12.2; failure blocks acceptance.
 
@@ -90,15 +90,35 @@ Catalogs: [official](https://repo.jellyfin.org/files/plugin/manifest.json), [Mei
 
 ## Acceptance after each stage
 
-- [ ] Argo CD Synced/Healthy; expected image/digest; ready server pod with stable restart count during playback and plugin tests.
-- [ ] Startup/migration logs show completion, correct existing data paths and no database/plugin load errors.
-- [ ] Existing accounts can log in; account/library counts, media accessibility, watched status and resume state match the baseline.
-- [ ] Direct playback, QSV transcoding, HDR-to-SDR tone mapping and seeking pass [transcoding verification](TRANSCODING-CONFIG.md).
-- [ ] All nine plugins are loaded and pass their functional checks above; preserved settings and analysis confirmed. Active package metadata alone is insufficient.
-- [ ] Stage 2 only: full library scan and Meilisearch indexing finish successfully.
-- [ ] Backups remain available and verified until final acceptance. (Waived for stage 2; see status.)
+Stage-2 state as of 2026-10-06:
 
-No stage has fully passed this checklist yet. Any failing plugin blocks upgrade acceptance.
+- [x] Argo CD Synced/Healthy; expected image/digest; ready server pod, zero restarts so far. (Recheck during playback tests.)
+- [x] Startup/migration logs show completion, correct existing data paths and no database/plugin load errors.
+- [ ] Existing accounts can log in; account/library counts, media accessibility, watched status and resume state match the baseline. Counts verified (see status); login and watched/resume state **pending**.
+- [ ] Direct playback, QSV transcoding, HDR-to-SDR tone mapping and seeking pass [transcoding verification](TRANSCODING-CONFIG.md). Synthetic QSV/OpenCL passed; real playback **pending**.
+- [ ] All nine plugins are loaded and pass their functional checks above. 8/9 loaded; File Transformation blocked; Webhook, Session Cleaner and Intro Skipper playback checks pending.
+- [x] Stage 2 only: full library scan and Meilisearch indexing finish successfully.
+- [ ] Backups remain available and verified until final acceptance. Waived for stage 2.
+
+Any failing plugin blocks upgrade acceptance.
+
+## Remaining work
+
+1. **File Transformation.** Check whether a 12.2 build exists, then install it from Dashboard → Plugins → Catalog and verify its `targetAbi` and web transformations:
+
+   ```bash
+   curl -fsSL -A 'Jellyfin-Server/12.2.0' https://www.iamparadox.dev/jellyfin/plugins/manifest.json \
+     | jq -r '.[]|select(.name=="File Transformation")|.versions[]|"\(.version) \(.targetAbi)"'
+   ```
+
+   An empty result means no 12.2 build has been published yet.
+2. **Owner checks with a real client:** HDR-to-SDR transcode on an SDR client, Intro Skipper skip button on an analyzed episode, watched/resume state, Webhook delivery to the existing destination, and Session Cleaner's scheduled run.
+3. **Cleanup after acceptance** (a Git change plus one in-cluster deletion):
+   - Remove the `quarantine-jellyfin-10-plugins` init container from `deploy.yaml`. It is a no-op now and duplicates the image digest that Renovate must keep in sync.
+   - Delete `/config/plugin-binaries-pre12` from the config volume (not managed by Git).
+   - Optionally add `fsGroupChangePolicy: OnRootMismatch` to the pod `securityContext`; without it, each pod replacement recursively re-owns the 100 GiB config volume and can sit in `ContainerCreating` for a while.
+   - Delete the incomplete local backup archives under `~/backups/jellyfin-official-10.11.11-20261006/` on the workstation used for the cancelled backup (about 8.5 GiB, sensitive, not a rollback point).
+4. **Optional investigation:** the two unreadable `The Greatest Adventure Stories from the Bible` files (S01E07, S01E09), and the ASP.NET data-protection warnings at startup (also present on 10.11).
 
 ## Rollback
 
