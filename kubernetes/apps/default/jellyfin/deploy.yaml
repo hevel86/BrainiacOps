@@ -17,21 +17,29 @@ spec:
         component: server
     spec:
       securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
         fsGroup: 1000
       containers:
         - name: jellyfin
-          image: lscr.io/linuxserver/jellyfin:10.11.11
+          # Stage 1: validate the official image before upgrading the server version.
+          image: jellyfin/jellyfin:10.11.11@sha256:aefb67e6a7ff1debdd154a78a7bbb780fd0c873d8639210a7f6a2016ad2b35db
           ports:
             - containerPort: 8096
           env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
+            # Preserve LinuxServer's on-disk layout on the existing PVC.
+            - name: JELLYFIN_DATA_DIR
+              value: /config/data
+            - name: JELLYFIN_CONFIG_DIR
+              value: /config
+            - name: JELLYFIN_CACHE_DIR
+              value: /config/cache
+            - name: JELLYFIN_LOG_DIR
+              value: /config/log
+            - name: XDG_CACHE_HOME
+              value: /config/cache
             - name: TZ
               value: "America/New_York"
-            - name: DOCKER_MODS
-              value: "linuxserver/mods:jellyfin-opencl-intel"
           resources:
             requests:
               gpu.intel.com/i915: "1"
