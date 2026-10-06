@@ -1,152 +1,40 @@
-# Jellyfin Transcoding Configuration Notes
+# Jellyfin transcoding configuration
 
-**Last Updated**: 2026-02-25
-**Pod Image**: `lscr.io/linuxserver/jellyfin:10.11.6`
-**Role**: Backup media server (Primary: Plex)
-**Hardware**: MINISFORUM MS-01 with Intel i5-12600H (12th Gen Alder Lake, Iris Xe Graphics)
+Updated 2026-10-06. The desired stage-1 image is official `jellyfin/jellyfin:10.11.11`, pinned by digest in [deploy.yaml](deploy.yaml). Production remains on LinuxServer until the maintenance procedure in [MIGRATION.md](MIGRATION.md) is completed. Previous LinuxServer playback results do not validate the official image.
 
-## Current Configuration Summary
+## Image and persistent paths
 
-Jellyfin is configured to use Intel Quick Sync Video (QSV) hardware acceleration on Intel Iris Xe Graphics (12th gen). The configuration utilizes the `linuxserver/mods:jellyfin-opencl-intel` Docker mod to enable full HDR to SDR tone mapping. Transcoding is performed in a RAM-backed `emptyDir` for maximum performance and zero SSD wear.
+The server runs as UID/GID `1000:1000`, with `fsGroup: 1000`. The existing `jellyfin-config-lh` PVC and its LinuxServer directory layout are retained:
 
-**Use Case**: Jellyfin serves as a backup to Plex. All client TVs support HDR/Dolby Vision, but HDR→SDR tone mapping is now fully supported for mobile clients and SDR displays.
+| Setting | Path |
+| --- | --- |
+| Data, databases and plugins | `/config/data` |
+| Configuration, including `encoding.xml` | `/config` |
+| Cache and font cache | `/config/cache` |
+| Logs | `/config/log` |
+| TV / movies | `/data/tv` / `/data/movies` |
+| Transcode scratch | `/transcode` |
 
-### Hardware Acceleration Settings
+The official image supplies its web client at `/jellyfin/jellyfin-web`, FFmpeg at `/usr/lib/jellyfin-ffmpeg/ffmpeg`, and Intel drivers. Keep the image defaults for web and FFmpeg paths. LinuxServer's `PUID`, `PGID`, and `DOCKER_MODS` variables are removed; the old OpenCL installation mod is unnecessary with the official image. See [container documentation](https://jellyfin.org/docs/general/installation/container/).
 
-**Location**: `/config/encoding.xml` (inside the pod)
+## Hardware acceleration
 
-```xml
-<HardwareAccelerationType>qsv</HardwareAccelerationType>
-<QSVDevice>/dev/dri/renderD128</QSVDevice>
-<EnableTonemapping>true</EnableTonemapping>
-<EnableVppTonemapping>true</EnableVppTonemapping>
-<EnableHardwareEncoding>true</EnableHardwareEncoding>
-<EnableIntelLowPowerH264HwEncoder>true</EnableIntelLowPowerH264HwEncoder>
-<EnableIntelLowPowerHevcHwEncoder>true</EnableIntelLowPowerHevcHwEncoder>
+The Intel GPU device plugin allocates one `gpu.intel.com/i915` device. Existing settings in `/config/encoding.xml` should retain QSV, `/dev/dri/renderD128`, hardware encoding, and the configured VPP/OpenCL tone-mapping options. Do not overwrite the file during migration. Confirm the actual encoder path and transcode temporary directory in the dashboard after startup.
 
-<!-- Hardware Decoding Codecs -->
-<HardwareDecodingCodecs>
-  <string>mpeg2video</string>
-  <string>mpeg4</string>
-  <string>vp8</string>
-  <string>vp9</string>
-  <string>h264</string>
-  <string>vc1</string>
-  <string>hevc</string>
-  <string>av1</string>
-</HardwareDecodingCodecs>
+`/transcode` is an 8 GiB memory-backed `emptyDir`; its usage counts toward pod memory. The server requests 1 CPU / 4 GiB and allows 4 CPUs / 16 GiB. `Recreate` avoids concurrent access to the RWO configuration volume.
 
-<!-- HEVC Range Extensions Support -->
-<EnableDecodingColorDepth10Hevc>true</EnableDecodingColorDepth10Hevc>
-<EnableDecodingColorDepth10Vp9>true</EnableDecodingColorDepth10Vp9>
-<EnableDecodingColorDepth10HevcRext>true</EnableDecodingColorDepth10HevcRext>
-<EnableDecodingColorDepth12HevcRext>false</EnableDecodingColorDepth12HevcRext>
-```
+The preflight on 2026-10-06 found config directories owned by `1000:1000` and the render device at mode `0666`. Recheck device permissions after rollout or rescheduling. If access changes, use the observed device GID in `supplementalGroups`; do not assume `fsGroup` changes device ownership.
 
-**Note**: 12-bit HEVC RExt is disabled because Intel Iris Xe (12th gen) does not have full hardware support for 12-bit decoding. 10-bit HEVC (used by all consumer HDR content) is fully hardware accelerated.
+## Verification after each stage
 
-### Key Configuration Decisions
-
-1. **VAAPI vs QSV**: Switched to `qsv` (Intel Quick Sync Video)
-   - Offers better integration with Intel-specific features compared to the generic VAAPI.
-   - More efficient for high-bitrate HEVC workloads.
-
-2. **Tone Mapping: ENABLED**
-   - **Method**: Enabled via `linuxserver/mods:jellyfin-opencl-intel`.
-   - **Benefit**: HDR content is now correctly tone-mapped to SDR for compatible clients, preventing "washed out" colors.
-
-3. **RAM Transcoding**
-   - **Mount**: `/transcode` is backed by a `Memory` medium `emptyDir`.
-   - **Size**: 4GiB (sufficient for multiple 4K transcodes with "Throttle Transcoding" enabled).
-   - **Reason**: Maximum performance (scrubbing/seeking) and zero SSD wear.
-
-## Problem History (RESOLVED)
-
-### Issue Encountered
-Jellyfin was previously unable to use OpenCL for HDR tone mapping because the stock image lacked the required libraries, causing ffmpeg errors.
-
-### Solution Implemented
-Applied the `linuxserver/mods:jellyfin-opencl-intel` Docker mod in `deploy.yaml`. This mod installs `ocl-icd-libopencl1` and `intel-opencl-icd` at container runtime, satisfying the OpenCL dependency for tone mapping.
-
-## Current Status
-
-### ✅ Working Features (Intel i5-12600H Iris Xe)
-- Hardware-accelerated video decoding:
-  - H.264, HEVC (8/10-bit), VP8, VP9, AV1, VC1, MPEG2, MPEG4
-- Hardware-accelerated video encoding:
-  - H.264 & HEVC (with low-power mode)
-- **Full HDR → SDR Tone Mapping**
-- **Ultra-fast RAM-based transcoding**
-- Trickplay thumbnail generation
-- Intel Quick Sync Video via QSV interface
-
-### ⚠️ Known Limitations
-- **No 12-bit HEVC RExt support**
-  - Intel Iris Xe (12th gen) lacks hardware support for 12-bit HEVC Range Extensions.
-  - Not an issue for consumer content.
-
-## Verification Commands
-
-### Check Current Encoding Settings
 ```bash
-kubectl exec -n default deployment/jellyfin -- cat /config/encoding.xml | grep -E "HardwareAccelerationType|EnableTonemapping|EnableVppTonemapping"
-```
-
-### Monitor Transcoding Logs
-```bash
-kubectl logs -n default -l app=jellyfin --tail=100 -f | grep -E "ffmpeg|transcode|trickplay" -i
-```
-
-### Verify RAM Disk Usage
-```bash
+kubectl exec -n default deployment/jellyfin -- id
+kubectl exec -n default deployment/jellyfin -- stat -c '%u:%g %a %n' /config /config/data /dev/dri/renderD128
+kubectl exec -n default deployment/jellyfin -- /usr/lib/jellyfin-ffmpeg/ffmpeg -version
+kubectl exec -n default deployment/jellyfin -- /usr/lib/jellyfin-ffmpeg/vainfo --display drm --device /dev/dri/renderD128
 kubectl exec -n default deployment/jellyfin -- df -h /transcode
 ```
 
-## Intel i5-12600H Hardware Capabilities
+Driver enumeration alone is insufficient. Play a known direct-play title, force an SDR transcode, and force HDR-to-SDR playback on an SDR client. Check playback completion/seeking, correct colors, and FFmpeg logs for hardware decoding/encoding and tone mapping without software fallback or permission errors. Check memory and restart counts during the test. Keep logs containing media paths under `/tmp`, outside Git.
 
-**CPU**: 12th Gen Intel Core i5-12600H (Alder Lake-P)
-**GPU**: Intel Iris Xe Graphics (96 EUs)
-**Quick Sync Video Generation**: Gen 12.5
-
-**Hardware Decode Support**:
-- H.264 (AVC): All profiles, 8-bit
-- HEVC (H.265): Main, Main10, Main10 RExt (8-bit, 10-bit)
-- VP9: Profile 0, Profile 2 (8-bit, 10-bit)
-- AV1: 8-bit, 10-bit
-- MPEG2, MPEG4, VC1
-
-## GPU Device Access
-
-The pod has access to Intel GPU via the Intel GPU Device Plugin:
-```yaml
-resources:
-  requests:
-    gpu.intel.com/i915: "1"
-  limits:
-    gpu.intel.com/i915: "1"
-securityContext:
-  fsGroup: 1000
-```
-
-Device path: `/dev/dri/renderD128`
-
-## Related Files
-
-- [deploy.yaml](deploy.yaml) - Deployment configuration with OpenCL mod and RAM transcode
-- [pvc.yaml](pvc.yaml) - PersistentVolumeClaims for config and media
-- [ingressroute.yaml](ingressroute.yaml) - Traefik ingress configuration
-- [svc.yaml](svc.yaml) - Service definition
-
-## Test Results
-
-**Date**: 2026-02-25
-
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Video Playback (SDR) | ✅ Working | Full QSV acceleration |
-| Video Playback (HDR) | ✅ Working | Full Tone Mapping enabled |
-| Transcoding | ✅ Working | RAM-based, low-power mode active |
-| Trickplay Generation | ✅ Working | Hardware-accelerated |
-| Intel QSV Utilization | ✅ Working | Native QSV interface |
-
----
+All official-image playback checks remain pending until rollout; use the acceptance checklist in [MIGRATION.md](MIGRATION.md).
