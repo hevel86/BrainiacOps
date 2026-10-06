@@ -20,10 +20,45 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
+      initContainers:
+        # Run before database migration; keep configuration and analysis in place.
+        - name: quarantine-jellyfin-10-plugins
+          image: jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037
+          command: ["/bin/sh", "-ec"]
+          args:
+            - |
+              plugins=/config/data/plugins
+              quarantine=/config/plugin-binaries-pre12
+              for package in "$plugins"/*; do
+                [ -d "$package" ] || continue
+                name=${package##*/}
+                [ "$name" = configurations ] && continue
+                if [ ! -f "$package/meta.json" ]; then
+                  echo "WARNING: keeping plugin without meta.json: $name" >&2
+                  continue
+                fi
+                if ! grep -Eq '"targetAbi"[[:space:]]*:' "$package/meta.json"; then
+                  echo "WARNING: keeping plugin without targetAbi: $name" >&2
+                  continue
+                fi
+                if grep -Eq '"targetAbi"[[:space:]]*:[[:space:]]*"10\.' "$package/meta.json"; then
+                  mkdir -p "$quarantine"
+                  if [ -e "$quarantine/$name" ]; then
+                    echo "Refusing to overwrite quarantined plugin: $name" >&2
+                    exit 1
+                  fi
+                  mv "$package" "$quarantine/$name"
+                  echo "Quarantined Jellyfin 10 plugin: $name"
+                else
+                  echo "Keeping plugin: $name"
+                fi
+              done
+          volumeMounts:
+            - name: config
+              mountPath: /config
       containers:
         - name: jellyfin
-          # Stage 1: validate the official image before upgrading the server version.
-          image: jellyfin/jellyfin:10.11.11@sha256:aefb67e6a7ff1debdd154a78a7bbb780fd0c873d8639210a7f6a2016ad2b35db
+          image: jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037
           ports:
             - containerPort: 8096
           env:
