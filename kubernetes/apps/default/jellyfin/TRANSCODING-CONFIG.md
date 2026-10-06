@@ -1,6 +1,6 @@
 # Jellyfin transcoding configuration
 
-Updated 2026-10-06. The desired stage-1 image is official `jellyfin/jellyfin:10.11.11`, pinned by digest in [deploy.yaml](deploy.yaml). Production remains on LinuxServer until the maintenance procedure in [MIGRATION.md](MIGRATION.md) is completed. Previous LinuxServer playback results do not validate the official image.
+Updated 2026-10-06. Production runs the official `jellyfin/jellyfin:10.11.11` image (stage 1, deployed). The prepared stage-2 change pins official `jellyfin/jellyfin:12.2` by digest in [deploy.yaml](deploy.yaml); see [MIGRATION.md](MIGRATION.md) for status. Previous LinuxServer playback results do not validate the official image.
 
 ## Image and persistent paths
 
@@ -27,14 +27,30 @@ The preflight on 2026-10-06 found config directories owned by `1000:1000` and th
 
 ## Verification after each stage
 
+The Meilisearch pod shares the `app: jellyfin` label, so `deployment/jellyfin` exec/log shortcuts can select the wrong pod. Select the server pod explicitly:
+
 ```bash
-kubectl exec -n default deployment/jellyfin -- id
-kubectl exec -n default deployment/jellyfin -- stat -c '%u:%g %a %n' /config /config/data /dev/dri/renderD128
-kubectl exec -n default deployment/jellyfin -- /usr/lib/jellyfin-ffmpeg/ffmpeg -version
-kubectl exec -n default deployment/jellyfin -- /usr/lib/jellyfin-ffmpeg/vainfo --display drm --device /dev/dri/renderD128
-kubectl exec -n default deployment/jellyfin -- df -h /transcode
+jf_pod=$(kubectl get pods -n default -l app=jellyfin,component=server -o jsonpath='{.items[0].metadata.name}')
+kubectl exec -n default "$jf_pod" -c jellyfin -- id
+kubectl exec -n default "$jf_pod" -c jellyfin -- stat -c '%u:%g %a %n' /config /config/data /dev/dri/renderD128
+kubectl exec -n default "$jf_pod" -c jellyfin -- curl -fsS --max-time 10 http://localhost:8096/health
+kubectl exec -n default "$jf_pod" -c jellyfin -- /usr/lib/jellyfin-ffmpeg/ffmpeg -version
+kubectl exec -n default "$jf_pod" -c jellyfin -- /usr/lib/jellyfin-ffmpeg/vainfo --display drm --device /dev/dri/renderD128
+kubectl exec -n default "$jf_pod" -c jellyfin -- df -h /transcode
+```
+
+Synthetic smoke tests (QSV encode, then OpenCL initialization; VAAPI must be initialized first):
+
+```bash
+kubectl exec -n default "$jf_pod" -c jellyfin -- /usr/lib/jellyfin-ffmpeg/ffmpeg -hide_banner -loglevel error \
+  -init_hw_device vaapi=va:/dev/dri/renderD128 -init_hw_device qsv=qs@va -filter_hw_device qs \
+  -f lavfi -i testsrc2=size=1280x720:rate=30 -vf 'format=nv12,hwupload=extra_hw_frames=64' \
+  -c:v h264_qsv -frames:v 60 -f null -
+kubectl exec -n default "$jf_pod" -c jellyfin -- /usr/lib/jellyfin-ffmpeg/ffmpeg -hide_banner -loglevel error \
+  -init_hw_device vaapi=va:/dev/dri/renderD128 -init_hw_device opencl=ocl@va \
+  -f lavfi -i color=size=64x64 -frames:v 1 -f null -
 ```
 
 Driver enumeration alone is insufficient. Play a known direct-play title, force an SDR transcode, and force HDR-to-SDR playback on an SDR client. Check playback completion/seeking, correct colors, and FFmpeg logs for hardware decoding/encoding and tone mapping without software fallback or permission errors. Check memory and restart counts during the test. Keep logs containing media paths under `/tmp`, outside Git.
 
-All official-image playback checks remain pending until rollout; use the acceptance checklist in [MIGRATION.md](MIGRATION.md).
+Stage-1 results on official 10.11.11: identity, paths and render-device access correct; `vainfo` (iHD), the synthetic QSV encode and OpenCL initialization passed; desktop playback via Fladder was reported good (direct-play vs transcode not classified). Real HDR-to-SDR playback is still pending, and every check must be repeated on 12.2. Use the acceptance checklist in [MIGRATION.md](MIGRATION.md).
