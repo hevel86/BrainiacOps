@@ -22,7 +22,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: tdarr
-          image: ghcr.io/haveagitgat/tdarr:3.00.00
+          image: ghcr.io/haveagitgat/tdarr:3.01.00
           imagePullPolicy: IfNotPresent
           ports:
             - name: web
