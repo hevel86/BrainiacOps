@@ -5,7 +5,7 @@ metadata:
   namespace: system-upgrade
 spec:
   talos:
-    # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
+    # renovate: datasource=github-releases depName=siderolabs/talos versioning=semver
     version: v1.14.1
   policy:
     placement: soft
