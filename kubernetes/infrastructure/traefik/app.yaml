@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: https://traefik.github.io/charts
     chart: traefik
-    targetRevision: 40.3.0
+    targetRevision: 42.0.0
     helm:
       values: |
         deployment:
@@ -65,11 +65,10 @@ spec:
             loadBalancerIP: 10.0.0.200   # pick a free IP in your MetalLB pool
 
         # (Optional) Access logs/metrics you like
-        logs:
-          general:
-            level: INFO
-          access:
-            enabled: true
+        log:
+          level: INFO
+        accessLog:
+          enabled: true
         metrics:
           prometheus:
             enabled: false
