@@ -137,8 +137,9 @@
       matchStrings: [
         '"aqua:siderolabs/talos" = "(?<currentValue>[^"]+)"',
       ],
-      datasourceTemplate: 'github-tags',
+      datasourceTemplate: 'github-releases',
       depNameTemplate: 'siderolabs/talos',
+      versioningTemplate: 'semver',
     },
     {
       customType: 'regex',
@@ -274,22 +275,6 @@
       groupName: 'tuppr',
     },
     {
-      description: 'Group Talos Linux updates (talconfig)',
-      matchDatasources: [
-        'github-releases',
-      ],
-      matchPackageNames: [
-        'siderolabs/talos',
-      ],
-      groupName: 'Talos Linux',
-      automerge: false,
-      labels: [
-        'dependencies',
-        'renovate',
-        'talos',
-      ],
-    },
-    {
       description: 'Group Kubernetes updates (talconfig)',
       matchDatasources: [
         'github-releases',
@@ -341,6 +326,24 @@
       ],
       groupName: 'Patch updates',
       groupSlug: 'patch-updates',
+    },
+    {
+      // Keep this after the generic patch rule so Talos updates stay together.
+      description: 'Group Talos CLI, talconfig, and Tuppr upgrade target',
+      matchDatasources: [
+        'github-releases',
+      ],
+      matchPackageNames: [
+        'siderolabs/talos',
+      ],
+      groupName: 'Talos Linux',
+      groupSlug: 'talos-linux',
+      automerge: false,
+      labels: [
+        'dependencies',
+        'renovate',
+        'talos',
+      ],
     },
     {
       description: 'Group Portainer server and agent updates',
