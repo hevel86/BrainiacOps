@@ -9,3 +9,4 @@ resources:
   - deploy.yaml
   - svc.yaml
   - ingressroute.yaml
+  - tailscale-services.yaml

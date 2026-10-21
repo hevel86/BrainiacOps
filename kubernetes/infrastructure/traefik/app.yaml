@@ -54,6 +54,13 @@ spec:
               default: true
             exposedPort: 443
             # nodePort: 32443  # uncomment to use NodePort instead of LoadBalancer
+          # Gitea HTTPS is reachable through its Tailscale Service only.
+          # Do not expose this listener on Traefik's public MetalLB Service.
+          gitea-tailnet:
+            port: 8444
+            expose:
+              default: false
+            protocol: TCP
 
         # Expose Traefik via MetalLB
         service:

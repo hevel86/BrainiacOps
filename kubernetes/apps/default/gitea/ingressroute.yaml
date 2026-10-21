@@ -5,7 +5,7 @@ metadata:
   namespace: kube-system
 spec:
   entryPoints:
-    - websecure
+    - gitea-tailnet
   routes:
     - match: Host(`gitea.torquasmvo.com`)
       kind: Rule

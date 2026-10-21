@@ -43,5 +43,5 @@ MetalLB IPs: total=51 used=38 free=13
 | vikunja | default | 10.0.0.235 |
 | stirling-pdf | default | 10.0.0.236 |
 | it-tools | default | 10.0.0.237 |
-| gitea | default | 10.0.0.238 |
+| gitea (retired after tailnet cutover; remove old router forwards before reuse) | default | 10.0.0.238 |
 | jellystat | default | 10.0.0.239 |

@@ -3,21 +3,14 @@ kind: Service
 metadata:
   name: gitea
   namespace: default
-  annotations:
-    external-dns.alpha.kubernetes.io/hostname: gitea.torquasmvo.internal
   labels:
     app: gitea
 spec:
-  type: LoadBalancer
-  loadBalancerIP: 10.0.0.238  # Reserve a free IP from your MetalLB pool
+  type: ClusterIP
   selector:
     app: gitea
   ports:
     - name: http
       port: 3000
       targetPort: http
-      protocol: TCP
-    - name: ssh
-      port: 22
-      targetPort: 2222
       protocol: TCP
