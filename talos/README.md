@@ -563,6 +563,35 @@ Common issues when adding nodes and their solutions.
    talosctl -n 10.0.0.36 logs etcd
    ```
 
+### kubectl Authentication Fails While talosctl Still Works
+
+**Symptoms**: `kubectl` reports `You must be logged in to the server (the server has asked for the client to provide credentials)`, while `talosctl` commands still succeed.
+
+**Possible cause**: The Kubernetes admin client certificate in your kubeconfig has expired. It normally lasts one year. Talos uses separate API credentials, so working Talos access does not mean the Kubernetes client certificate is still valid. This authentication error can have other causes; confirm the certificate expiry first.
+
+Inspect the active context and its client certificate validity dates (this prints certificate metadata only, not the private key):
+
+```bash
+kubectl config current-context
+kubectl config view --minify --raw \
+  -o jsonpath='{.users[0].user.client-certificate-data}' \
+  | base64 --decode \
+  | openssl x509 -noout -dates -subject
+```
+
+The command assumes an embedded client certificate, as used by this cluster's Talos-generated kubeconfig. Compare `notAfter` with the current UTC time (`date -u`).
+
+If expired, use working Talos admin access to retrieve fresh Kubernetes credentials from a control plane node:
+
+```bash
+talosctl -n 10.0.0.34 kubeconfig --force
+kubectl get nodes
+```
+
+By default, this merges into `~/.kube/config`; `--force` replaces matching existing entries. If you use a custom kubeconfig path, pass that path explicitly to `talosctl kubeconfig`. The command updates local credentials without restarting workloads or changing cluster manifests. Other machines with expired kubeconfig copies need their credentials refreshed too.
+
+See the [Talos CLI reference](https://www.talos.dev/latest/reference/cli/#talosctl-kubeconfig) for kubeconfig download and merge options.
+
 ### Certificate Errors
 
 **Symptoms**: "x509: certificate signed by unknown authority" or similar errors
