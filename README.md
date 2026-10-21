@@ -107,6 +107,8 @@ Once these steps are completed, Argo CD will take over and continuously reconcil
 
 **For comprehensive deployment instructions, troubleshooting, and operational guidance, see [deployment.md](docs/deployment.md).**
 
+For PHP runtime checks, temporary mitigations, and deployment verification for Nextcloud, see the [PHP security runbook](docs/php-security.md).
+
 ## Mise En Place Tooling
 
 The repository ships with a [mise](https://mise.jdx.dev/) configuration (`.mise.toml`) that relies on the built-in [aquaproj/aqua](https://aquaproj.github.io/) backend for static CLI downloads—`kubectl`, `kustomize`, `helm`, `talhelper`, `talosctl`, `argocd`, `k9s`, `kubeconform`, `sops`, `age`, and `gh` (GitHub CLI). No manual plugin installs are required. It also wires environment variables for:

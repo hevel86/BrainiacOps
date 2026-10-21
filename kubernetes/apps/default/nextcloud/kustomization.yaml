@@ -9,3 +9,9 @@ resources:
   - configmap.yaml
   - bitwarden-secrets.yaml
   - nextcloud-ingressroute-tcp.yaml
+configMapGenerator:
+  - name: nextcloud-php-hardening
+    namespace: default
+    files:
+      - zz-security.ini=php-security.ini
+      - zz-security.conf=php-security.conf
