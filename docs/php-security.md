@@ -35,6 +35,9 @@ and Nextcloud uses subPath mounts that do not receive live ConfigMap updates.
 - Nextcloud disables session upload-progress tracking in an INI file and its
   FPM pool, and enforces `memory_limit=-1` using an FPM admin setting that
   application code cannot override. Its container memory limit is 2 GiB.
+- Both the `nextcloud` and `nextcloud-mariadb` deployments set
+  `automountServiceAccountToken: false` so neither container receives a
+  Kubernetes API ServiceAccount token.
 
 Nextcloud's memory request is 256 MiB. Idle usage during assessment was approximately
 178 MiB; this is not a peak measurement.

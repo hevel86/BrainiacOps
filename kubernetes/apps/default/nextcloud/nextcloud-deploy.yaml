@@ -17,6 +17,7 @@ spec:
       labels:
         app: nextcloud
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: nextcloud
           image: lscr.io/linuxserver/nextcloud:33.0.5

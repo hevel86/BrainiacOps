@@ -17,6 +17,7 @@ spec:
       labels:
         app: nextcloud-mariadb
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: mariadb
           image: lscr.io/linuxserver/mariadb:11.4.12
