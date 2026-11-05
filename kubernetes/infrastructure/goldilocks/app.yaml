@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: https://charts.fairwinds.com/stable
     chart: goldilocks
-    targetRevision: "11.2.0"
+    targetRevision: "11.2.1"
     helm:
       values: |
         vpa:
