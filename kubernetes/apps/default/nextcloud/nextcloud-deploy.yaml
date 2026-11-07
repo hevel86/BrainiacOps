@@ -20,7 +20,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: nextcloud
-          image: lscr.io/linuxserver/nextcloud:33.0.5
+          image: lscr.io/linuxserver/nextcloud:35.0.2
           imagePullPolicy: IfNotPresent
           resources:
             requests:
