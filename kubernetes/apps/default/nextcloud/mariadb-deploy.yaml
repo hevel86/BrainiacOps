@@ -20,7 +20,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: mariadb
-          image: lscr.io/linuxserver/mariadb:11.4.12
+          image: lscr.io/linuxserver/mariadb:11.8.9
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3306
