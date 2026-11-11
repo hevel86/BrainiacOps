@@ -19,9 +19,10 @@ automation:
   deployment_strategy: Recreate
 
 current_state:
-  version: "v1.41.0"
-  last_migration: "2026-04-12"
-  document_count: 122
+  version: "v1.45.2"
+  last_migration: "2026-11-11"
+  document_count: 192
+  vector_document_count: 21
 
 prerequisites:
   - kubectl cluster access
