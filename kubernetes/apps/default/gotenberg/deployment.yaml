@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: gotenberg
-          image: gotenberg/gotenberg:8
+          image: gotenberg/gotenberg:9
           ports:
             - containerPort: 3000
           args:
