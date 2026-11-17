@@ -437,5 +437,15 @@
         'lscr.io/linuxserver/{/,}**',
       ],
     },
+    {
+      description: 'Limit nousresearch/hermes-agent tags to stable semver releases',
+      matchDatasources: [
+        'docker',
+      ],
+      matchPackageNames: [
+        'nousresearch/hermes-agent',
+      ],
+      allowedVersions: '/^v\\d+\\.\\d+\\.\\d+$/',
+    },
   ],
 }
