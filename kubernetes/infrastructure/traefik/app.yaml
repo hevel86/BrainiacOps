@@ -65,10 +65,10 @@ spec:
         # Expose Traefik via MetalLB
         service:
           enabled: true
-          type: LoadBalancer
           annotations:
             external-dns.alpha.kubernetes.io/hostname: traefik.torquasmvo.internal
           spec:
+            type: LoadBalancer
             loadBalancerIP: 10.0.0.200   # pick a free IP in your MetalLB pool
 
         # (Optional) Access logs/metrics you like
