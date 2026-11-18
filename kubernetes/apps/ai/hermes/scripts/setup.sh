@@ -20,6 +20,7 @@ git config --global credential.helper ""
 git config --global credential.useHttpPath true
 git config --global user.name "Hermes Agent"
 git config --global user.email "hermes@torquasmvo.internal"
+git config --global --add safe.directory "$BRAINIACOPS_DIR"
 
 # 2. Install & SHA-256 verify SRE / GitOps CLI tools
 install_binary() {
