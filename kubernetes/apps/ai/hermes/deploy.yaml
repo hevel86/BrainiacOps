@@ -15,7 +15,7 @@ spec:
   template:
     metadata:
       annotations:
-        hermes.brainiacops.io/setup-revision: "2026-11-17-1"
+        hermes.brainiacops.io/setup-revision: "2026-11-18-1"
       labels:
         app: hermes
     spec:

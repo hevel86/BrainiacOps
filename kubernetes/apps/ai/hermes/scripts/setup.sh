@@ -113,32 +113,18 @@ ln -sf "$BIN_DIR/git-askpass" "$HERMES_DATA/bin/git-askpass"
 # 3. Non-destructively ensure terminal.env_passthrough in /opt/data/config.yaml
 if [ -f "$HERMES_DATA/config.yaml" ]; then
     echo "🔧 Ensuring terminal.env_passthrough in config.yaml..."
-    /opt/hermes/.venv/bin/python - "$HERMES_DATA/config.yaml" <<'PY'
-import sys, pathlib, yaml
-
-cfg_path = pathlib.Path(sys.argv[1])
-text = cfg_path.read_text()
-data = yaml.safe_load(text) or {}
-term = data.get("terminal") or {}
-needed = ["GH_TOKEN", "GITHUB_TOKEN", "GITHUB_USERNAME", "GIT_ASKPASS", "GIT_TERMINAL_PROMPT", "TALOSCONFIG"]
-current = term.get("env_passthrough") or []
-
-if not all(k in current for k in needed):
-    merged = list(dict.fromkeys(list(current) + needed))
-    passthrough_line = "  env_passthrough: " + repr(merged) + "\n"
-    if "  client_env_passthrough:" in text and "  env_passthrough:" not in text:
-        text = text.replace(
-            "  client_env_passthrough:",
-            passthrough_line + "  client_env_passthrough:",
-            1,
-        )
-        cfg_path.write_text(text)
-        print("Added terminal.env_passthrough:", merged)
-    else:
-        print("terminal.env_passthrough already present or custom layout")
-else:
-    print("terminal.env_passthrough already up to date:", current)
-PY
+    "$BIN_DIR/yq" -i '
+      .terminal.env_passthrough = (
+        ((.terminal.env_passthrough // []) + [
+          "GH_TOKEN",
+          "GITHUB_TOKEN",
+          "GITHUB_USERNAME",
+          "GIT_ASKPASS",
+          "GIT_TERMINAL_PROMPT",
+          "TALOSCONFIG"
+        ]) | unique
+      )
+    ' "$HERMES_DATA/config.yaml"
 fi
 
 # 4. Persist shell environment for interactive / subshell sessions
