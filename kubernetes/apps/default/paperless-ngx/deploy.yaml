@@ -66,12 +66,18 @@ spec:
             httpGet:
               path: /
               port: http
+              httpHeaders:
+                - name: Host
+                  value: paperless.torquasmvo.com
             initialDelaySeconds: 20
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
               port: http
+              httpHeaders:
+                - name: Host
+                  value: paperless.torquasmvo.com
             initialDelaySeconds: 60
             periodSeconds: 20
           volumeMounts:
