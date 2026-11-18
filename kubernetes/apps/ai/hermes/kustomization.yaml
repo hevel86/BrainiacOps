@@ -4,4 +4,12 @@ resources:
   - bitwarden-secrets.yaml
   - deploy.yaml
   - pvc.yaml
+  - rbac.yaml
   - svc.yaml
+configMapGenerator:
+  - name: hermes-scripts
+    files:
+      - scripts/setup.sh
+      - scripts/git-askpass.sh
+generatorOptions:
+  disableNameSuffixHash: true

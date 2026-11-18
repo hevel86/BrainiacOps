@@ -14,13 +14,50 @@ spec:
       app: hermes
   template:
     metadata:
+      annotations:
+        hermes.brainiacops.io/setup-revision: "2026-11-17-1"
       labels:
         app: hermes
     spec:
+      serviceAccountName: hermes
+      automountServiceAccountToken: true
       enableServiceLinks: false
       securityContext:
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
+      initContainers:
+        - name: setup
+          image: nousresearch/hermes-agent:v0.23.2
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/bash
+            - /tmp/scripts/setup.sh
+          env:
+            - name: GITHUB_USERNAME
+              value: "hevel86"
+            - name: GH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-secrets
+                  key: GH_TOKEN
+                  optional: true
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-secrets
+                  key: GH_TOKEN
+                  optional: true
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - name: hermes-data
+              mountPath: /opt/data
+            - name: scripts
+              mountPath: /tmp/scripts
+              readOnly: true
       containers:
         - name: hermes
           image: nousresearch/hermes-agent:v0.23.2
@@ -50,6 +87,26 @@ spec:
               value: "0.0.0.0"
             - name: HERMES_DASHBOARD_PORT
               value: "9119"
+            - name: GITHUB_USERNAME
+              value: "hevel86"
+            - name: GIT_ASKPASS
+              value: "/opt/data/.local/bin/git-askpass"
+            - name: GIT_TERMINAL_PROMPT
+              value: "0"
+            - name: TALOSCONFIG
+              value: "/var/run/secrets/hermes-talos-reader/talosconfig"
+            - name: GH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-secrets
+                  key: GH_TOKEN
+                  optional: true
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-secrets
+                  key: GH_TOKEN
+                  optional: true
             - name: HERMES_DASHBOARD_BASIC_AUTH_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -87,6 +144,9 @@ spec:
           volumeMounts:
             - name: hermes-data
               mountPath: /opt/data
+            - name: talos-reader
+              mountPath: /var/run/secrets/hermes-talos-reader
+              readOnly: true
           resources:
             requests:
               cpu: 100m
@@ -98,3 +158,15 @@ spec:
         - name: hermes-data
           persistentVolumeClaim:
             claimName: hermes-data-pvc-lh
+        - name: scripts
+          configMap:
+            name: hermes-scripts
+            defaultMode: 493
+        - name: talos-reader
+          secret:
+            secretName: hermes-talos-reader
+            optional: true
+            defaultMode: 288
+            items:
+              - key: talosconfig
+                path: talosconfig
