@@ -71,6 +71,18 @@ install_binary "gh" "v2.104.0" \
     "98cb101ad87dbbd3f6b2f2bfcbd43197ccd07643140121d8a9cfaa91eadbc24e" \
     "targz" "gh_2.104.0_linux_amd64/bin/gh"
 
+if [ -x "$BIN_DIR/gh" ] && [ ! -x "$BIN_DIR/gh.real" ]; then
+    mv "$BIN_DIR/gh" "$BIN_DIR/gh.real"
+elif [ -x "$BIN_DIR/gh.real" ] && ! grep -q "BRAINIAC_GITHUB_TOKEN" "$BIN_DIR/gh" 2>/dev/null; then
+    mv "$BIN_DIR/gh" "$BIN_DIR/gh.real"
+fi
+cat > "$BIN_DIR/gh" <<'EOF'
+#!/bin/sh
+export GH_TOKEN="${GH_TOKEN:-${BRAINIAC_GITHUB_TOKEN:-}}"
+exec /opt/data/.local/bin/gh.real "$@"
+EOF
+chmod 0755 "$BIN_DIR/gh"
+
 install_binary "kustomize" "v5.8.0" \
     "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.8.0/kustomize_v5.8.0_linux_amd64.tar.gz" \
     "4dfa8307358dd9284aa4d2b1d5596766a65b93433e8fa3f9f74498941f01c5ef" \
@@ -116,9 +128,8 @@ if [ -f "$HERMES_DATA/config.yaml" ]; then
     echo "🔧 Ensuring terminal.env_passthrough in config.yaml..."
     "$BIN_DIR/yq" -i '
       .terminal.env_passthrough = (
-        ((.terminal.env_passthrough // []) + [
-          "GH_TOKEN",
-          "GITHUB_TOKEN",
+        ((.terminal.env_passthrough // []) - ["GH_TOKEN", "GITHUB_TOKEN"] + [
+          "BRAINIAC_GITHUB_TOKEN",
           "GITHUB_USERNAME",
           "GIT_ASKPASS",
           "GIT_TERMINAL_PROMPT",
@@ -136,6 +147,7 @@ export GITHUB_USERNAME="${GITHUB_USERNAME:-hevel86}"
 export GIT_ASKPASS="$BIN_DIR/git-askpass"
 export GIT_TERMINAL_PROMPT=0
 export TALOSCONFIG="/var/run/secrets/hermes-talos-reader/talosconfig"
+[ -n "\${BRAINIAC_GITHUB_TOKEN:-}" ] && export GH_TOKEN="\${BRAINIAC_GITHUB_TOKEN}" && export GITHUB_TOKEN="\${BRAINIAC_GITHUB_TOKEN}"
 EOF
 
 cat > "$HERMES_DATA/.bashrc" <<EOF

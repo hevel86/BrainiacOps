@@ -15,7 +15,7 @@ spec:
   template:
     metadata:
       annotations:
-        hermes.brainiacops.io/setup-revision: "2026-11-18-2"
+        hermes.brainiacops.io/setup-revision: "2026-11-18-3"
       labels:
         app: hermes
     spec:
@@ -44,6 +44,12 @@ spec:
                   key: GH_TOKEN
                   optional: true
             - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-secrets
+                  key: GH_TOKEN
+                  optional: true
+            - name: BRAINIAC_GITHUB_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: hermes-secrets
@@ -106,6 +112,12 @@ spec:
                   key: GH_TOKEN
                   optional: true
             - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-secrets
+                  key: GH_TOKEN
+                  optional: true
+            - name: BRAINIAC_GITHUB_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: hermes-secrets
