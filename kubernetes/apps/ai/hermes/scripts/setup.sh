@@ -2,6 +2,7 @@
 set -euo pipefail
 
 HERMES_DATA="/opt/data"
+export HOME="$HERMES_DATA"
 BIN_DIR="$HERMES_DATA/.local/bin"
 REPOS_DIR="$HERMES_DATA/repos"
 BRAINIACOPS_DIR="$REPOS_DIR/BrainiacOps"
@@ -142,6 +143,7 @@ fi
 
 # 4. Persist shell environment for interactive / subshell sessions
 cat > "$HERMES_DATA/hermes.env" <<EOF
+export HOME="$HERMES_DATA"
 export PATH="$BIN_DIR:\$PATH"
 export GITHUB_USERNAME="${GITHUB_USERNAME:-hevel86}"
 export GIT_ASKPASS="$BIN_DIR/git-askpass"
