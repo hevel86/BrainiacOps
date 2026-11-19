@@ -1,4 +1,4 @@
-# --- DEPLOYMENT ---
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -7,7 +7,7 @@ metadata:
 spec:
   replicas: 1
   strategy:
-    type: Recreate  
+    type: Recreate
   selector:
     matchLabels:
       app: prowlarr
@@ -18,20 +18,33 @@ spec:
     spec:
       containers:
         - name: prowlarr
-          image: lscr.io/linuxserver/prowlarr:2.3.0.5236-ls139
+          image: ghcr.io/home-operations/prowlarr:2.3.0.5236@sha256:1a8a4b11972b2e62671b49949c622b8cb1110e2b5c77199ac795a6d79fe106e8
           ports:
             - containerPort: 9696
           env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
             - name: TZ
-              value: "America/New_York"
+              value: America/New_York
+            - name: PROWLARR__UPDATE__BRANCH
+              value: master
           volumeMounts:
             - name: prowlarr-config
               mountPath: /config
+            - name: package-info
+              mountPath: /app/package_info
+              subPath: package_info
+              readOnly: true
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
       volumes:
         - name: prowlarr-config
           persistentVolumeClaim:
             claimName: prowlarr-config-lh
+        - name: package-info
+          configMap:
+            name: prowlarr-package-info

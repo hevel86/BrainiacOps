@@ -1,9 +1,11 @@
-# --- CONFIG PVC (Longhorn) ---
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: prowlarr-config-lh
   namespace: default
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 spec:
   accessModes:
     - ReadWriteOnce

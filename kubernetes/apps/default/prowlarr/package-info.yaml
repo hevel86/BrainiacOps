@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prowlarr-package-info
+  namespace: default
+data:
+  package_info: |
+    UpdateMethod=docker
+    Branch=master
+    PackageVersion=2.3.0.5236
+    PackageAuthor=[home-operations](https://github.com/home-operations)
