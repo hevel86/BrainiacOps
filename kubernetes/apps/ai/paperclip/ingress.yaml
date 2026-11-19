@@ -11,8 +11,7 @@ spec:
     - hosts:
         - paperclip
   rules:
-    - host: paperclip.tailca892.ts.net
-      http:
+    - http:
         paths:
           - path: /
             pathType: Prefix
