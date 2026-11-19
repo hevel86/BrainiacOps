@@ -6,6 +6,7 @@ resources:
   - pvc.yaml
   - rbac.yaml
   - svc.yaml
+  - storage-access.yaml
 configMapGenerator:
   - name: hermes-scripts
     files:
