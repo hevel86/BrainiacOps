@@ -1,4 +1,4 @@
-# kubernetes/apps/default/radarr/deploy.yaml
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -9,7 +9,7 @@ metadata:
 spec:
   replicas: 1
   strategy:
-    type: Recreate  
+    type: Recreate
   selector:
     matchLabels:
       app: radarr
@@ -20,26 +20,28 @@ spec:
     spec:
       containers:
         - name: radarr
-          image: lscr.io/linuxserver/radarr:6.3.0
+          image: ghcr.io/home-operations/radarr:6.3.0.10514@sha256:ca30ff27d24c1fd548b1c8efd684b6a9238b7fed2bd5b834ea700aa09c16fe11
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 7878
           env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
             - name: TZ
-              value: "America/New_York"
+              value: America/New_York
+            - name: RADARR__UPDATE__BRANCH
+              value: master
           volumeMounts:
             - name: config
-              mountPath: /config              # Longhorn PVC
+              mountPath: /config
             - name: movies
-              mountPath: /movies              # NFS media
+              mountPath: /movies
             - name: downloads
               mountPath: /downloads
             - name: data
               mountPath: /data
+            - name: package-info
+              mountPath: /app/package_info
+              subPath: package_info
+              readOnly: true
           readinessProbe:
             httpGet:
               path: /
@@ -52,16 +54,27 @@ spec:
               port: 7878
             initialDelaySeconds: 60
             periodSeconds: 20
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
       volumes:
         - name: config
           persistentVolumeClaim:
-            claimName: radarr-config          # Longhorn PVC you created
+            claimName: radarr-config
         - name: movies
           persistentVolumeClaim:
-            claimName: media-movies-pvc       # shared NFS PVC
+            claimName: media-movies-pvc
         - name: downloads
           persistentVolumeClaim:
             claimName: sabnzbd-downloads-pvc
         - name: data
           persistentVolumeClaim:
-            claimName: transmission-vpn-data     
+            claimName: transmission-vpn-data
+        - name: package-info
+          configMap:
+            name: radarr-package-info

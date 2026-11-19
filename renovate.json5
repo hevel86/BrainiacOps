@@ -446,5 +446,21 @@
       ],
       allowedVersions: '/^v\\d+\\.\\d+\\.\\d+$/',
     },
+    {
+      description: 'Hold radarr at verified stable release; review version and package_info together',
+      matchDatasources: ['docker'],
+      matchPackageNames: ['ghcr.io/home-operations/radarr'],
+      allowedVersions: '/^6\\.3\\.0\\.10514$/',
+      pinDigests: true,
+      automerge: false,
+    },
+    {
+      description: 'Hold prowlarr at verified stable release; review version and package_info together',
+      matchDatasources: ['docker'],
+      matchPackageNames: ['ghcr.io/home-operations/prowlarr'],
+      allowedVersions: '/^2\\.3\\.0\\.5236$/',
+      pinDigests: true,
+      automerge: false,
+    },
   ],
 }

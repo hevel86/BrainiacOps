@@ -1,11 +1,14 @@
-# kubernetes/apps/default/radarr/pvc-config.yaml
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: radarr-config
   namespace: default
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 spec:
-  accessModes: ["ReadWriteOnce"]
+  accessModes:
+    - ReadWriteOnce
   storageClassName: longhorn
   resources:
     requests:

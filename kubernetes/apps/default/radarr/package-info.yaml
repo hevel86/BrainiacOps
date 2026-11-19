@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: radarr-package-info
+  namespace: default
+data:
+  package_info: |
+    UpdateMethod=docker
+    Branch=master
+    PackageVersion=6.3.0.10514
+    PackageAuthor=[home-operations](https://github.com/home-operations)
