@@ -18,17 +18,24 @@ spec:
       labels:
         app: tautulli
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: tautulli
-          image: lscr.io/linuxserver/tautulli:2.18.2
+          image: ghcr.io/home-operations/tautulli:2.18.2@sha256:d7ea1a79cf8cc2603890287d7c0e5bc277e4909c1df93f48f000833d2771eca0
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8181
           env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
             - name: TZ
               value: "America/New_York"
           volumeMounts:

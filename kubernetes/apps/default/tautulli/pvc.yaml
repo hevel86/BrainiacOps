@@ -4,6 +4,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: tautulli-config-lh
   namespace: default
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 spec:
   accessModes: ["ReadWriteOnce"]
   storageClassName: longhorn
