@@ -28,7 +28,6 @@
     'argocd',
     'custom.regex',
   ],
-  // Parse Application YAML directly, including CRLF files and multiple documents.
   argocd: {
     managerFilePatterns: [
       '/^kubernetes/(apps|games|infrastructure)/.*\\.ya?ml$/',
@@ -38,14 +37,16 @@
     'dependencies',
     'renovate',
   ],
-  dependencyDashboard: true,
-  dependencyDashboardAutoclose: true,
-  dependencyDashboardTitle: 'Renovate Dependency Dashboard',
-  dependencyDashboardLabels: [
-    'dependencies',
-    'renovate',
-    'dashboard',
-  ],
+  dependencyDashboard: {
+    enabled: true,
+    autoclose: true,
+    title: 'Renovate Dependency Dashboard',
+    labels: [
+      'dependencies',
+      'renovate',
+      'dashboard',
+    ],
+  },
   assignees: [
     'hevel86',
   ],
@@ -328,7 +329,6 @@
       groupSlug: 'patch-updates',
     },
     {
-      // Keep this after the generic patch rule so Talos updates stay together.
       description: 'Group Talos CLI, talconfig, and Tuppr upgrade target',
       matchDatasources: [
         'github-releases',
@@ -413,7 +413,6 @@
     },
     {
       description: 'Track stable official Jellyfin releases with manual upgrade review',
-      // Jellyfin changed from three-component versions (10.11.11) to two (12.2).
       versioning: 'loose',
       matchDatasources: [
         'docker',
