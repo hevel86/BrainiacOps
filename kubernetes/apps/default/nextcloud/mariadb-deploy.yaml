@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -20,7 +21,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: mariadb
-          image: lscr.io/linuxserver/mariadb:11.8.9
+          image: docker.io/library/mariadb:11.8.9@sha256:d36f18d65a0459510b8b0f643b226a6d299e3206486e2b64ff20754a6d291707
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3306
@@ -39,9 +40,15 @@ spec:
                 secretKeyRef:
                   name: nextcloud-db-secrets
                   key: MYSQL_PASSWORD
+            - name: MARIADB_AUTO_UPGRADE
+              value: '0'
           volumeMounts:
             - name: config
               mountPath: /config
+            - name: mariadb-compat
+              mountPath: /etc/mysql/nextcloud-compat.cnf
+              subPath: compat.cnf
+              readOnly: true
           readinessProbe:
             tcpSocket:
               port: mysql
@@ -52,7 +59,45 @@ spec:
               port: mysql
             initialDelaySeconds: 60
             periodSeconds: 20
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          command:
+            - /bin/bash
+            - -ec
+            - |
+              test "$(id -u)" = 1000 && test "$(id -g)" = 1000 || exit 71
+              test -d /config/databases/mysql &&
+                test -s /config/databases/ibdata1 &&
+                test -r /config/databases/mariadb_upgrade_info || {
+                  printf '%s\n' 'Refusing startup: expected existing MariaDB data missing' >&2
+                  exit 72
+                }
+              for p in /config/databases /config/log/mysql /run/mysqld /tmp; do
+                test -d "$p" && test -w "$p" || { printf '%s\n' 'Refusing startup: required writable directory unavailable' >&2; exit 73; }
+              done
+              exec /usr/local/bin/docker-entrypoint.sh "$@"
+            - --
+          args:
+            - mariadbd
+            - --defaults-extra-file=/etc/mysql/nextcloud-compat.cnf
+            - --datadir=/config/databases
+            - --socket=/run/mysqld/mysqld.sock
+            - --pid-file=/run/mysqld/mysqld.pid
+            - --port=3306
+            - --bind-address=0.0.0.0
+            - --skip-name-resolve=0
+            - --host-cache-size=228
       volumes:
         - name: config
           persistentVolumeClaim:
             claimName: nextcloud-mariadb-config-pvc
+        - name: mariadb-compat
+          configMap:
+            name: nextcloud-mariadb-compat
+            defaultMode: 292
