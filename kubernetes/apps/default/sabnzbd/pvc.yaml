@@ -4,6 +4,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: sabnzbd-config
   namespace: default
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 spec:
   accessModes: ["ReadWriteOnce"]
   storageClassName: longhorn
@@ -16,9 +18,11 @@ kind: PersistentVolumeClaim
 metadata:
   name: sabnzbd-incomplete-pvc-lh
   namespace: default
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 spec:
   accessModes: ["ReadWriteOnce"]
-  storageClassName: longhorn  
+  storageClassName: longhorn
   resources:
     requests:
       storage: 250Gi
