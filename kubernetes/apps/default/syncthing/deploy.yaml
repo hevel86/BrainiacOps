@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,8 +7,6 @@ metadata:
     app: syncthing
 spec:
   replicas: 1
-  # The Recreate strategy ensures the old pod is terminated before the new one is created.
-  # This is crucial for ReadWriteOnce volumes (like Longhorn) to prevent mounting conflicts during updates.
   strategy:
     type: Recreate
   selector:
@@ -20,16 +19,16 @@ spec:
     spec:
       containers:
         - name: syncthing
-          image: lscr.io/linuxserver/syncthing:2.1.7
+          image: docker.io/syncthing/syncthing:2.1.7@sha256:2b71da7c0d0a91a6ae5285ad079226fecc0a365d08b27720e1f7037b018f7546
           env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
             - name: TZ
-              value: "America/New_York"
-            - name: UMASK_SET
-              value: "000"
+              value: America/New_York
+            - name: HOME
+              value: /config
+            - name: STHOMEDIR
+              value: /config
+            - name: UMASK
+              value: '000'
           ports:
             - containerPort: 8384
             - containerPort: 22000
@@ -43,6 +42,10 @@ spec:
               mountPath: /config
             - name: sync-saves
               mountPath: /sync_saves
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
       volumes:
         - name: config
           persistentVolumeClaim:
