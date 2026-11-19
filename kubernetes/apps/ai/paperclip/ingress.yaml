@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: paperclip
+  namespace: default
+  labels:
+    app: paperclip
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - paperclip
+  rules:
+    - host: paperclip.tailca892.ts.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: paperclip
+                port:
+                  name: http

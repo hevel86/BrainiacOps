@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperclip
+  namespace: default
+  labels:
+    app: paperclip
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: paperclip
+  template:
+    metadata:
+      labels:
+        app: paperclip
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 90
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: paperclip
+          image: ghcr.io/paperclipai/paperclip:2026.1117.0@sha256:bdf38d10544dc6c831e16dc027f23ad586353ef3be1a1b2c6979e63b956aceb1
+          ports:
+            - name: http
+              containerPort: 3100
+              protocol: TCP
+          env:
+            - name: HOST
+              value: "0.0.0.0"
+            - name: PORT
+              value: "3100"
+            - name: HOME
+              value: /paperclip
+            - name: PAPERCLIP_HOME
+              value: /paperclip
+            - name: PAPERCLIP_DEPLOYMENT_MODE
+              value: authenticated
+            - name: PAPERCLIP_DEPLOYMENT_EXPOSURE
+              value: private
+            - name: PAPERCLIP_PUBLIC_URL
+              value: https://paperclip.tailca892.ts.net
+            - name: PAPERCLIP_ALLOWED_HOSTNAMES
+              value: paperclip.tailca892.ts.net,paperclip,localhost
+            - name: PAPERCLIP_MIGRATION_AUTO_APPLY
+              value: "true"
+            - name: BETTER_AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: paperclip-secrets
+                  key: BETTER_AUTH_SECRET
+            - name: PAPERCLIP_TOOL_ACTION_SIGNING_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: paperclip-secrets
+                  key: PAPERCLIP_TOOL_ACTION_SIGNING_SECRET
+          startupProbe:
+            httpGet:
+              path: /api/ready
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: paperclip.tailca892.ts.net
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 90
+          readinessProbe:
+            httpGet:
+              path: /api/ready
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: paperclip.tailca892.ts.net
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              cpu: 250m
+              memory: 1Gi
+            limits:
+              cpu: "4"
+              memory: 8Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: data
+              mountPath: /paperclip
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: paperclip-data-pvc-lh
