@@ -9,7 +9,7 @@ metadata:
 spec:
   replicas: 1
   strategy:
-    type: Recreate  
+    type: Recreate
   selector:
     matchLabels:
       app: bazarr
@@ -18,17 +18,22 @@ spec:
       labels:
         app: bazarr
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
       containers:
         - name: bazarr
-          image: lscr.io/linuxserver/bazarr:1.5.6
+          image: ghcr.io/home-operations/bazarr:1.5.6@sha256:80cb090162b47ea1bfb499d742b45a460b282f17ffefa4c01d518a5c8d52a5a4
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 6767
           env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
             - name: TZ
               value: "America/New_York"
           volumeMounts:

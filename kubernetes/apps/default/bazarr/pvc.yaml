@@ -4,6 +4,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: bazarr-config
   namespace: default
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 spec:
   accessModes: ["ReadWriteOnce"]
   storageClassName: longhorn
