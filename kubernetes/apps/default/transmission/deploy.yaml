@@ -5,7 +5,7 @@ metadata:
 spec:
   replicas: 1
   strategy:
-    type: Recreate  
+    type: Recreate
   selector:
     matchLabels:
       app: transmission
@@ -14,58 +14,106 @@ spec:
       labels:
         app: transmission
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+      initContainers:
+        - name: configure-rpc
+          image: ghcr.io/home-operations/transmission:4.1.4@sha256:4d7179443512c84e564e2c8c5e5f17b0db069f63a48eded5f0e371f7429a7463
+          command:
+            - /usr/local/bin/python
+            - -c
+          args:
+            - |
+              import json
+              import os
+              import sys
+              import tempfile
+
+              path = sys.argv[1]
+              with open(path) as stream:
+                  settings = json.load(stream)
+              if not os.environ.get('USER') or not os.environ.get('PASS'):
+                  raise SystemExit('RPC credentials are missing; refusing to start')
+              separator = '_' if 'rpc_username' in settings or 'rpc_password' in settings else '-'
+              updates = {
+                  'rpc-username': os.environ['USER'],
+                  'rpc-password': os.environ['PASS'],
+                  'rpc-authentication-required': True,
+                  'rpc-host-whitelist': os.environ.get('HOST_WHITELIST', ''),
+                  'rpc-host-whitelist-enabled': bool(os.environ.get('HOST_WHITELIST', '')),
+              }
+              for name, value in updates.items():
+                  settings[name.replace('-', separator)] = value
+              fd, temporary = tempfile.mkstemp(prefix='.settings-', dir=os.path.dirname(path))
+              try:
+                  with os.fdopen(fd, 'w') as stream:
+                      json.dump(settings, stream, indent=2)
+                      stream.write('\n')
+                      stream.flush()
+                      os.fsync(stream.fileno())
+                  os.replace(temporary, path)
+              finally:
+                  if os.path.exists(temporary):
+                      os.unlink(temporary)
+            - /config/settings.json
+          env:
+            - name: HOST_WHITELIST
+              valueFrom:
+                configMapKeyRef:
+                  name: transmission-config
+                  key: HOST_WHITELIST
+            - name: USER
+              valueFrom:
+                secretKeyRef:
+                  name: transmission-credentials
+                  key: USER
+            - name: PASS
+              valueFrom:
+                secretKeyRef:
+                  name: transmission-credentials
+                  key: PASS
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: config
+              mountPath: /config
       containers:
-      - name: transmission
-        image: lscr.io/linuxserver/transmission:4.1.4
-        imagePullPolicy: IfNotPresent
-        env:
-        - name: PUID
-          valueFrom:
-            configMapKeyRef:
-              name: transmission-config
-              key: PUID
-        - name: PGID
-          valueFrom:
-            configMapKeyRef:
-              name: transmission-config
-              key: PGID
-        - name: TZ
-          valueFrom:
-            configMapKeyRef:
-              name: transmission-config
-              key: TZ
-        - name: HOST_WHITELIST
-          valueFrom:
-            configMapKeyRef:
-              name: transmission-config
-              key: HOST_WHITELIST
-        - name: USER
-          valueFrom:
-            secretKeyRef:
-              name: transmission-credentials
-              key: USER
-        - name: PASS
-          valueFrom:
-            secretKeyRef:
-              name: transmission-credentials
-              key: PASS
-        ports:
-        - name: web
-          containerPort: 9091
-        - name: peer-tcp
-          containerPort: 51413
-        - name: peer-udp
-          containerPort: 51413
-          protocol: UDP
-        volumeMounts:
-        - name: config
-          mountPath: /config
-        - name: downloads
-          mountPath: /downloads
+        - name: transmission
+          image: ghcr.io/home-operations/transmission:4.1.4@sha256:4d7179443512c84e564e2c8c5e5f17b0db069f63a48eded5f0e371f7429a7463
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  name: transmission-config
+                  key: TZ
+          ports:
+            - name: web
+              containerPort: 9091
+            - name: peer-tcp
+              containerPort: 51413
+            - name: peer-udp
+              containerPort: 51413
+              protocol: UDP
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: downloads
+              mountPath: /downloads
       volumes:
-      - name: config
-        persistentVolumeClaim:
-          claimName: transmission-config-pvc-lh
-      - name: downloads
-        persistentVolumeClaim:
-          claimName: transmission-downloads-pvc
+        - name: config
+          persistentVolumeClaim:
+            claimName: transmission-config-pvc-lh
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: transmission-downloads-pvc
