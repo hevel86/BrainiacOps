@@ -1,100 +1,100 @@
-# --- PersistentVolume for ZFS Transcode Scratch Space ---
+---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: plex-zfstranscode-pv # Unique name for this PersistentVolume
+  name: plex-zfstranscode-pv
 spec:
   capacity:
-    storage: 500Gi # IMPORTANT: Adjust to your actual storage size for transcode scratch
+    storage: 500Gi
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   nfs:
-    path: /mnt/media/plex_transcode # Exact path for Plex transcode scratch space
+    path: /mnt/media/plex_transcode
     server: truenas1-nfs.torquasmvo.internal
   mountOptions:
     - nfsvers=4.1
     - noatime
 ---
-# --- PersistentVolumeClaim for ZFS Transcode Scratch Space ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: plex-zfstranscode-pvc # Unique name for this PersistentVolumeClaim
+  name: plex-zfstranscode-pvc
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 spec:
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 500Gi # IMPORTANT: Match or be less than plex-zfstranscode-pv capacity
-  volumeName: plex-zfstranscode-pv # Explicitly bind to the PV defined above
-  storageClassName: "" # Explicitly bind to static PV
+      storage: 500Gi
+  volumeName: plex-zfstranscode-pv
+  storageClassName: ''
 ---
-# --- PersistentVolume for Lily's GCS Cheers (assuming this is a media share) ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: plex-lily-pv # Unique name for this PersistentVolume
+  name: plex-lily-pv
 spec:
   capacity:
-    storage: 5Ti # IMPORTANT: Adjust to your actual storage size for lily's share
+    storage: 5Ti
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   nfs:
-    path: /mnt/fast/nas/lily_gcs_cheers # Exact path for Lily's GCS Cheers share
+    path: /mnt/fast/nas/lily_gcs_cheers
     server: truenas1-nfs.torquasmvo.internal
   mountOptions:
     - nfsvers=4.1
     - noatime
 ---
-# --- PersistentVolumeClaim for Lily's GCS Cheers ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: plex-lily-pvc # Unique name for this PersistentVolumeClaim
+  name: plex-lily-pvc
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 spec:
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 5Ti # IMPORTANT: Match or be less than plex-lily-pv capacity
-  volumeName: plex-lily-pv # Explicitly bind to the PV defined above
-  storageClassName: "" # Explicitly bind to static PV
+      storage: 5Ti
+  volumeName: plex-lily-pv
+  storageClassName: ''
 ---
-# --- PersistentVolume for Abbie's Pictures ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: plex-abbie-pv # Unique name for this PersistentVolume
+  name: plex-abbie-pv
 spec:
   capacity:
-    storage: 2Ti # IMPORTANT: Adjust to your actual storage size for Abbie's pictures
+    storage: 2Ti
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   nfs:
-    path: /mnt/fast/pictures/Abbie # Exact path for Abbie's pictures share
+    path: /mnt/fast/pictures/Abbie
     server: truenas1-nfs.torquasmvo.internal
   mountOptions:
     - nfsvers=4.1
     - noatime
 ---
-# --- PersistentVolumeClaim for Abbie's Pictures ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: plex-abbie-pvc # Unique name for this PersistentVolumeClaim
+  name: plex-abbie-pvc
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 spec:
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 2Ti # IMPORTANT: Match or be less than plex-abbie-pv capacity
-  volumeName: plex-abbie-pv # Explicitly bind to the PV defined above
-  storageClassName: "" # Explicitly bind to static PV
+      storage: 2Ti
+  volumeName: plex-abbie-pv
+  storageClassName: ''
 ---
-# --- PersistentVolumeClaim for Plex Configuration (Longhorn) ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -104,8 +104,8 @@ metadata:
     argocd.argoproj.io/sync-options: Delete=false
 spec:
   accessModes:
-    - ReadWriteOnce # Required for Longhorn volumes
+    - ReadWriteOnce
   storageClassName: longhorn-prod
   resources:
     requests:
-      storage: 250Gi # A generous size for Plex metadata, thumbnails, etc.
+      storage: 250Gi

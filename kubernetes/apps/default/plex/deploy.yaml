@@ -22,7 +22,7 @@ spec:
       enableServiceLinks: false
       containers:
         - name: plex
-          image: lscr.io/linuxserver/plex:1.43.5
+          image: ghcr.io/home-operations/plex:1.43.5.11079@sha256:06ef0fc23e9af9bbaf284c3f27972f94e703d13d6f745edeb6818fcbebf6c673
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -30,22 +30,16 @@ spec:
               protocol: TCP
           env:
             - name: TZ
-              value: "America/New_York"
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
-            - name: UMASK
-              value: "022"
-            - name: VERSION
-              value: "docker"
+              value: America/New_York
+            - name: PLEX_PREFERENCE_TRANSCODE
+              value: TranscoderTempDirectory=/scratch
           resources:
             requests:
-              gpu.intel.com/i915: "1"
+              gpu.intel.com/i915: '1'
               cpu: 1000m
-              memory: "7.5Gi"
+              memory: 7.5Gi
             limits:
-              gpu.intel.com/i915: "1"
+              gpu.intel.com/i915: '1'
           volumeMounts:
             - name: config
               mountPath: /config
@@ -81,6 +75,8 @@ spec:
             periodSeconds: 30
           securityContext:
             privileged: true
+            runAsUser: 1000
+            runAsGroup: 1000
       volumes:
         - name: config
           persistentVolumeClaim:
