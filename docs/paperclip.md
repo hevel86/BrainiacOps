@@ -106,6 +106,57 @@ keeps this a single-replica private deployment, not a highly available database.
   is present in this agent environment but no Docker daemon is available for a
   local container boot test.
 
+## Hermes Gateway integration
+
+Paperclip's built-in `hermes_gateway` adapter targets the existing default
+Hermes profile. Restrict agent configuration and assignment to trusted operators:
+this bearer key permits model runs with the profile's existing tools and
+credentials. This integration adds no cluster RBAC or public route.
+
+- Paperclip adapter API URL: `http://127.0.0.1:18642`. Only this pod-local hop
+  uses HTTP. Leave `dangerouslyAllowInsecureRemoteHttp` disabled.
+- The Paperclip sidecar connects to `hermes-api.default.svc.cluster.local` using
+  verified TLS with SNI `hermes-api.torquasmvo.com`. The hostname is a certificate
+  identity, not a public DNS route. The sidecar verifies the issuing chain and
+  resolves the Service through cluster DNS; no backend IP is pinned.
+- The Hermes proxy serves only health, models and the adapter's run endpoints.
+  Hermes listens on loopback at 8642. The existing Tailscale Service continues
+  to serve only the dashboard on 9119.
+- Use the dedicated `HERMES_API_SERVER_KEY` item as a Paperclip company secret
+  reference in the adapter's `apiKey` setting. Do not use a dashboard login or
+  paste the credential into Git, chat, or the plain JSON configuration. Set
+  `sessionKeyStrategy` to `issue`.
+- Result delivery through the adapter uses run events and status polling. In
+  Paperclip `2026.1117.0`, `paperclipApiUrl` is prompt context, not an authenticated
+  callback. The adapter does not inject a scoped Paperclip API bearer into the
+  remote Hermes run. Leave this setting unset for the first test; do not use a
+  broad credential or an unencrypted in-cluster hop to simulate callback access.
+
+### Activation and rollback
+
+The Hermes Argo CD application uses manual sync. After Git review and publication,
+record the last healthy Hermes revision. First sync the Hermes `Certificate`
+`hermes-api-tls` and `BitwardenSecret` `hermes-secrets` only. Wait for cert-manager
+`Ready=True` and a fresh successful Bitwarden reconciliation for the updated
+mapping. Do not restart Hermes if either dependency fails. Paperclip auto-syncs
+its connector deployment, which will restart its single replica.
+
+Then sync only the reviewed Hermes change with pruning off. It replaces the
+single Hermes pod and disconnects active chats. After reconnecting, check the
+Argo operation and revision, pod readiness and restart counts, dashboard and
+Paperclip readiness, and the certificate through the caller path. The adapter's
+health test alone does not prove authentication: require 401 for missing or
+wrong credentials and 200 for the right key on `/v1/models`, then verify one
+no-tools task and its result delivery in Paperclip. The Hermes proxy ConfigMap
+is not name-hashed; future proxy-only changes require a coordinated reload.
+
+If the Hermes pod fails to recover, an operator outside the affected pod can
+sync Hermes back to the previously recorded healthy revision without pruning.
+Revert the Git change for both apps to restore desired state, then verify both
+workloads and the dashboard. Do not delete either PVC or discard Paperclip's
+persistent data. Remove unused certificate/secret mapping via reviewed GitOps
+cleanup only after the previous deployment is available.
+
 ## Upstream references
 
 - Paperclip source: <https://github.com/paperclipai/paperclip>

@@ -77,9 +77,6 @@ spec:
             - name: dashboard
               containerPort: 9119
               protocol: TCP
-            - name: gateway
-              containerPort: 8642
-              protocol: TCP
           env:
             - name: TZ
               value: "America/New_York"
@@ -97,6 +94,17 @@ spec:
               value: "0.0.0.0"
             - name: HERMES_DASHBOARD_PORT
               value: "9119"
+            - name: API_SERVER_ENABLED
+              value: "true"
+            - name: API_SERVER_HOST
+              value: "127.0.0.1"
+            - name: API_SERVER_PORT
+              value: "8642"
+            - name: API_SERVER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-secrets
+                  key: HERMES_API_SERVER_KEY
             - name: GITHUB_USERNAME
               value: "hevel86"
             - name: GIT_ASKPASS
@@ -177,7 +185,55 @@ spec:
             limits:
               cpu: "2"
               memory: 4Gi
+        - name: gateway-tls
+          image: nginxinc/nginx-unprivileged:stable-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
+          command: [nginx, -c, /etc/gateway/gateway-nginx.conf, -g, "daemon off;"]
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+            seccompProfile:
+              type: RuntimeDefault
+          ports:
+            - name: gateway-tls
+              containerPort: 8443
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 200m
+              memory: 96Mi
+          volumeMounts:
+            - name: gateway-proxy-config
+              mountPath: /etc/gateway
+              readOnly: true
+            - name: gateway-tls
+              mountPath: /etc/gateway-tls
+              readOnly: true
+            - name: gateway-proxy-tmp
+              mountPath: /tmp
+            # Mask the default ServiceAccount mount for this sidecar only.
+            - name: gateway-proxy-no-token
+              mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              readOnly: true
       volumes:
+        - name: gateway-proxy-config
+          configMap:
+            name: hermes-gateway-proxy
+        - name: gateway-tls
+          secret:
+            secretName: hermes-api-tls
+            defaultMode: 288
+        - name: gateway-proxy-tmp
+          emptyDir:
+            sizeLimit: 32Mi
+        - name: gateway-proxy-no-token
+          emptyDir: {}
         - name: hermes-data
           persistentVolumeClaim:
             claimName: hermes-data-pvc-lh

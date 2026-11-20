@@ -103,7 +103,39 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /paperclip
+        - name: hermes-connector
+          image: nginxinc/nginx-unprivileged:stable-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
+          command: [nginx, -c, /etc/gateway/hermes-connector-nginx.conf, -g, "daemon off;"]
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 200m
+              memory: 96Mi
+          volumeMounts:
+            - name: hermes-connector-config
+              mountPath: /etc/gateway
+              readOnly: true
+            - name: hermes-connector-tmp
+              mountPath: /tmp
       volumes:
+        - name: hermes-connector-config
+          configMap:
+            name: paperclip-hermes-connector
+        - name: hermes-connector-tmp
+          emptyDir:
+            sizeLimit: 32Mi
         - name: data
           persistentVolumeClaim:
             claimName: paperclip-data-pvc-lh

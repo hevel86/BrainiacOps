@@ -7,11 +7,15 @@ resources:
   - pvc.yaml
   - rbac.yaml
   - svc.yaml
+  - gateway.yaml
   - storage-access.yaml
 configMapGenerator:
   - name: hermes-scripts
     files:
       - scripts/setup.sh
       - scripts/git-askpass.sh
+  - name: hermes-gateway-proxy
+    files:
+      - gateway-nginx.conf
 generatorOptions:
   disableNameSuffixHash: true

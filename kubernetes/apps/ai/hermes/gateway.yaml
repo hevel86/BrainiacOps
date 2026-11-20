@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hermes-api
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: hermes
+  ports:
+    - name: https
+      port: 443
+      targetPort: gateway-tls
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: hermes-api-tls
+  namespace: default
+spec:
+  secretName: hermes-api-tls
+  dnsNames:
+    - hermes-api.torquasmvo.com
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  privateKey:
+    rotationPolicy: Always
