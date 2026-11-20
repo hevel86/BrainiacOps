@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,7 +7,7 @@ metadata:
   labels:
     app: nextcloud
 spec:
-  replicas: 0
+  replicas: 1
   strategy:
     type: Recreate
   selector:
@@ -20,16 +21,16 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: nextcloud
-          image: lscr.io/linuxserver/nextcloud:33.0.5
+          image: docker.io/library/nextcloud:33.0.11-fpm@sha256:10e7cd46093ca433e2a968d060473f0813fb5e1c62d0a63a099394e1073b8c7f
           imagePullPolicy: IfNotPresent
-          resources:
-            requests:
-              memory: 256Mi
-            limits:
-              memory: 2Gi
-          ports:
-            - containerPort: 443
-              name: https
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           envFrom:
             - configMapRef:
                 name: nextcloud-env
@@ -39,36 +40,296 @@ spec:
                 secretKeyRef:
                   name: nextcloud-db-secrets
                   key: MYSQL_PASSWORD
+            - name: PHP_MEMORY_LIMIT
+              value: '-1'
+            - name: PHP_UPLOAD_LIMIT
+              value: 100G
           volumeMounts:
             - name: config
               mountPath: /config
             - name: data
               mountPath: /data
+            - name: webroot
+              mountPath: /var/www/html
+            - name: official-runtime
+              mountPath: /migration
+              readOnly: true
             - name: php-hardening
-              mountPath: /config/php/zz-security.ini
+              mountPath: /usr/local/etc/php/conf.d/zz-security.ini
               subPath: zz-security.ini
               readOnly: true
+            - name: official-runtime
+              mountPath: /usr/local/etc/php/conf.d/zz-official-compat.ini
+              subPath: compat.ini
+              readOnly: true
             - name: php-hardening
-              mountPath: /config/php/zz-security.conf
+              mountPath: /usr/local/etc/php-fpm.d/zz-security.conf
               subPath: zz-security.conf
               readOnly: true
+            - name: official-runtime
+              mountPath: /usr/local/etc/php-fpm.d/zz-official-fpm.conf
+              subPath: fpm.conf
+              readOnly: true
+          ports:
+            - name: fpm
+              containerPort: 9000
+          resources:
+            requests:
+              memory: 256Mi
+            limits:
+              memory: 2Gi
+          startupProbe:
+            exec:
+              command:
+                - php
+                - -r
+                - |
+                  $c=stream_context_create(['http'=>['timeout'=>2,'ignore_errors'=>true]]);
+                  $r=@file_get_contents('http://127.0.0.1:8080/health.php',false,$c);
+                  $j=$r===false?null:json_decode($r,true);
+                  exit(is_array($j)&&($j['runtimeVerified']??false)===true?0:1);
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 60
           readinessProbe:
-            tcpSocket:
+            exec:
+              command:
+                - php
+                - -r
+                - |
+                  $c=stream_context_create(['http'=>['timeout'=>2,'ignore_errors'=>true]]);
+                  $r=@file_get_contents('http://127.0.0.1:8080/health.php',false,$c);
+                  $j=$r===false?null:json_decode($r,true);
+                  exit(is_array($j)&&($j['runtimeVerified']??false)===true?0:1);
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+                - php
+                - -r
+                - |
+                  $c=stream_context_create(['http'=>['timeout'=>2,'ignore_errors'=>true]]);
+                  $r=@file_get_contents('http://127.0.0.1:8080/health.php',false,$c);
+                  $j=$r===false?null:json_decode($r,true);
+                  exit(is_array($j)&&($j['runtimeVerified']??false)===true?0:1);
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 5
+        - name: nginx
+          image: docker.io/library/nginx:1.30.7-alpine@sha256:bef154735288bc38d99fac41ae63730684bcc661503673a04a0f9bc526ba8598
+          command:
+            - nginx
+          args:
+            - -c
+            - /etc/nginx/nginx.conf
+            - -g
+            - daemon off;
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+          ports:
+            - name: https
+              containerPort: 8443
+          volumeMounts:
+            - name: webroot
+              mountPath: /var/www/html
+              readOnly: true
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: data
+              mountPath: /var/cache/nginx-upload
+              subPath: .nginx-upload-cache
+            - name: nginx-tmp
+              mountPath: /tmp
+            - name: official-runtime
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+              readOnly: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 256Mi
+          startupProbe:
+            httpGet:
+              path: /status.php
               port: https
-            initialDelaySeconds: 20
+              scheme: HTTPS
+              httpHeaders:
+                - name: Host
+                  value: cloud.torquasmvo.com
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /status.php
+              port: https
+              scheme: HTTPS
+              httpHeaders:
+                - name: Host
+                  value: cloud.torquasmvo.com
             periodSeconds: 10
           livenessProbe:
             tcpSocket:
               port: https
-            initialDelaySeconds: 60
             periodSeconds: 20
+            failureThreshold: 5
+        - name: cron
+          image: docker.io/library/nextcloud:33.0.11-fpm@sha256:10e7cd46093ca433e2a968d060473f0813fb5e1c62d0a63a099394e1073b8c7f
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          envFrom:
+            - configMapRef:
+                name: nextcloud-env
+          env:
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-db-secrets
+                  key: MYSQL_PASSWORD
+            - name: PHP_MEMORY_LIMIT
+              value: '-1'
+            - name: PHP_UPLOAD_LIMIT
+              value: 100G
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: data
+              mountPath: /data
+            - name: webroot
+              mountPath: /var/www/html
+            - name: official-runtime
+              mountPath: /migration
+              readOnly: true
+            - name: php-hardening
+              mountPath: /usr/local/etc/php/conf.d/zz-security.ini
+              subPath: zz-security.ini
+              readOnly: true
+            - name: official-runtime
+              mountPath: /usr/local/etc/php/conf.d/zz-official-compat.ini
+              subPath: compat.ini
+              readOnly: true
+          command:
+            - /bin/sh
+            - /migration/cron.sh
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              memory: 512Mi
       volumes:
         - name: php-hardening
           configMap:
             name: nextcloud-php-hardening
+        - name: official-runtime
+          configMap:
+            name: nextcloud-official-runtime
         - name: config
           persistentVolumeClaim:
             claimName: nextcloud-config-pvc
         - name: data
           persistentVolumeClaim:
             claimName: nextcloud-data-pvc
+        - name: webroot
+          emptyDir:
+            sizeLimit: 2Gi
+        - name: nginx-tmp
+          emptyDir:
+            sizeLimit: 64Mi
+      enableServiceLinks: false
+      initContainers:
+        - name: prepare-webroot
+          image: docker.io/library/nextcloud:33.0.11-fpm@sha256:10e7cd46093ca433e2a968d060473f0813fb5e1c62d0a63a099394e1073b8c7f
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              chown 1000:1000 /var/www/html /work/nginx-tmp
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - CHOWN
+          volumeMounts:
+            - name: webroot
+              mountPath: /var/www/html
+            - name: nginx-tmp
+              mountPath: /work/nginx-tmp
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+        - name: upgrade-nextcloud
+          image: docker.io/library/nextcloud:33.0.11-fpm@sha256:10e7cd46093ca433e2a968d060473f0813fb5e1c62d0a63a099394e1073b8c7f
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          envFrom:
+            - configMapRef:
+                name: nextcloud-env
+          env:
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-db-secrets
+                  key: MYSQL_PASSWORD
+            - name: PHP_MEMORY_LIMIT
+              value: '-1'
+            - name: PHP_UPLOAD_LIMIT
+              value: 100G
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: data
+              mountPath: /data
+            - name: webroot
+              mountPath: /var/www/html
+            - name: official-runtime
+              mountPath: /migration
+              readOnly: true
+            - name: php-hardening
+              mountPath: /usr/local/etc/php/conf.d/zz-security.ini
+              subPath: zz-security.ini
+              readOnly: true
+            - name: official-runtime
+              mountPath: /usr/local/etc/php/conf.d/zz-official-compat.ini
+              subPath: compat.ini
+              readOnly: true
+          command:
+            - /bin/sh
+            - /migration/upgrade.sh
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 2Gi

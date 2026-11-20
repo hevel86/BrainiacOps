@@ -17,3 +17,14 @@ configMapGenerator:
     files:
       - zz-security.ini=php-security.ini
       - zz-security.conf=php-security.conf
+  - name: nextcloud-official-runtime
+    namespace: default
+    files:
+      - upgrade.sh=official-upgrade.sh
+      - runtime-health.php=official-runtime-health.php
+      - check-runtime.php=official-check-runtime.php
+      - cron.sh=official-cron.sh
+      - apps.config.php=official-apps.config.php
+      - compat.ini=official-compat.ini
+      - fpm.conf=official-fpm.conf
+      - nginx.conf=nginx.conf

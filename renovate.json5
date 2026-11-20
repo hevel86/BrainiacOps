@@ -462,5 +462,23 @@
       pinDigests: true,
       automerge: false,
     },
+    {
+      description: 'Review official Nextcloud33 FPM maintenance updates',
+      matchDatasources: ['docker'],
+      matchPackageNames: ['docker.io/library/nextcloud'],
+      matchFileNames: ['kubernetes/apps/default/nextcloud/**'],
+      allowedVersions: '/^33[.][0-9]+[.][0-9]+-fpm$/',
+      pinDigests: true,
+      automerge: false,
+    },
+    {
+      description: 'Keep Nextcloud NGINX on the verified stable1.30 Alpine series',
+      matchDatasources: ['docker'],
+      matchPackageNames: ['docker.io/library/nginx'],
+      matchFileNames: ['kubernetes/apps/default/nextcloud/**'],
+      allowedVersions: '/^1[.]30[.][0-9]+-alpine$/',
+      pinDigests: true,
+      automerge: false,
+    },
   ],
 }
