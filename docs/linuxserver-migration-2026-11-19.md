@@ -1,5 +1,7 @@
 # LinuxServer image-provider migration — 2026-11-19
 
+> **Follow-up:** Nextcloud was subsequently migrated to official 33.0.11 with live PHP 8.4.28 verification. The overall total is now 10 migrated workloads, with Sonarr, Mylar3 and Azahar unchanged. See `nextcloud-official-migration-2026-11-20.md`. The original snapshot below is retained as historical evidence; its Nextcloud exception is resolved.
+
 ## Result
 
 9 of 13 workloads are cut over. Four remain on LinuxServer for the concrete exceptions below. This is not a claim that the entire LinuxServer migration is complete.
