@@ -27,7 +27,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       initContainers:
         - name: setup
-          image: nousresearch/hermes-agent:v0.23.2
+          image: nousresearch/hermes-agent:v0.23.3
           imagePullPolicy: IfNotPresent
           command:
             - /bin/bash
@@ -68,7 +68,7 @@ spec:
               readOnly: true
       containers:
         - name: hermes
-          image: nousresearch/hermes-agent:v0.23.2
+          image: nousresearch/hermes-agent:v0.23.3
           imagePullPolicy: IfNotPresent
           args:
             - gateway
