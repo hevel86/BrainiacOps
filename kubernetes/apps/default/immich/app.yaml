@@ -44,6 +44,7 @@ spec:
             containers:
               main:
                 image:
+                  # renovate: datasource=docker depName=ghcr.io/immich-app/immich-server versioning=docker
                   tag: v3.1.0
                 env:
                   TZ: America/New_York
@@ -94,6 +95,7 @@ spec:
               containers:
                 main:
                   image:
+                    # renovate: datasource=docker depName=ghcr.io/immich-app/immich-machine-learning versioning=docker
                     tag: v3.1.0-openvino
                   resources:
                     requests:

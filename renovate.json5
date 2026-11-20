@@ -480,5 +480,24 @@
       pinDigests: true,
       automerge: false,
     },
+    {
+      description: 'Coordinate Immich server and OpenVINO machine-learning image updates',
+      matchDatasources: ['docker'],
+      matchPackageNames: [
+        'ghcr.io/immich-app/immich-server',
+        'ghcr.io/immich-app/immich-machine-learning',
+      ],
+      matchFileNames: ['kubernetes/apps/default/immich/app.yaml'],
+      versioning: 'docker',
+      groupName: 'Immich application images',
+      groupSlug: 'immich-application-images',
+      minimumGroupSize: 2,
+      ignoreUnstable: true,
+      automerge: false,
+      prBodyNotes: [
+        'Update server and machine-learning to matching Immich releases; retain the OpenVINO variant.',
+        'Review Immich release notes and database/extension requirements before merging. Chart and PostgreSQL updates remain separately managed.',
+      ],
+    },
   ],
 }
