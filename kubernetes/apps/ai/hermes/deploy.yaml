@@ -138,6 +138,13 @@ spec:
                 secretKeyRef:
                   name: hermes-secrets
                   key: HERMES_DASHBOARD_BASIC_AUTH_SECRET
+            - name: HASS_URL
+              value: "https://homeassistant.torquasmvo.com"
+            - name: HASS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-homeassistant
+                  key: HASS_TOKEN
           startupProbe:
             httpGet:
               path: /api/health
