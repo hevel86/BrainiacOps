@@ -132,6 +132,35 @@ credentials. This integration adds no cluster RBAC or public route.
   remote Hermes run. Leave this setting unset for the first test; do not use a
   broad credential or an unencrypted in-cluster hop to simulate callback access.
 
+### Private API transport from Hermes
+
+The API-only `paperclip-api` ClusterIP terminates TLS in the Paperclip pod and
+forwards `/api/` to Paperclip over pod loopback. It adds no public or Tailscale
+route and does not change the canonical browser URL or Paperclip authentication.
+The DNS-01 certificate identity is not a routing instruction. From the Hermes pod,
+connect to the Kubernetes Service but keep the certificate hostname for SNI and
+validation (do not use `-k` or pin a ClusterIP):
+
+```bash
+curl --fail --silent --show-error --max-time 10 \
+  --connect-to paperclip-api.torquasmvo.com:443:paperclip-api.default.svc.cluster.local:443 \
+  https://paperclip-api.torquasmvo.com/api/health
+```
+
+Use the same explicit routing for registration, key claim, and authenticated API
+requests. This does not make the certificate hostname resolve to the Service for
+unconfigured clients or make Paperclip's remote adapter inject credentials.
+
+Paperclip auto-syncs, so merge only when a Paperclip restart is acceptable.
+The certificate syncs in wave `-1`; Argo CD waits for it to be healthy before
+applying the proxy ConfigMap, Service and Deployment in the next wave. Do not
+bypass that gate if issuance fails. The rollout restarts the single Paperclip
+replica, not Hermes. Verify Paperclip readiness and the existing tailnet UI,
+then run the probe above from Hermes and verify that `/` on this API listener
+returns 404. Roll back the Paperclip Deployment to the previous known-good
+revision if readiness fails. Never submit gateway credentials to the original
+plain HTTP Service.
+
 ### Activation and rollback
 
 The Hermes Argo CD application uses manual sync. After Git review and publication,

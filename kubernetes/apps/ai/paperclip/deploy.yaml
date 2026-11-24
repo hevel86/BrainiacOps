@@ -129,7 +129,48 @@ spec:
               readOnly: true
             - name: hermes-connector-tmp
               mountPath: /tmp
+        - name: private-api-tls
+          image: nginxinc/nginx-unprivileged:stable-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
+          command: [nginx, -c, /etc/private-api/private-api-nginx.conf, -g, "daemon off;"]
+          ports:
+            - name: private-api
+              containerPort: 8443
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: private-api
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 200m
+              memory: 96Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: private-api-config
+              mountPath: /etc/private-api
+              readOnly: true
+            - name: private-api-tls
+              mountPath: /etc/private-api-tls
+              readOnly: true
+            - name: private-api-tmp
+              mountPath: /tmp
       volumes:
+        - name: private-api-config
+          configMap:
+            name: paperclip-private-api
+        - name: private-api-tls
+          secret:
+            secretName: paperclip-api-tls
+            defaultMode: 0440
+        - name: private-api-tmp
+          emptyDir:
+            sizeLimit: 32Mi
         - name: hermes-connector-config
           configMap:
             name: paperclip-hermes-connector
