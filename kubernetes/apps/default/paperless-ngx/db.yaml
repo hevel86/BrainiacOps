@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: public.ecr.aws/docker/library/postgres:18
+          image: public.ecr.aws/docker/library/postgres:19
           ports:
             - containerPort: 5432
           env:
