@@ -1,6 +1,6 @@
 # Kubernetes Service IP Addresses
 
-Last updated: 2026-11-20 UTC
+Last updated: 2026-11-24 UTC
 MetalLB pool: 10.0.0.150-10.0.0.250
 MetalLB IPs: total=101 used=42 free=59
 
