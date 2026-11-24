@@ -7,7 +7,11 @@ resources:
   - deploy.yaml
   - svc.yaml
   - ingress.yaml
+  - private-api.yaml
 configMapGenerator:
   - name: paperclip-hermes-connector
     files:
       - hermes-connector-nginx.conf
+  - name: paperclip-private-api
+    files:
+      - private-api-nginx.conf
