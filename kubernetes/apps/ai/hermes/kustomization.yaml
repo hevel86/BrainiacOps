@@ -8,6 +8,7 @@ resources:
   - rbac.yaml
   - svc.yaml
   - dashboard-ingress.yaml
+  - dashboard-canonical-ingress.yaml
   - gateway.yaml
   - storage-access.yaml
 configMapGenerator:
