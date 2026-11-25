@@ -21,7 +21,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: nextcloud
-          image: docker.io/library/nextcloud:33.0.11-fpm@sha256:678d02bc7d8a51e0d8157506a710fab7e7b40337b037bd64c4b91dd95a2cf650
+          image: docker.io/library/nextcloud:33.0.11-fpm@sha256:a13a2c5800f23973010d99d7db8639389b22f2ad1bd89b8ac9f2e10d88e874fe
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsUser: 1000
@@ -184,7 +184,7 @@ spec:
             periodSeconds: 20
             failureThreshold: 5
         - name: cron
-          image: docker.io/library/nextcloud:33.0.11-fpm@sha256:678d02bc7d8a51e0d8157506a710fab7e7b40337b037bd64c4b91dd95a2cf650
+          image: docker.io/library/nextcloud:33.0.11-fpm@sha256:a13a2c5800f23973010d99d7db8639389b22f2ad1bd89b8ac9f2e10d88e874fe
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsUser: 1000
@@ -256,7 +256,7 @@ spec:
       enableServiceLinks: false
       initContainers:
         - name: prepare-webroot
-          image: docker.io/library/nextcloud:33.0.11-fpm@sha256:678d02bc7d8a51e0d8157506a710fab7e7b40337b037bd64c4b91dd95a2cf650
+          image: docker.io/library/nextcloud:33.0.11-fpm@sha256:a13a2c5800f23973010d99d7db8639389b22f2ad1bd89b8ac9f2e10d88e874fe
           command:
             - /bin/sh
             - -ec
@@ -283,7 +283,7 @@ spec:
             limits:
               memory: 64Mi
         - name: upgrade-nextcloud
-          image: docker.io/library/nextcloud:33.0.11-fpm@sha256:678d02bc7d8a51e0d8157506a710fab7e7b40337b037bd64c4b91dd95a2cf650
+          image: docker.io/library/nextcloud:33.0.11-fpm@sha256:a13a2c5800f23973010d99d7db8639389b22f2ad1bd89b8ac9f2e10d88e874fe
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsUser: 1000
