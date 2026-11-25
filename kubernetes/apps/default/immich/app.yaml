@@ -45,7 +45,7 @@ spec:
               main:
                 image:
                   # renovate: datasource=docker depName=ghcr.io/immich-app/immich-server versioning=docker
-                  tag: v3.1.0
+                  tag: v3.4.2
                 env:
                   TZ: America/New_York
                   REDIS_HOSTNAME: immich-valkey
@@ -96,7 +96,7 @@ spec:
                 main:
                   image:
                     # renovate: datasource=docker depName=ghcr.io/immich-app/immich-machine-learning versioning=docker
-                    tag: v3.1.0-openvino
+                    tag: v3.4.1-openvino
                   resources:
                     requests:
                       cpu: 500m
