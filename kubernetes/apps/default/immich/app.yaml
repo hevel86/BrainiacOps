@@ -79,6 +79,9 @@ spec:
               strategy: Recreate
               containers:
                 main:
+                  env:
+                    # v3.4.2 metrics exporter returns HTTP 400 with the default IPv6 bind.
+                    IMMICH_HOST: "0.0.0.0"
                   resources:
                     requests:
                       cpu: 500m
