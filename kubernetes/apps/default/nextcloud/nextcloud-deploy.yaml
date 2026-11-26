@@ -117,7 +117,7 @@ spec:
             timeoutSeconds: 5
             failureThreshold: 5
         - name: nginx
-          image: docker.io/library/nginx:1.30.8-alpine@sha256:6437a63b5c529f0e06162b3f593c0154cff6fa2ea0f94fd7c27928cb399e022d
+          image: docker.io/library/nginx:1.30.8-alpine@sha256:8eb04fe3b385090e9aa02961f77398ad09b6bf33ab07f6669a5bb7acce22c0d3
           command:
             - nginx
           args:
