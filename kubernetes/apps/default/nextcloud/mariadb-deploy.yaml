@@ -21,7 +21,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: mariadb
-          image: docker.io/library/mariadb:11.8.9@sha256:e1d5495f445654134f226f55a41ce0da227116f6f27f283101f405c794d841fc
+          image: docker.io/library/mariadb:11.8.10@sha256:73c35e8483b56390cc98f8d6d9840244bd03c929aea7109490641b9389a18088
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3306
