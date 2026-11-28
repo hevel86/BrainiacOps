@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - bitwarden-secrets.yaml
   - homeassistant-bitwarden.yaml
+  - bazarr-bitwarden.yaml
   - deploy.yaml
   - pvc.yaml
   - rbac.yaml
