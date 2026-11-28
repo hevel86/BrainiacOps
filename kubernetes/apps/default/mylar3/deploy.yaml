@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: mylar3
-          image: lscr.io/linuxserver/mylar3:latest@sha256:1964a63fbb7f95e45923e74cf5174e78c8fda92f567f261e51bf8de535418a15
+          image: lscr.io/linuxserver/mylar3:latest@sha256:135ca140b87ee07e3e780b7d8bc9dbba524e51c5433eabdedff3833b6a44aef1
           ports:
             - containerPort: 8090
           env:
