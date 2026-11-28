@@ -178,6 +178,9 @@ spec:
             - name: talos-reader
               mountPath: /var/run/secrets/hermes-talos-reader
               readOnly: true
+            - name: bazarr-api
+              mountPath: /var/run/secrets/hermes-bazarr
+              readOnly: true
           resources:
             requests:
               cpu: 100m
@@ -222,6 +225,11 @@ spec:
               mountPath: /var/run/secrets/kubernetes.io/serviceaccount
               readOnly: true
       volumes:
+        - name: bazarr-api
+          secret:
+            secretName: hermes-bazarr
+            defaultMode: 288
+            optional: true
         - name: gateway-proxy-config
           configMap:
             name: hermes-gateway-proxy
